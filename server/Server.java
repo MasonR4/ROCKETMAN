@@ -1,5 +1,6 @@
 package server;
 
+import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import data.*;
 import ocsf.server.AbstractServer;
@@ -8,6 +9,9 @@ import ocsf.server.ConnectionToClient;
 public class Server extends AbstractServer {
 	
 	private JTextArea serverLog;
+	private JLabel serverStatus;
+	
+	private String serverName;
 	
 	private int connectedClients = 0;
 	
@@ -16,13 +20,13 @@ public class Server extends AbstractServer {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void setLog(JTextArea log) {
-		serverLog = log;
-	}
-	
 	public void clientConnected(ConnectionToClient client) {
 		// TODO not really sure what to send back tbh maybe just connection successful
 		connectedClients += 1;
+	}
+	
+	public void setName(String name) {
+		serverName = name;
 	}
 	
 	public void serverStarted() {
