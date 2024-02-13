@@ -1,10 +1,10 @@
 package data;
 
-public class LoginData {
+public class CreateAccountData {
 	private String username;
 	private char[] password;
 	
-	public LoginData(String usr, char[] pwd) {
+	public CreateAccountData(String usr, char[] pwd) {
 		username = usr;
 		password = pwd;
 	}
@@ -19,5 +19,5 @@ public class LoginData {
 			pwd += c;
 		}
 		return pwd;
-	}	
+	}
 }

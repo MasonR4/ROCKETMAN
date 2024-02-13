@@ -7,6 +7,8 @@ public class Client extends AbstractClient {
 	private String username;
 	private int userID;
 	
+	private boolean isHost = false;
+	
 	public Client() {
 		super("localhost", 8300);
 		// TODO Auto-generated constructor stub

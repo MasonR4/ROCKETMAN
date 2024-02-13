@@ -16,26 +16,26 @@ public class ServerUI extends JFrame {
 	// some text labels
 	private JTextArea log;
 	private JLabel logLabel;
-	
-	// panels
-	private JPanel lobbyScreen;
-	private JPanel gameScreen;
-	
-	private JPanel containerPanel;
-	
 	private JPanel logPanel;
 	private JScrollPane logScrollPanel;
 	
-	private JPanel playersPanel;
+	// panels
+	private JPanel gamesScreen;
+	private JPanel containerPanel;
+	private JPanel serverInfoPanel;
+	
+	
+	private JTextArea connectedClients;
+	private JScrollPane clientsPanel;
 	
 	// stuff
 	
 	private CardLayout cl = new CardLayout();
 	private FlowLayout fl = new FlowLayout();
 	
-	private String DEFAULT_MENU = "LOBBY";
-	private Dimension DEFAULT_SIZE = new Dimension(900, 900);
-	private Dimension WINDOW_SIZE = new Dimension(1100, 900);
+	private static final String DEFAULT_MENU = "LOBBY";
+	private static final Dimension DEFAULT_SIZE = new Dimension(900, 900);
+	private static final Dimension WINDOW_SIZE = new Dimension(1100, 900);
 	
 	
 	public ServerUI() {
@@ -46,21 +46,15 @@ public class ServerUI extends JFrame {
 		setLayout(fl);
 		setLocationRelativeTo(null);
 		
-		lobbyScreen = new JPanel();
-		lobbyScreen.setPreferredSize(DEFAULT_SIZE);
-		lobbyScreen.setBorder(new LineBorder(Color.BLACK, 1));
-		lobbyScreen.setBackground(Color.BLUE);
-		
-		gameScreen = new JPanel();
-		gameScreen.setPreferredSize(DEFAULT_SIZE);
-		gameScreen.setBorder(new LineBorder(Color.BLACK, 1));
-		gameScreen.setBackground(Color.CYAN);
+		gamesScreen = new JPanel();
+		gamesScreen.setPreferredSize(DEFAULT_SIZE);
+		gamesScreen.setBorder(new LineBorder(Color.BLACK, 1));
+		gamesScreen.setBackground(Color.BLUE);
 		
 		containerPanel = new JPanel(cl);
 		containerPanel.setPreferredSize(DEFAULT_SIZE);
 		
-		containerPanel.add(lobbyScreen, "LOBBY");
-		containerPanel.add(gameScreen, "GAME");
+		containerPanel.add(gamesScreen, "GAMES");
 		
 		log = new JTextArea(30, 50);
 		logScrollPanel = new JScrollPane(log);
@@ -71,13 +65,21 @@ public class ServerUI extends JFrame {
 		logLabel = new JLabel("Server Console");
 		logPanel.add(logLabel, BorderLayout.NORTH);
 		
-		playersPanel = new JPanel();
-		playersPanel.setLayout(new BoxLayout(playersPanel, BoxLayout.PAGE_AXIS));
-		playersPanel.setPreferredSize(new Dimension(200, 400));
-		playersPanel.setBorder(new LineBorder(Color.BLACK, 1));
-		playersPanel.setBackground(Color.RED);
+		serverInfoPanel = new JPanel();
+		serverInfoPanel.setPreferredSize(new Dimension(200, 30));
+		serverInfoPanel.setBackground(Color.MAGENTA);
 		
-		logPanel.add(playersPanel, BorderLayout.SOUTH);
+		logPanel.add(serverInfoPanel, BorderLayout.CENTER);
+		
+		connectedClients = new JTextArea(20, 10);
+		connectedClients.setEditable(false);
+		
+		clientsPanel = new JScrollPane(connectedClients);
+		clientsPanel.setPreferredSize(new Dimension(200, 300));
+		clientsPanel.setBorder(new LineBorder(Color.BLACK, 1));
+		clientsPanel.setBackground(Color.RED);
+		
+		logPanel.add(clientsPanel, BorderLayout.SOUTH);
 		
 		cl.show(containerPanel, DEFAULT_MENU);
 		
@@ -85,8 +87,17 @@ public class ServerUI extends JFrame {
 		add(logPanel);
 		pack();
 		setVisible(true);
+		
+		// PASS SERVER INTERACTABLE ELEMENTS BELOW
+		server = new Server();
+		
+		server.setLog(log);
+		
 	}
 	
+	public void playerJoined() {
+		
+	}
 	
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
