@@ -146,6 +146,11 @@ public class ServerMenuScreen extends JPanel {
 		statusUpdate.setForeground(c);
 	}
 	
+	public void setDefaultInfo(String name, String port) {
+		serverName.setText(name);
+		serverPort.setText(port);
+	}
+	
 	public String[] getCommand() {
 		return commandField.getText().split(" ");
 	}
@@ -159,11 +164,9 @@ public class ServerMenuScreen extends JPanel {
 	}
 	
 	public void setController(ActionListener ac) {
-		for (Component c : this.getComponents()) {
-			if (c instanceof JButton) {
-				((JButton) c).addActionListener(ac);
-			}
-		}
+		startButton.addActionListener(ac);
+		stopButton.addActionListener(ac);
+		submitCommandButton.addActionListener(ac);
 	}
 	
 }

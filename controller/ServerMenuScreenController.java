@@ -1,7 +1,13 @@
 package controller;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+
 import game.ServerUI;
 import menu_panels.ServerMenuScreen;
 import server.Server;
@@ -13,10 +19,16 @@ public class ServerMenuScreenController implements ActionListener {
 	
 	private ServerMenuScreen screen;
 	
+	private JTextArea log;
+	private JLabel status;
+	
 	public ServerMenuScreenController(Server s, ServerMenuScreen p, ServerUI ui) {
 		server = s;
 		screen = p;
 		serverUI = ui;
+		
+		log = screen.getServerLog();
+		status = screen.getServerStatusLabel();
 	}
 	
 	
@@ -33,6 +45,24 @@ public class ServerMenuScreenController implements ActionListener {
 			
 			server.setPort(port);
 			server.setName(name);
+			
+			try {
+				if (!server.isListening()) {
+					server.listen();
+					
+					serverUI.updateConfigData("server_name", name);
+					serverUI.updateConfigData("default_port", Integer.toString(port));
+					
+					log.append("Server '" + name + "' started on port '" + port + "'\n");
+					status.setText("RUNNING");
+					status.setForeground(Color.GREEN);
+				} else {
+					log.append("Server already started.\n");
+				}
+				
+			} catch (IOException oops) {
+				server.listeningException(oops);
+			}
 			
 			break;
 			

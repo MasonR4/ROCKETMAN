@@ -46,11 +46,8 @@ public class ClientUI extends JFrame {
 	// layout
 	private JPanel containerPanel;
 	
-	// DEFAULT SIZE FOR ALL PANELS
 	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
-	// CARD LAYOUT USED BY CLIENTUI AND TO SWITCH PANELS
 	private static final CardLayout CL = new CardLayout();
-	// DEFAULT MENU DISPLAYED WHEN LAUNCHING GAME
 	private static final String DEFAULT_MENU = "SERVER_CONNECTION";
 	
 	public ClientUI() {

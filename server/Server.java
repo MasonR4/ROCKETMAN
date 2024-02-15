@@ -30,7 +30,7 @@ public class Server extends AbstractServer {
 	}
 	
 	public void serverStarted() {
-		serverLog.append("Server Started on Port: " + this.getPort());
+		//serverLog.append("Server Started on Port: " + this.getPort());
 	}
 	
 	public void listeningException(Throwable exception) {
