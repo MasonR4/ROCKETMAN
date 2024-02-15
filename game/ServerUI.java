@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
 import java.util.Map.Entry;
-
 import javax.swing.*;
-import javax.swing.border.LineBorder;
-
 import controller.ServerMenuScreenController;
 import menu_panels.ServerMenuScreen;
 import server.Server;
@@ -33,18 +30,12 @@ public class ServerUI extends JFrame {
 	private ServerMenuScreenController controller;
 	
 	// stuff
-	
-	private CardLayout cl = new CardLayout();
-	private FlowLayout fl = new FlowLayout();
-	
-	private static final String DEFAULT_MENU = "LOBBY";
-	private static final Dimension DEFAULT_SIZE = new Dimension(900, 900);
 	private static final Dimension WINDOW_SIZE = new Dimension(1100, 900);
 	
 	
 	public ServerUI() {
 		setTitle("ROCKETMAN - SERVER");
-		setSize(1100, 900);
+		setSize(WINDOW_SIZE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
 		setLocationRelativeTo(null);
@@ -123,8 +114,6 @@ public class ServerUI extends JFrame {
 		}
 		System.exit(0);
 	}
-		
-	
 	
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
