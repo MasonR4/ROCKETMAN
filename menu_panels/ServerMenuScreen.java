@@ -31,15 +31,18 @@ public class ServerMenuScreen extends JPanel {
 	private JTextField commandField;
 	private JTextField serverName;
 	private JTextField serverPort;
+	private JTextField timeoutField;
 	
 	private JLabel statusLabel;
 	private JLabel statusUpdate;
 	private JLabel serverNameLabel;
 	private JLabel serverPortLabel;
+	private JLabel serverTimeoutLabel;
 	
 	private JButton submitCommandButton;
 	private JButton startButton;
 	private JButton stopButton;
+	private JButton quitButton;
 	
 	private static final TextFieldFilters TEXT_FILTERS = new TextFieldFilters();
 	
@@ -58,8 +61,6 @@ public class ServerMenuScreen extends JPanel {
         commandField = new JTextField(20);
         commandField.setBounds(10, 20, 950, 20);
         
-        
-        
         submitCommandButton = new JButton("Submit");
         submitCommandButton.setBounds(975, 20, 100, 20);
         
@@ -67,12 +68,10 @@ public class ServerMenuScreen extends JPanel {
         commandPanel.add(submitCommandButton);
         
         add(commandPanel, BorderLayout.SOUTH);
-        
 
         controlPanel = new JPanel();
         controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
         controlPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); 
-
  
         serverLog = new JTextArea(5, 30);
         serverLog.setEditable(false); 
@@ -93,24 +92,32 @@ public class ServerMenuScreen extends JPanel {
         serverPortLabel = new JLabel("Server Port: ");
         serverPortLabel.setBounds(10, 45, 90, 20);
         
-        serverPort = new JTextField();
+        serverPort = new JTextField(6);
         ((AbstractDocument) serverPort.getDocument()).setDocumentFilter(TEXT_FILTERS.getNumeralOnlyFilter());
         serverPort.setBounds(100, 45, 50, 20);
         
+        timeoutField = new JTextField(5);
+        ((AbstractDocument) timeoutField.getDocument()).setDocumentFilter(TEXT_FILTERS.getNumeralOnlyFilter());
+        timeoutField.setBounds(100, 70, 50, 20);
         
+        serverTimeoutLabel = new JLabel("Timeout: ");
+        serverTimeoutLabel.setBounds(10, 70, 200, 20);
         
         statusLabel = new JLabel("Status: ");
-        statusLabel.setBounds(10, 80, 90, 20);
+        statusLabel.setBounds(10, 100, 90, 20);
         
         statusUpdate = new JLabel("NOT RUNNING");
         statusUpdate.setForeground(Color.RED);
-        statusUpdate.setBounds(55, 80, 100, 20);
+        statusUpdate.setBounds(55, 100, 100, 20);
 
         startButton = new JButton("Start");
-        startButton.setBounds(10, 115, 100, 30);
+        startButton.setBounds(10, 135, 100, 30);
         
         stopButton = new JButton("Stop");
-        stopButton.setBounds(120, 115, 100, 30);
+        stopButton.setBounds(120, 135, 100, 30);
+        
+        quitButton = new JButton("Quit");
+        quitButton.setBounds(230, 135, 100, 30);
         
         detailsPanel.add(serverNameLabel);
         detailsPanel.add(serverPortLabel);
@@ -121,11 +128,14 @@ public class ServerMenuScreen extends JPanel {
 
         detailsPanel.add(startButton);
         detailsPanel.add(stopButton);
+        detailsPanel.add(quitButton);
         
         detailsPanel.add(statusLabel);
         detailsPanel.add(statusUpdate);
 
-     
+        detailsPanel.add(timeoutField);
+        detailsPanel.add(serverTimeoutLabel);
+        
         controlPanel.add(logPanel);
         controlPanel.add(detailsPanel);
 
@@ -146,9 +156,10 @@ public class ServerMenuScreen extends JPanel {
 		statusUpdate.setForeground(c);
 	}
 	
-	public void setDefaultInfo(String name, String port) {
+	public void setDefaultInfo(String name, String port, String timeout) {
 		serverName.setText(name);
 		serverPort.setText(port);
+		timeoutField.setText(timeout);
 	}
 	
 	public String[] getCommand() {
@@ -163,10 +174,25 @@ public class ServerMenuScreen extends JPanel {
 		return Integer.parseInt(serverPort.getText());
 	}
 	
+	public int getTimeout() {
+		return Integer.parseInt(timeoutField.getText());
+	}
+	
+	public void enableQuitButton(boolean toggle) {
+		if (toggle == true) {
+			quitButton.setToolTipText("Quit Server Interface");
+			quitButton.setEnabled(toggle);
+		} else {
+			quitButton.setToolTipText("Server must be stopped before quitting");
+			quitButton.setEnabled(toggle);
+		}
+	}
+	
 	public void setController(ActionListener ac) {
 		startButton.addActionListener(ac);
 		stopButton.addActionListener(ac);
 		submitCommandButton.addActionListener(ac);
+		quitButton.addActionListener(ac);
 	}
 	
 }

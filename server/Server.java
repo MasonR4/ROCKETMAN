@@ -1,5 +1,7 @@
 package server;
 
+import java.awt.Color;
+
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import data.*;
@@ -30,7 +32,23 @@ public class Server extends AbstractServer {
 	}
 	
 	public void serverStarted() {
-		//serverLog.append("Server Started on Port: " + this.getPort());
+		serverLog.append("Server '" + serverName + "' started on port '" + this.getPort() + "'\n");
+		serverStatus.setText("RUNNING");
+		serverStatus.setForeground(Color.GREEN);
+	}
+	
+	public void serverStopped() {
+		serverLog.append("Server Stopped");
+		serverStatus.setText("STOPPED");
+		serverStatus.setForeground(Color.RED);
+	}
+	
+	public void setLog(JTextArea log) {
+		serverLog = log;
+	}
+	
+	public void setStatusLabel(JLabel label) {
+		serverStatus = label;
 	}
 	
 	public void listeningException(Throwable exception) {

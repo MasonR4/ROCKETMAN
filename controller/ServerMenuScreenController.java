@@ -29,9 +29,7 @@ public class ServerMenuScreenController implements ActionListener {
 		
 		log = screen.getServerLog();
 		status = screen.getServerStatusLabel();
-	}
-	
-	
+	}	
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -42,9 +40,11 @@ public class ServerMenuScreenController implements ActionListener {
 			// TODO start server and get info from fields
 			String name = screen.getServerName();
 			int port = screen.getPort();
+			int timeout = screen.getTimeout();
 			
 			server.setPort(port);
 			server.setName(name);
+			server.setTimeout(timeout);
 			
 			try {
 				if (!server.isListening()) {
@@ -52,10 +52,13 @@ public class ServerMenuScreenController implements ActionListener {
 					
 					serverUI.updateConfigData("server_name", name);
 					serverUI.updateConfigData("default_port", Integer.toString(port));
+					serverUI.updateConfigData("default_timeout", Integer.toString(timeout));
 					
-					log.append("Server '" + name + "' started on port '" + port + "'\n");
-					status.setText("RUNNING");
-					status.setForeground(Color.GREEN);
+					screen.enableQuitButton(false);
+					
+					//log.append("Server '" + name + "' started on port '" + port + "'\n");
+					//status.setText("RUNNING");
+					//status.setForeground(Color.GREEN);
 				} else {
 					log.append("Server already started.\n");
 				}
@@ -68,6 +71,21 @@ public class ServerMenuScreenController implements ActionListener {
 			
 		case "Stop":
 			// TODO stop server
+		
+			try {
+				server.close();
+				screen.enableQuitButton(true);
+				//log.append("Server Stopped");
+			} catch (IOException bruh) {
+				
+			}
+			
+			break;
+			
+		case "Quit":
+			
+			serverUI.closingProcedure();
+			System.exit(0);
 			
 			break;
 			

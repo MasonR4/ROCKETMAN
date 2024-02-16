@@ -81,8 +81,10 @@ public class ServerUI extends JFrame {
 			}
      	});
      	
-        mainPanel.setDefaultInfo(configData.get("server_name"), configData.get("default_port"));
-		add(mainPanel);
+     	mainPanel.setDefaultInfo(configData.get("server_name"), configData.get("default_port"), configData.get("default_timeout"));
+		server.setLog(mainPanel.getServerLog());
+		server.setStatusLabel(mainPanel.getServerStatusLabel());
+     	add(mainPanel);
 		setVisible(true);
 		
 		
