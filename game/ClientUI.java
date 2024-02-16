@@ -147,7 +147,7 @@ public class ClientUI extends JFrame {
 	}
 	
 	public void closingProcedure() {
-		// TODO write any updates to config file and save player data in DB
+		// TODO save player data in DB (maybe happens serverside instead?)
 		
 		try {
 			client.closeConnection();

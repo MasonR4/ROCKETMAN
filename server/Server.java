@@ -75,8 +75,10 @@ public class Server extends AbstractServer {
 			
 		} else if (arg0 instanceof CreateAccountData) {
 			// TODO create account here
+			
 		} else if (arg0 instanceof PlayerData) {
-			// TODO load player data server side, this may be redundant with clientConnected();
+			// TODO load player data server side
+			
 		}
 		
 	}
