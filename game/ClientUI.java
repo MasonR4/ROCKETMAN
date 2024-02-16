@@ -148,6 +148,13 @@ public class ClientUI extends JFrame {
 	
 	public void closingProcedure() {
 		// TODO write any updates to config file and save player data in DB
+		
+		try {
+			client.closeConnection();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		try {
 			FileWriter writer = new FileWriter(config, false);
 			
@@ -160,7 +167,6 @@ public class ClientUI extends JFrame {
 		} catch (IOException wompwomp) {
 			wompwomp.printStackTrace();
 		}
-		System.out.println("later loser");
 		System.exit(0);
 	}
 	

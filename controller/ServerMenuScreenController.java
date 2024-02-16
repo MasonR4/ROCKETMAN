@@ -1,6 +1,5 @@
 package controller;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -64,7 +63,7 @@ public class ServerMenuScreenController implements ActionListener {
 				}
 				
 			} catch (IOException oops) {
-				server.listeningException(oops);
+				// oops
 			}
 			
 			break;
@@ -102,10 +101,19 @@ public class ServerMenuScreenController implements ActionListener {
 			case "/stop":
 				// TODO STOP THE SERVER NO WAY
 				break;
+			
+			case "/listconnections":
+				for (Thread c : server.getClientConnections()) {
+					log.append(c.getName() + "\n");
+				}
+				break;
 				
 			case "/quit":
 				System.exit(0);
 				break;
+				
+			default:
+				log.append("Command not recognized.\n");
 			}
 			break;
 		}

@@ -20,16 +20,16 @@ public class Client extends AbstractClient {
 		
 	}
 	
-	private void updateUser(String usr, int id) {
+	public void updateUser(String usr, int id) {
 		username = usr;
 		userID = id;
 	}
 
-	private String getUserName() {
+	public String getUserName() {
 		return username;
 	}
 	
-	private int getUserID() {
-		return userID;
+	protected void connectionClosed() {
+		System.out.println("connection terminated");
 	}
  }

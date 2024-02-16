@@ -1,5 +1,5 @@
 default_server: 127.0.0.1
 default_port: 8300
-last_user: yourmom
+last_user: test
 last_password: 
 save_login: false

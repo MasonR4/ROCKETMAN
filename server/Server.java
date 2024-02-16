@@ -15,32 +15,9 @@ public class Server extends AbstractServer {
 	
 	private String serverName;
 	
-	private int connectedClients = 0;
-	
 	public Server() {
 		super(8300);
 		// TODO Auto-generated constructor stub
-	}
-	
-	public void clientConnected(ConnectionToClient client) {
-		// TODO not really sure what to send back tbh maybe just connection successful
-		connectedClients += 1;
-	}
-	
-	public void setName(String name) {
-		serverName = name;
-	}
-	
-	public void serverStarted() {
-		serverLog.append("Server '" + serverName + "' started on port '" + this.getPort() + "'\n");
-		serverStatus.setText("RUNNING");
-		serverStatus.setForeground(Color.GREEN);
-	}
-	
-	public void serverStopped() {
-		serverLog.append("Server Stopped");
-		serverStatus.setText("STOPPED");
-		serverStatus.setForeground(Color.RED);
 	}
 	
 	public void setLog(JTextArea log) {
@@ -49,6 +26,38 @@ public class Server extends AbstractServer {
 	
 	public void setStatusLabel(JLabel label) {
 		serverStatus = label;
+	}
+	
+	protected void clientConnected(ConnectionToClient client) {
+		// TODO not really sure what to send back tbh maybe just connection successful
+		serverLog.append("Client " + client.getId() + " connected\n");
+	}
+	
+	protected void clientDisconnected(ConnectionToClient client) {
+		// idk if im stupid but this method never seems to get called?
+		// even if i have client.closeConnection() in the other end
+		// pretty inconvenient
+		serverLog.append("Client " + client.getId() + " disconnected\n");
+	}
+	
+	protected void clientException(ConnectionToClient client) {
+		
+	}
+	
+	public void setName(String name) {
+		serverName = name;
+	}
+	
+	protected void serverStarted() {
+		serverLog.append("Server '" + serverName + "' started on port '" + this.getPort() + "'\n");
+		serverStatus.setText("RUNNING");
+		serverStatus.setForeground(Color.GREEN);
+	}
+	
+	protected void serverStopped() {
+		serverLog.append("Server Stopped\n");
+		serverStatus.setText("STOPPED");
+		serverStatus.setForeground(Color.RED);
 	}
 	
 	public void listeningException(Throwable exception) {
