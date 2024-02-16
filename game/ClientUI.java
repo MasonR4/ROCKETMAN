@@ -46,11 +46,8 @@ public class ClientUI extends JFrame {
 	// layout
 	private JPanel containerPanel;
 	
-	// DEFAULT SIZE FOR ALL PANELS
 	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
-	// CARD LAYOUT USED BY CLIENTUI AND TO SWITCH PANELS
 	private static final CardLayout CL = new CardLayout();
-	// DEFAULT MENU DISPLAYED WHEN LAUNCHING GAME
 	private static final String DEFAULT_MENU = "SERVER_CONNECTION";
 	
 	public ClientUI() {
@@ -150,7 +147,14 @@ public class ClientUI extends JFrame {
 	}
 	
 	public void closingProcedure() {
-		// TODO write any updates to config file and save player data in DB
+		// TODO save player data in DB (maybe happens serverside instead?)
+		
+		try {
+			client.closeConnection();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		try {
 			FileWriter writer = new FileWriter(config, false);
 			
@@ -163,7 +167,6 @@ public class ClientUI extends JFrame {
 		} catch (IOException wompwomp) {
 			wompwomp.printStackTrace();
 		}
-		System.out.println("later loser");
 		System.exit(0);
 	}
 	

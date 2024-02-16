@@ -1,9 +1,18 @@
 package game;
 
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Scanner;
+import java.util.Map.Entry;
 import javax.swing.*;
-import javax.swing.border.LineBorder;
-
+import controller.ServerMenuScreenController;
+import menu_panels.ServerMenuScreen;
 import server.Server;
 import server.Database;
 
@@ -13,29 +22,15 @@ public class ServerUI extends JFrame {
 	private Database database;
 	private Server server;
 	
-	// some text labels
-	private JTextArea log;
-	private JLabel logLabel;
+	private File config;
+	private LinkedHashMap<String, String> configData = new LinkedHashMap<String, String>();
+	private Scanner scanner;
 	
-	// panels
-	private JPanel lobbyScreen;
-	private JPanel gameScreen;
-	
-	private JPanel containerPanel;
-	
-	private JPanel logPanel;
-	private JScrollPane logScrollPanel;
-	
-	private JPanel playersPanel;
+	private ServerMenuScreen mainPanel;
+	private ServerMenuScreenController controller;
 	
 	// stuff
-	
-	private CardLayout cl = new CardLayout();
-	private FlowLayout fl = new FlowLayout();
-	
-	private String DEFAULT_MENU = "LOBBY";
-	private Dimension DEFAULT_SIZE = new Dimension(900, 900);
-	private Dimension WINDOW_SIZE = new Dimension(1100, 900);
+	private static final Dimension WINDOW_SIZE = new Dimension(1100, 900);
 	
 	
 	public ServerUI() {
@@ -43,50 +38,84 @@ public class ServerUI extends JFrame {
 		setSize(WINDOW_SIZE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
-		setLayout(fl);
 		setLocationRelativeTo(null);
 		
-		lobbyScreen = new JPanel();
-		lobbyScreen.setPreferredSize(DEFAULT_SIZE);
-		lobbyScreen.setBorder(new LineBorder(Color.BLACK, 1));
-		lobbyScreen.setBackground(Color.BLUE);
+		server = new Server();
+		mainPanel = new ServerMenuScreen();
 		
-		gameScreen = new JPanel();
-		gameScreen.setPreferredSize(DEFAULT_SIZE);
-		gameScreen.setBorder(new LineBorder(Color.BLACK, 1));
-		gameScreen.setBackground(Color.CYAN);
+		controller = new ServerMenuScreenController(server, mainPanel, this);
 		
-		containerPanel = new JPanel(cl);
-		containerPanel.setPreferredSize(DEFAULT_SIZE);
+        
+        mainPanel.setController(controller);
 		
-		containerPanel.add(lobbyScreen, "LOBBY");
-		containerPanel.add(gameScreen, "GAME");
-		
-		log = new JTextArea(30, 50);
-		logScrollPanel = new JScrollPane(log);
-		
-		logPanel = new JPanel(new BorderLayout());
-		logPanel.add(logScrollPanel, BorderLayout.CENTER);
-		
-		logLabel = new JLabel("Server Console");
-		logPanel.add(logLabel, BorderLayout.NORTH);
-		
-		playersPanel = new JPanel();
-		playersPanel.setLayout(new BoxLayout(playersPanel, BoxLayout.PAGE_AXIS));
-		playersPanel.setPreferredSize(new Dimension(200, 400));
-		playersPanel.setBorder(new LineBorder(Color.BLACK, 1));
-		playersPanel.setBackground(Color.RED);
-		
-		logPanel.add(playersPanel, BorderLayout.SOUTH);
-		
-		cl.show(containerPanel, DEFAULT_MENU);
-		
-		add(containerPanel);
-		add(logPanel);
-		pack();
+        // READ CONFIG
+     	config = new File("server_config.txt");
+     	try {
+     		scanner = new Scanner(config);
+     		
+     		while (scanner.hasNextLine()) {
+     			String[] input = scanner.nextLine().split("\\: ");
+     			if (input.length > 1) {
+     				configData.put(input[0], input[1]);
+     			} else {
+     				configData.put(input[0], "");
+     			}
+     		}
+     		
+     		scanner.close();
+     		
+     	} catch (FileNotFoundException e) {
+     		System.out.println("Could not read config.");
+     		System.out.println("falling back to defaults");
+     		
+     		configData.put("server_name", "ROCKETMAN-SERVER");
+     		configData.put("default_port", "8300");
+     		configData.put("default_timeout", "5000");
+
+     	}
+     	
+     	this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				closingProcedure();
+			}
+     	});
+     	
+     	mainPanel.setDefaultInfo(configData.get("server_name"), configData.get("default_port"), configData.get("default_timeout"));
+		server.setLog(mainPanel.getServerLog());
+		server.setStatusLabel(mainPanel.getServerStatusLabel());
+     	add(mainPanel);
 		setVisible(true);
+		
+		
 	}
 	
+	public void updateConfigData(String key, String value) {
+		configData.put(key, value);
+	}
+	
+	public void playerJoined() {
+		// TODO graphical representation of the player in the lobby
+	}
+	
+	public void closingProcedure() {
+		// TODO write some stuff to config and save player data in database
+		// this one might be ugly if there are multiple games running at once
+		
+		try {
+			FileWriter writer = new FileWriter(config, false);
+			
+			for(Entry<String, String> entry : configData.entrySet()) {
+				writer.write(entry.getKey() + ": " + entry.getValue());
+				writer.write("\n");
+			} 
+			
+			writer.close();
+		} catch (IOException wompwomp) {
+			wompwomp.printStackTrace();
+		}
+		System.exit(0);
+	}
 	
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
