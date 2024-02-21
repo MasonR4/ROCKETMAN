@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
@@ -49,7 +50,7 @@ public class ServerMenuScreen extends JPanel {
 	public ServerMenuScreen() {
 		setLayout(new BorderLayout());
 		
-		gameScreen = new JPanel();
+		gameScreen = new JPanel(new FlowLayout());
         gameScreen.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         add(gameScreen, BorderLayout.CENTER);
         
