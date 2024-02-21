@@ -1,6 +1,8 @@
 package data;
 
-public class LoginData {
+import java.io.Serializable;
+
+public class LoginData implements Serializable {
 	private String username;
 	private char[] password;
 	

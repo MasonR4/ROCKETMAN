@@ -31,7 +31,7 @@ public class ServerUI extends JFrame {
 	
 	// stuff
 	private static final Dimension WINDOW_SIZE = new Dimension(1100, 900);
-	
+	private static final long serialVersionUID = 1L;
 	
 	public ServerUI() {
 		setTitle("ROCKETMAN - SERVER");
@@ -42,10 +42,7 @@ public class ServerUI extends JFrame {
 		
 		server = new Server();
 		mainPanel = new ServerMenuScreen();
-		
 		controller = new ServerMenuScreenController(server, mainPanel, this);
-		
-        
         mainPanel.setController(controller);
 		
         // READ CONFIG

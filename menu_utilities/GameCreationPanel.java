@@ -79,7 +79,7 @@ public class GameCreationPanel extends JPanel {
 	public String getMaxPlayers() {
 		return maxPlayers.getText();
 	}
-
+	
 	public void setError(String msg) {
 		errorLabel.setText(msg);
 		errorLabel.setForeground(Color.RED);

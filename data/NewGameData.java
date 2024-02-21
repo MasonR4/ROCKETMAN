@@ -1,8 +1,10 @@
 package data;
 
+import java.io.Serializable;
+
 import server.Client;
 
-public class NewGameData {
+public class NewGameData implements Serializable {
 	private String name;
 	private int maxPlayers;
 	
@@ -12,13 +14,10 @@ public class NewGameData {
 	public NewGameData(String n, int mp) {
 		name = n;
 		maxPlayers = mp;	
-	}
-	
-	public void setClient(Client c) {
-		host = c;
+		//host = c;
 		//hostUsername = host.getUserName();
 	}
-	
+
 	public String getName() {
 		return name;
 	}

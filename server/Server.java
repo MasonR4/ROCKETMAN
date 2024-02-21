@@ -1,12 +1,15 @@
 package server;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import data.*;
 import ocsf.server.AbstractServer;
 import ocsf.server.ConnectionToClient;
+import server_utilities.GameLobby;
 
 public class Server extends AbstractServer {
 	
@@ -15,9 +18,10 @@ public class Server extends AbstractServer {
 	
 	private String serverName;
 	
+	private ArrayList<GameLobby> games = new ArrayList<GameLobby>();
+	
 	public Server() {
 		super(8300);
-		// TODO Auto-generated constructor stub
 	}
 	
 	public void setLog(JTextArea log) {
@@ -79,8 +83,28 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof PlayerData) {
 			// TODO load player data server side
 			
+		} else if (arg0 instanceof NewGameData) {
+			NewGameData info = (NewGameData) arg0;
+			GameLobby newGame = new GameLobby(info.getName(), info.getMaxPlayers());
+			games.add(newGame);
+			serverLog.append("New Game Created: " + info.getName() + ", Max Players: " + info.getMaxPlayers() + ", Created By Client: " + arg1.getId());
+		} else if (arg0 instanceof GenericRequest) {
+			String action = ((GenericRequest) arg0).getMsg();
+			// lol PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
+			switch (action) {
+			case "REQUEST_GAMES_INFO":
+				serverLog.append("Client " + arg1.getId() + " requested games info");
+				GenericRequest temp = new GenericRequest("GAMES_INFO");
+				temp.setData(games.clone());
+				try {
+					arg1.sendToClient(temp);
+				} catch (IOException CLIENT_IS_MAYBE_DEAD) {
+					CLIENT_IS_MAYBE_DEAD.printStackTrace();
+					serverLog.append("Could not send game info to client");
+				}
+				break;
+				
+			}
 		}
-		
 	}
-
 }

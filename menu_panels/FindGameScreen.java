@@ -10,7 +10,6 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.BevelBorder;
-import controller.GameCreationController;
 import menu_utilities.*;
 
 public class FindGameScreen extends JLayeredPane {
@@ -27,7 +26,6 @@ public class FindGameScreen extends JLayeredPane {
 	private JScrollPane gameScrollPane;
 	
 	private GameCreationPanel newGamePanel;
-	private GameCreationController newGameController;
 	
 	private static final long serialVersionUID = 1L;
 	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
@@ -57,7 +55,6 @@ public class FindGameScreen extends JLayeredPane {
 		
 		newGamePanel = new GameCreationPanel();
 		newGamePanel.setVisible(false);
-		newGamePanel.setController(newGameController);
 		newGamePanel.setBounds(400, 125, 800, 600);
 		
 		newGameButton = new EightBitButton("New Game");
@@ -82,6 +79,10 @@ public class FindGameScreen extends JLayeredPane {
 		newGamePanel.setVisible(true);
 	}
 	
+	public GameCreationPanel getGameCreationPanel() {
+		return newGamePanel;
+	}
+	
 	public void setController(ActionListener ac) {
 		controller = ac;
 		for (Component c : this.getComponents()) {
@@ -89,5 +90,6 @@ public class FindGameScreen extends JLayeredPane {
 				((EightBitButton) c).addActionListener(controller);
 			}
 		}
+		newGamePanel.setController(ac);
 	}
 }

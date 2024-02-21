@@ -1,6 +1,8 @@
 package data;
 
-public class CreateAccountData {
+import java.io.Serializable;
+
+public class CreateAccountData implements Serializable {
 	private String username;
 	private char[] password;
 	
