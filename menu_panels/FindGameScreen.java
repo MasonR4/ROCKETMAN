@@ -1,9 +1,7 @@
 package menu_panels;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
@@ -14,7 +12,6 @@ import javax.swing.JScrollPane;
 import javax.swing.border.BevelBorder;
 import controller.GameCreationController;
 import menu_utilities.*;
-
 
 public class FindGameScreen extends JLayeredPane {
 	
@@ -52,29 +49,15 @@ public class FindGameScreen extends JLayeredPane {
 		
 		gamesPanel = new JPanel();
 		gamesPanel.setLayout(new BoxLayout(gamesPanel, BoxLayout.PAGE_AXIS));
-		
-		gamesPanel.setBounds(90, 75, 1400, 700);
-		//gamesPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		
-		gamesPanel.add(new GameListingPanel());
-		gamesPanel.add(new GameListingPanel());
-		gamesPanel.add(new GameListingPanel());
-		gamesPanel.add(new GameListingPanel());
-		gamesPanel.add(new GameListingPanel());
-		gamesPanel.add(new GameListingPanel());
-		gamesPanel.add(new GameListingPanel());
-		gamesPanel.add(new GameListingPanel());
-		gamesPanel.add(new GameListingPanel());
-		gamesPanel.add(new GameListingPanel());
-		gamesPanel.add(new GameListingPanel());
-		gamesPanel.add(new GameListingPanel());
-		
+		gamesPanel.setBounds(90, 75, 1400, 700);		
 		
 		gameScrollPane = new JScrollPane(gamesPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		gameScrollPane.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		gameScrollPane.setBounds(90, 75, 1400, 700);
 		
-		newGamePanel = new GameCreationPanel(newGameController);
+		newGamePanel = new GameCreationPanel();
+		newGamePanel.setVisible(false);
+		newGamePanel.setController(newGameController);
 		newGamePanel.setBounds(400, 125, 800, 600);
 		
 		newGameButton = new EightBitButton("New Game");
@@ -93,6 +76,10 @@ public class FindGameScreen extends JLayeredPane {
 		add(newGameButton, 1);
 		add(joinGameButton, 1);
 		add(backButton, 1);
+	}
+	
+	public void showGameCreationPanel() {
+		newGamePanel.setVisible(true);
 	}
 	
 	public void setController(ActionListener ac) {

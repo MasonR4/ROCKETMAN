@@ -44,6 +44,7 @@ public class ClientUI extends JFrame {
 	private CreateAccountScreen createAccountScreen;
 	private MainMenuScreen mainMenuScreen;
 	private FindGameScreen findGameScreen;
+	private LobbyScreen lobbyScreen;
 	
 	// layout
 	private JPanel containerPanel;
@@ -102,6 +103,7 @@ public class ClientUI extends JFrame {
 		createAccountScreen = new CreateAccountScreen();
 		mainMenuScreen = new MainMenuScreen();
 		findGameScreen = new FindGameScreen();
+		lobbyScreen = new LobbyScreen();
 		
 		// ADD THEM
 		containerPanel.add(serverConnectionScreen, "SERVER_CONNECTION");
@@ -110,6 +112,7 @@ public class ClientUI extends JFrame {
 		containerPanel.add(createAccountScreen, "CREATE_ACCOUNT");
 		containerPanel.add(mainMenuScreen, "MAIN");
 		containerPanel.add(findGameScreen, "FIND_GAME");
+		containerPanel.add(lobbyScreen, "LOBBY");
 		
 		// WE ARE DECLARING A NUMBER OF CONTROLLERS
 		serverConnectionScreenController = new ServerConnectionScreenController(client, containerPanel, this);

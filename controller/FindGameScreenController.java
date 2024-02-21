@@ -3,11 +3,9 @@ package controller;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JPanel;
-
 import game.ClientUI;
-import menu_panels.MainMenuScreen;
+import menu_panels.FindGameScreen;
 import server.Client;
 
 public class FindGameScreenController implements ActionListener {
@@ -16,7 +14,7 @@ public class FindGameScreenController implements ActionListener {
 	private ClientUI clientUI;
 	
 	private JPanel clientPanel;
-	private MainMenuScreen mainScreen;
+	private FindGameScreen screen;
 	
 	private CardLayout cl;
 	
@@ -26,7 +24,7 @@ public class FindGameScreenController implements ActionListener {
 		clientUI = ui;
 		
 		cl = (CardLayout) clientPanel.getLayout();
-		mainScreen = (MainMenuScreen) clientPanel.getComponent(4); 
+		screen = (FindGameScreen) clientPanel.getComponent(5); 
 	}
 
 	@Override
@@ -34,6 +32,12 @@ public class FindGameScreenController implements ActionListener {
 		String action = e.getActionCommand();
 		
 		switch(action) {
+		case "New Game":
+			screen.showGameCreationPanel();
+			break;
+		case "Back":
+			cl.show(clientPanel, "MAIN");
+			break;
 		
 		}
 	}

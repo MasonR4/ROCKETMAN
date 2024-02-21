@@ -1,6 +1,9 @@
 package menu_utilities;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -8,8 +11,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.text.AbstractDocument;
-
-import controller.GameCreationController;
 
 public class GameCreationPanel extends JPanel {
 	
@@ -24,17 +25,14 @@ public class GameCreationPanel extends JPanel {
 	private EightBitButton confirmButton;
 	private EightBitButton cancelButton;
 	
-	private GameCreationController gameCreationController;
+	private ActionListener controller;
 	
 	private static final TextFieldFilters TEXT_FILTERS = new TextFieldFilters();
 	
-	public GameCreationPanel(GameCreationController gc) {
+	public GameCreationPanel() {
 		setSize(800, 600);
 		setLayout(null);
-		setVisible(false);
 		setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		
-		gameCreationController = gc;
 		
 		title = new EightBitLabel("Create New Game", Font.PLAIN, 48f);
 		title.setHorizontalAlignment(SwingConstants.LEFT);
@@ -59,11 +57,9 @@ public class GameCreationPanel extends JPanel {
 		errorLabel.setBounds(100, 270, 600, 20);
 		
 		confirmButton = new EightBitButton("Confirm");
-		confirmButton.addActionListener(gameCreationController);
 		confirmButton.setBounds(20, 530, 250, 50);
 		
 		cancelButton = new EightBitButton("Cancel");
-		cancelButton.addActionListener(gameCreationController);
 		cancelButton.setBounds(290, 530, 250, 50);
 		
 		add(title);
@@ -76,5 +72,25 @@ public class GameCreationPanel extends JPanel {
 		add(cancelButton);
 	}
 	
+	public String getLobbyName() {
+		return lobbyName.getText();
+	}
 	
+	public String getMaxPlayers() {
+		return maxPlayers.getText();
+	}
+
+	public void setError(String msg) {
+		errorLabel.setText(msg);
+		errorLabel.setForeground(Color.RED);
+	}
+	
+	public void setController(ActionListener ac) {
+		controller = ac;
+		for (Component c : this.getComponents()) {
+			if (c instanceof EightBitButton) {
+				((EightBitButton) c).addActionListener(controller);
+			}
+		}
+	}
 }

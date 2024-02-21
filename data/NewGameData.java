@@ -9,12 +9,14 @@ public class NewGameData {
 	private String hostUsername;
 	private Client host;
 	
-	public NewGameData(String n, int mp, Client c) {
+	public NewGameData(String n, int mp) {
 		name = n;
-		maxPlayers = mp;
+		maxPlayers = mp;	
+	}
+	
+	public void setClient(Client c) {
 		host = c;
-		
-		hostUsername = host.getUserName();
+		//hostUsername = host.getUserName();
 	}
 	
 	public String getName() {
