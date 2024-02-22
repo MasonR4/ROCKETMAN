@@ -21,8 +21,7 @@ public class GameLobby {
 	
 	public GameLobby(String n, int mp) {
 		lobbyName = n;
-		//hostUsername = hn;
-		hostUsername = "testing";
+		hostUsername = "testing"; // get username from client later
 		playerCap = mp;
 	}
 	
