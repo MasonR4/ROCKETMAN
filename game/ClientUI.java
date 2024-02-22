@@ -145,8 +145,7 @@ public class ClientUI extends JFrame {
 		client.setLobbyController(lobbyScreenController);
 
 		// pass a few default values
-		serverConnectionScreen.setDefaultConnectionInfo(configData.get("default_server"),
-				configData.get("default_port"));
+		serverConnectionScreen.setDefaultConnectionInfo(configData.get("default_server"), configData.get("default_port"));
 		loginScreen.setDefaultUsername(configData.get("last_user"));
 
 		// SHOW THE INITAL PANEL
@@ -155,20 +154,17 @@ public class ClientUI extends JFrame {
 		setVisible(true);
 
 		// lol?
-		serverConnectionScreenController
-				.actionPerformed(new ActionEvent(this, 0, "BYPASS_CONNECTION_AND_ATTEMPT_LOGIN"));
+		serverConnectionScreenController.actionPerformed(new ActionEvent(this, 0, "BYPASS_CONNECTION_AND_ATTEMPT_LOGIN"));
 
-		CL.show(containerPanel, "LOBBY"); // TODO FOR DEBUGGING REMOVE LATER
+		//CL.show(containerPanel, "LOBBY"); // TODO FOR DEBUGGING REMOVE LATER
 	}
 
 	public void updateConfigData(String key, String value) {
 		configData.put(key, value);
 	}
-
-	public void closingProcedure() {
+	
+	public void disconnectProcedure() {
 		try {
-			// TODO make this procedure also notify server if player is leaving a
-			// lobby/game, and if that player was the host
 			GenericRequest rq = new GenericRequest("PLAYER_DISCONNECTING");
 			rq.setData(client.getUserName());
 			client.sendToServer(rq);
@@ -176,7 +172,10 @@ public class ClientUI extends JFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+	}
+	
+	public void closingProcedure() {
+		disconnectProcedure();
 		try {
 			FileWriter writer = new FileWriter(config, false);
 
@@ -184,7 +183,6 @@ public class ClientUI extends JFrame {
 				writer.write(entry.getKey() + ": " + entry.getValue());
 				writer.write("\n");
 			}
-
 			writer.close();
 		} catch (IOException wompwomp) {
 			wompwomp.printStackTrace();

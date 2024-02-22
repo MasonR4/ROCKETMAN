@@ -26,12 +26,12 @@ public class GameListingPanel extends JPanel {
 	
 	private EightBitButton joinButton;
 	
-	private static Dimension size = new Dimension(1398, 100);
+	private static Dimension size = new Dimension(1396, 100);
 	private ActionListener controller;
 	
 	public GameListingPanel(GameLobbyData info) {
 		setLayout(null);
-		setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		
 		name = info.getName();
 		maxPlayers = info.getMaxPlayers();

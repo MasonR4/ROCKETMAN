@@ -21,7 +21,7 @@ public class Client extends AbstractClient {
 	private String username = "default";
 	private String serverName;
 		
-	private boolean isHost = false;
+	private int gameID = -1;
 	
 	// controllers for each menu
 	// possible that we won't need all of them in the client class
@@ -80,8 +80,13 @@ public class Client extends AbstractClient {
 				break;
 				
 			case "GAME_JOINED":
-				int gameID = (int) ((GenericRequest) arg0).getData();
+				int gid = (int) ((GenericRequest) arg0).getData();
+				gameID = gid;
 				findGameController.actionPerformed(new ActionEvent(0, 0, action));
+				break;
+				
+			case "LOBBY_PLAYER_INFO":
+				lobbyController.addPlayerListing((ArrayList<PlayerJoinData>) ((GenericRequest) arg0).getData());
 				break;
 			} 
 		} else if (arg0 instanceof GameLobbyData) {
@@ -128,6 +133,10 @@ public class Client extends AbstractClient {
 	
 	public String getServerName() {
 		return serverName;
+	}
+	
+	public int getGameID() {
+		return gameID;
 	}
 	
 	protected void connectionClosed() {

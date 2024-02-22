@@ -152,8 +152,7 @@ public class Server extends AbstractServer {
 							serverMenuController.addGameListings(getGames());
 							serverLog.append("[Client " + arg1.getId() + "] Joined game " + gameID + " as " + usr + "\n");
 							// TODO update client on other players within the lobby
-							// and other info such as current map idk some other stuff
-							// either done in gameLobby class or this class 
+							
 							} catch (IOException CLIENT_VITALS_CANNOT_BE_CONFIRMED) {
 								CLIENT_VITALS_CANNOT_BE_CONFIRMED.printStackTrace();
 						}
@@ -188,11 +187,15 @@ public class Server extends AbstractServer {
 							serverLog.append("[Client " + arg1.getId() + "] " + username + " left game " + e.getValue().getGameID() + ": " + e.getValue().getlobbyName() + "\n");
 						}
 					}
-					connectedPlayers.remove(username);
-					connectedPlayerCount -= 1;
-					serverLog.append("[Client " + arg1.getId() + "] Logged out as " + username + "\n");
-					clientDisconnected(arg1);
-					serverMenuController.addGameListings(getGames());
+					try {
+						arg1.close();
+						connectedPlayers.remove(username);
+						connectedPlayerCount -= 1;
+						serverLog.append("[Client " + arg1.getId() + "] Logged out as " + username + "\n");
+						serverMenuController.addGameListings(getGames());
+					} catch (IOException CLIENT_ALREADY_GONE) {
+						CLIENT_ALREADY_GONE.printStackTrace();
+					}
 				}
 				break;
 			}

@@ -1,9 +1,14 @@
 package server_utilities;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
+
 import data.GameLobbyData;
+import data.GenericRequest;
 import data.PlayerData;
+import data.PlayerJoinData;
 import data.StartGameData;
 import ocsf.server.ConnectionToClient;
 import server.Server;
@@ -56,11 +61,13 @@ public class GameLobby {
 		return playerNames;
 	}
 	
-	public ArrayList<PlayerData> getPlayers() {
-		// TODO get player info from server
-		// playerDataList = server.getPlayerInfo(playerNames);
-		// return playerDataList
-		return null;
+	public ArrayList<PlayerJoinData> getJoinedPlayers() {
+		ArrayList<PlayerJoinData> players = new ArrayList<PlayerJoinData>();
+		for (String s : playerNames) {
+			PlayerJoinData player = new PlayerJoinData(s, (hostUsername == s));
+			players.add(player);
+		}
+		return players;
 	}
 	
 	public boolean isFull() {
@@ -92,16 +99,31 @@ public class GameLobby {
 			server.cancelGame(gameID);
 		} else if (usr == hostUsername && playerNames.isEmpty() == false) {
 			hostUsername = playerNames.get(0);
+			updateClients(getJoinedPlayers());
 		}
 	}
 	
 	public void addPlayer(ConnectionToClient c, String usr) {
 		playerConnections.put(usr, c);
 		playerNames.add(usr);
+		if (playerCount == 0) {
+			hostUsername = usr;
+		}
 		playerCount += 1;
+		updateClients(getJoinedPlayers());
 	}
 	
-	// TODO public void updateClients() ?
+	public void updateClients(Object data) {
+		GenericRequest rq = new GenericRequest("LOBBY_PLAYER_INFO");
+		rq.setData(data);
+		for (Entry<String, ConnectionToClient> e : playerConnections.entrySet()) {
+			try {
+				e.getValue().sendToClient(rq);
+			} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
+				CLIENT_DOESNT_LIKE_YOU.printStackTrace();
+			}
+		}
+	}
 	
 	public GameLobbyData generateGameListing() {
 		GameLobbyData tempInfo = new GameLobbyData(lobbyName, hostUsername, playerCount, playerCap, gameID);
