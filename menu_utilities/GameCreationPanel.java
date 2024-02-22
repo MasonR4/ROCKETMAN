@@ -80,6 +80,11 @@ public class GameCreationPanel extends JPanel {
 		return maxPlayers.getText();
 	}
 	
+	public void setFieldDefaults(String usr) {
+		lobbyName.setText(usr + "'s game");
+		maxPlayers.setText(Integer.toString(4));
+	}
+	
 	public void setError(String msg) {
 		errorLabel.setText(msg);
 		errorLabel.setForeground(Color.RED);

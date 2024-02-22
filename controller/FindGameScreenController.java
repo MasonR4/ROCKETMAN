@@ -50,6 +50,7 @@ public class FindGameScreenController implements ActionListener {
 			temp.setController(this);
 			gamesPanel.add(temp);
 		}
+		gamesPanel.repaint();
 		gamesPanel.revalidate();
 	}
 	
@@ -63,6 +64,7 @@ public class FindGameScreenController implements ActionListener {
 		
 		switch(action) {
 		case "New Game":
+			newGameScreen.setFieldDefaults(client.getUserName());
 			newGameScreen.setVisible(true);
 			break;
 		case "Back":

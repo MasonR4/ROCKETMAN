@@ -37,25 +37,50 @@ public class GameLobby {
 		return gameID;
 	}
 	
+	public String getlobbyName() {
+		return lobbyName;
+	}
+	
+	public int getPlayerCount() {
+		return playerCount;
+	}
+	
+	public ArrayList<String> getPlayerUsernames() {
+		return playerNames;
+	}
+	
 	public boolean isFull() {
 		return playerCount == playerCap;
+	}
+	
+	public boolean isEmpty() {
+		return playerCount == 0;
 	}
 	
 	public void removePlayer(ConnectionToClient c, String usr) {
 		playerConnections.remove(c);
 		playerNames.remove(usr);
 		playerCount -= 1;
+		
+		if (playerCount == 0) {
+			// TODO cancel game
+		} else if (usr == hostUsername && playerNames.isEmpty() == false) {
+			hostUsername = playerNames.get(0);
+		}
 	}
+	
 	public void addPlayer(ConnectionToClient c, String usr) {
 		playerConnections.add(c);
 		playerNames.add(usr);
 		playerCount += 1;
 	}
 	
-	// public void updateClients() ?
+	// TODO public void updateClients() ?
 	
 	public GameLobbyData generateGameListing() {
 		GameLobbyData tempInfo = new GameLobbyData(lobbyName, hostUsername, playerCount, playerCap, gameID);
 		return tempInfo;
 	}
+
+
 }

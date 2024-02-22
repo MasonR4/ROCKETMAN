@@ -81,6 +81,12 @@ public class Server extends AbstractServer {
 	public ArrayList<GameLobbyData> getGames() {
 		ArrayList<GameLobbyData> gameList = new ArrayList<GameLobbyData>();
 		for (Entry<Integer, GameLobby> e : games.entrySet()) {
+			GameLobby g = e.getValue();
+			if (g.isEmpty()) {
+				games.remove(e.getKey());
+			}
+		}
+		for (Entry<Integer, GameLobby> e : games.entrySet()) {
 			gameList.add(e.getValue().generateGameListing());
 		}
 		return gameList;
@@ -136,6 +142,7 @@ public class Server extends AbstractServer {
 							rq.setData(gameID);
 							arg1.sendToClient(rq);
 							serverMenuController.addGameListings(getGames());
+							serverLog.append("[Client " + arg1.getId() + "] Joined game " + gameID + " as " + usr + "\n");
 							// TODO update client on other players within the lobby
 							// and other info such as current map idk some other stuff
 							// either done in gameLobby class or this class 
@@ -167,10 +174,17 @@ public class Server extends AbstractServer {
 				String username = (String) ((GenericRequest) arg0).getData();
 				if (username != "default") {
 					// TODO save player data to database
+					for (Entry<Integer, GameLobby> e : games.entrySet()) {
+						if (e.getValue().getPlayerUsernames().contains(username)) {
+							e.getValue().removePlayer(arg1, username);
+							serverLog.append("[Client " + arg1.getId() + "] " + username + " left game " + e.getValue().getGameID() + ": " + e.getValue().getlobbyName() + "\n");
+						}
+					}
 					connectedPlayers.remove(username);
 					connectedPlayerCount -= 1;
 					serverLog.append("[Client " + arg1.getId() + "] Logged out as " + username + "\n");
 					clientDisconnected(arg1);
+					serverMenuController.addGameListings(getGames());
 				}
 				break;
 			}

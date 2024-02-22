@@ -43,6 +43,7 @@ public class ServerMenuScreenController implements ActionListener {
 				temp.setController(this);
 				gamesPanel.add(temp);
 		}
+		gamesPanel.repaint();
 		gamesPanel.revalidate();
 	}
 
