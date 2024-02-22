@@ -25,6 +25,7 @@ public class Client extends AbstractClient {
 	private CreateAccountScreenController createAccountController;
 	private FindGameScreenController findGameController;
 	private LoginScreenController loginController;
+	
 	private MainMenuScreenController mainMenuController;
 	private ServerConnectionScreenController serverConnectionController;
 	private SplashScreenController splashController;
@@ -57,6 +58,9 @@ public class Client extends AbstractClient {
 				loginController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
 				break;
+			case "INVALID_LOGIN":
+				loginController.actionPerformed(new ActionEvent(0, 0, action));
+			break;
 			}
 		}
 		

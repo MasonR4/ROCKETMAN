@@ -192,7 +192,7 @@ public class ServerMenuScreen extends JPanel {
 	
 	public void enableQuitButton(boolean toggle) {
 		if (toggle == true) {
-			quitButton.setToolTipText("Quit Server Interface");
+			quitButton.setToolTipText("Quit");
 			quitButton.setEnabled(toggle);
 		} else {
 			quitButton.setToolTipText("Server must be stopped before quitting");

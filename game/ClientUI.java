@@ -2,6 +2,7 @@ package game;
 
 import javax.swing.SwingUtilities;
 import controller.*;
+import data.GenericRequest;
 import menu_panels.*;
 import menu_panels.SplashScreen;
 import menu_utilities.TextFieldFilters;
@@ -158,9 +159,10 @@ public class ClientUI extends JFrame {
 	}
 	
 	public void closingProcedure() {
-		// TODO save player data in DB (maybe happens server side instead?)
-		
 		try {
+			GenericRequest rq = new GenericRequest("PLAYER_DISCONNECTING");
+			rq.setData(client.getUserName());
+			client.sendToServer(rq);
 			client.closeConnection();
 		} catch (IOException e) {
 			e.printStackTrace();

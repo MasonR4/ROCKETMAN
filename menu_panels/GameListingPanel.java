@@ -31,12 +31,12 @@ public class GameListingPanel extends JPanel {
 	private static Dimension size = new Dimension(1398, 100);
 	private ActionListener controller;
 	
-	public GameListingPanel(String n, String hn, int mp, int gid) {
+	public GameListingPanel(String n, String hn, int p, int mp, int gid) {
 		setLayout(null);
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		
 		name = n;
-		playerCount = 0; // TODO how do we find this IDK
+		playerCount = p; // TODO how do we find this IDK
 		maxPlayers = mp;
 		gameID = gid;
 		host = hn;

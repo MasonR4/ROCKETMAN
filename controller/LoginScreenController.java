@@ -42,16 +42,13 @@ public class LoginScreenController implements ActionListener {
 		
 		switch(action) {
 		case "Login":
-			// TODO make some check where client sends credentials to server
-			
 			LoginData loginInfo = new LoginData(username, password);
 			try {
 				client.sendToServer(loginInfo);
 			} catch (IOException SERVER_HATES_UR_LOGIN_LOL) {
 				SERVER_HATES_UR_LOGIN_LOL.printStackTrace();
 			}
-			
-			
+
 			break;
 			
 		case "Back":

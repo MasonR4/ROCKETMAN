@@ -23,6 +23,11 @@ public class Server extends AbstractServer {
 	private ServerMenuScreenController serverMenuController;
 	
 	private ArrayList<GameLobby> games = new ArrayList<GameLobby>(); 
+	private int gameCount = 0;
+	
+	// potentially not using these (?)
+	private ArrayList<String> connectedPlayers = new ArrayList<String>();
+	private int connectedPlayerCount = 0;
 	
 	public Server() {
 		super(8300);
@@ -61,6 +66,10 @@ public class Server extends AbstractServer {
 	
 	public void setName(String name) {
 		serverName = name;
+	}
+	
+	public ArrayList<String> getConnectedPlayers() {
+		return connectedPlayers;
 	}
 	
 	protected void serverStarted() {
@@ -105,6 +114,18 @@ public class Server extends AbstractServer {
 				break;
 			case "REQUEST_JOIN_GAME":
 				
+				break;
+				
+			case "PLAYER_DISCONNECTING":
+				String username = (String) ((GenericRequest) arg0).getData();
+				if (username != "default") {
+					// TODO save player data to database
+					connectedPlayers.remove(username);
+					connectedPlayerCount -= 1;
+					serverLog.append("[Client " + arg1.getId() + "] Logged out as " + username + "\n");
+					clientDisconnected(arg1);
+				}
+				break;
 			}
 			
 			
@@ -112,20 +133,35 @@ public class Server extends AbstractServer {
 			String username = ((LoginData) arg0).getUsername();
 			String password = ((LoginData) arg0).getPassword();
 			
-			// TODO login here 
+			// TODO database login check here (currently you just press the button and it lets you in)
 			// if (validLogin) login!
+			if (!connectedPlayers.contains(username)) {
+				try {
+					GenericRequest rq = new GenericRequest("LOGIN_CONFIRMED");
+					rq.setData(username);
+					arg1.sendToClient(rq);
+					serverLog.append("[Client " + arg1.getId() + "] Sucessfully logged in as " + username + "\n");
+					connectedPlayers.add(username);
+					connectedPlayerCount += 1;
+				} catch (IOException CLIENT_LIKELY_DEPARTED) {
+					CLIENT_LIKELY_DEPARTED.printStackTrace();
+					serverLog.append("[Client " + arg1.getId() + "] Login Failed\n");
+				}
+			} else {
+				GenericRequest rq = new GenericRequest("INVALID_LOGIN");
+				rq.setData("User is logged in elsewhere"); // cant show this to client yet
+				try {
+					arg1.sendToClient(rq);
+					serverLog.append("[Client " + arg1.getId() + "] Denied duplicate login as " + username + "\n");
+				} catch (IOException CLIENT_MAY_BE_AN_IMPOSTOR) {
+					CLIENT_MAY_BE_AN_IMPOSTOR.printStackTrace();
+					serverLog.append("[Client " + arg1.getId() + "] Denied duplicate login as " + username + " but failed to notify client (HOW)\n");
+				}
+			}
 			// else sendToClient(INVALID_LOGIN INFO) -- wrap in generic request
 			// query dataBase and whatever
 			
-			try {
-				GenericRequest rq = new GenericRequest("LOGIN_CONFIRMED");
-				rq.setData(username);
-				arg1.sendToClient(rq);
-				serverLog.append("[Client " + arg1.getId() + "] Sucessfully logged in as " + username + "\n");
-			} catch (IOException CLIENT_LIKELY_DEPARTED) {
-				CLIENT_LIKELY_DEPARTED.printStackTrace();
-				serverLog.append("[Client " + arg1.getId() + "] Login Failed\n");
-			}
+			
 			
 		} else if (arg0 instanceof CreateAccountData) {
 			String username = ((CreateAccountData) arg0).getUsername();
@@ -139,6 +175,8 @@ public class Server extends AbstractServer {
 				rq.setData((String) username);
 				arg1.sendToClient(rq);
 				serverLog.append("[Client " + arg1.getId() + "] Created account '" + username + "' and logged in successfully \n");
+				connectedPlayers.add(username);
+				connectedPlayerCount += 1;
 			} catch (IOException CLIENT_POSSIBLY_DECEASED) {
 				CLIENT_POSSIBLY_DECEASED.printStackTrace();
 				serverLog.append("[Client " + arg1.getId() + "] Error creating account\n");
@@ -149,7 +187,8 @@ public class Server extends AbstractServer {
 			
 		} else if (arg0 instanceof GameLobbyData) {
 			GameLobbyData info = (GameLobbyData) arg0;
-			GameLobby newGame = new GameLobby(info.getName(), info.getHostName(), info.getMaxPlayers(), games.size());
+			GameLobby newGame = new GameLobby(info.getName(), info.getHostName(), info.getMaxPlayers(), gameCount, this);
+			gameCount += 1;
 			ArrayList<GameLobbyData> gameList = new ArrayList<GameLobbyData>();
 			games.add(newGame);
 			serverLog.append("[Client " + arg1.getId() + "] Created Game ID: " + newGame.getGameID() + ", Name: " + info.getName() +", Host: " + info.getHostName() + ", Max Players: " + info.getMaxPlayers() + "\n");
@@ -159,9 +198,7 @@ public class Server extends AbstractServer {
 			serverMenuController.addGameListings(gameList);
 			
 			// TODO connect client to the game they created automatically
-			GenericRequest rq = new GenericRequest("CONFIRM_JOIN_GAME");
-			rq.setData(newGame.getGameID());
-			
+			newGame.addPlayer(arg1, info.getHostName());
 		} 
 	}
 }

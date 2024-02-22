@@ -88,7 +88,7 @@ public class FindGameScreenController implements ActionListener {
 					if (lobbyName.length() < 3) {
 						newGameScreen.setError("Lobby name must be at least 3 characters in length");
 					} else {
-						GameLobbyData GameLobbyData = new GameLobbyData(lobbyName, client.getUserName(), maxPlayers, -1);
+						GameLobbyData GameLobbyData = new GameLobbyData(lobbyName, client.getUserName(), 0, maxPlayers, -1);
 						// request new game be made on the server
 						try {
 							client.sendToServer(GameLobbyData);

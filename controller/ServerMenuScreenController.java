@@ -148,6 +148,12 @@ public class ServerMenuScreenController implements ActionListener {
 				}
 				break;
 				
+			case "/listplayers":
+				for (String s : server.getConnectedPlayers()) {
+					log.append(s + "\n");
+				}
+				break;
+				
 			case "/quit":
 				System.exit(0);
 				break;

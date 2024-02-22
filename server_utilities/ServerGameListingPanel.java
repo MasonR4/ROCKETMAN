@@ -40,6 +40,7 @@ public class ServerGameListingPanel extends JPanel {
 		maxPlayers = info.getMaxPlayers();
 		host = info.getHostName();
 		gameID = info.getGameID();
+		playerCount = info.getPlayerCount();
 		
 		lobbyName = new EightBitLabel(name, Font.PLAIN, 20f);
 		lobbyName.setHorizontalAlignment(SwingConstants.LEFT);
