@@ -64,6 +64,10 @@ public class Client extends AbstractClient {
 			case "INVALID_LOGIN":
 				loginController.actionPerformed(new ActionEvent(0, 0, action));
 				break;
+			
+			case "GAME_CREATED":
+				findGameController.actionPerformed(new ActionEvent(0, 0, action));
+				break;
 				
 			case "GAME_FULL":
 				findGameController.actionPerformed(new ActionEvent(0, 0, action));
@@ -75,7 +79,7 @@ public class Client extends AbstractClient {
 				
 			case "GAME_JOINED":
 				int gameID = (int) ((GenericRequest) arg0).getData();
-				
+				findGameController.actionPerformed(new ActionEvent(0, 0, action));
 				break;
 			} // else if (arg0 instanceof gameData) {}
 		}

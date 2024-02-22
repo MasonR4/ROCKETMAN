@@ -37,20 +37,11 @@ public class ServerMenuScreenController implements ActionListener {
 	}	
 	
 	public void addGameListings(ArrayList<GameLobbyData> games) {
+		gamesPanel.removeAll();
 		for (GameLobbyData g : games) {
-			boolean newGame = true;
-			for (Component c : gamesPanel.getComponents()) {
-				if (c instanceof ServerGameListingPanel) {
-					if (((ServerGameListingPanel) c).getGameID() == g.getGameID()) {
-						newGame = false;
-					} 
-				}
-			}
-			if (newGame) {
 				ServerGameListingPanel temp = new ServerGameListingPanel(g);
 				temp.setController(this);
 				gamesPanel.add(temp);
-			}
 		}
 		gamesPanel.revalidate();
 	}
@@ -104,9 +95,7 @@ public class ServerMenuScreenController implements ActionListener {
 			
 			break;
 			
-		case "Submit":
-			// TODO i want to make commands if we have time
-			
+		case "Submit": // commands just like a real server console			
 			String[] args = screen.getCommand();
 			switch(args[0]) {
 			

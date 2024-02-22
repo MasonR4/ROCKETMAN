@@ -81,9 +81,7 @@ public class Server extends AbstractServer {
 	public ArrayList<GameLobbyData> getGames() {
 		ArrayList<GameLobbyData> gameList = new ArrayList<GameLobbyData>();
 		for (Entry<Integer, GameLobby> e : games.entrySet()) {
-			if (!((GameLobby) e).isFull()) {
-				gameList.add(((GameLobby) e).generateGameListing());
-			}
+			gameList.add(e.getValue().generateGameListing());
 		}
 		return gameList;
 	}
@@ -137,6 +135,7 @@ public class Server extends AbstractServer {
 							rq = new GenericRequest("GAME_JOINED");
 							rq.setData(gameID);
 							arg1.sendToClient(rq);
+							serverMenuController.addGameListings(getGames());
 							// TODO update client on other players within the lobby
 							// and other info such as current map idk some other stuff
 							// either done in gameLobby class or this class 
@@ -147,7 +146,7 @@ public class Server extends AbstractServer {
 						try {
 							rq = new GenericRequest("GAME_FULL");
 							arg1.sendToClient(rq);
-							serverLog.append("[Client " + arg1.getId() + "] Failed to join game" + gameID + ": game is full\n");
+							serverLog.append("[Client " + arg1.getId() + "] Failed to join game " + gameID + ": game is full\n");
 						} catch (IOException CLIENT_DID_NOT_CARE) {
 							CLIENT_DID_NOT_CARE.printStackTrace();
 						}
@@ -156,7 +155,7 @@ public class Server extends AbstractServer {
 					try {
 						rq = new GenericRequest("GAME_NOT_FOUND");
 						arg1.sendToClient(rq);
-						serverLog.append("[Client " + arg1.getId() + "] Failed to join game" + gameID + ": game no longer exists\n");
+						serverLog.append("[Client " + arg1.getId() + "] Failed to join game " + gameID + ": game no longer exists\n");
 					} catch (IOException CLIENT_DIED) {
 						CLIENT_DIED.printStackTrace();
 					}
@@ -235,13 +234,20 @@ public class Server extends AbstractServer {
 			
 		} else if (arg0 instanceof GameLobbyData) {
 			GameLobbyData info = (GameLobbyData) arg0;
-			GameLobby newGame = new GameLobby(info.getName(), info.getHostName(), info.getMaxPlayers(), gameCount, this);
-			newGame.addPlayer(arg1, info.getHostName());
-			gameCount += 1;
-			games.put(newGame.getGameID(), newGame);
-			ArrayList<GameLobbyData> gameList = getGames();
-			serverLog.append("[Client " + arg1.getId() + "] Created Game ID: " + newGame.getGameID() + ", Name: " + info.getName() +", Host: " + info.getHostName() + ", Max Players: " + info.getMaxPlayers() + "\n");
-			serverMenuController.addGameListings(gameList);
+			try {
+				GameLobby newGame = new GameLobby(info.getName(), info.getHostName(), info.getMaxPlayers(), gameCount, this);
+				GenericRequest rq = new GenericRequest("GAME_CREATED");
+				newGame.addPlayer(arg1, info.getHostName());
+				arg1.sendToClient(rq);
+				gameCount += 1;
+				games.put(newGame.getGameID(), newGame);
+				ArrayList<GameLobbyData> gameList = getGames();
+				serverLog.append("[Client " + arg1.getId() + "] Created Game ID: " + newGame.getGameID() + ", Name: " + info.getName() +", Host: " + info.getHostName() + ", Max Players: " + info.getMaxPlayers() + "\n");
+				serverMenuController.addGameListings(gameList);
+			} catch (IOException CLIENT_WENT_TO_SLEEP) {
+				CLIENT_WENT_TO_SLEEP.printStackTrace();
+			}
+			
 		} 
 	}
 }

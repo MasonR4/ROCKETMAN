@@ -31,7 +31,7 @@ public class LobbyScreenController implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
+		// TODO finish lobby screen controller (this) and lobby screen (that)
 		
 	}
 

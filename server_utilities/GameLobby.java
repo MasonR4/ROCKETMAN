@@ -13,7 +13,7 @@ public class GameLobby {
 	private String lobbyName;
 	private String hostUsername;
 	
-	private int playerCount;
+	private int playerCount = 0;
 	private int playerCap;
 	private int gameID;
 	
@@ -49,7 +49,7 @@ public class GameLobby {
 	public void addPlayer(ConnectionToClient c, String usr) {
 		playerConnections.add(c);
 		playerNames.add(usr);
-		playerCount = playerConnections.size();
+		playerCount += 1;
 	}
 	
 	// public void updateClients() ?

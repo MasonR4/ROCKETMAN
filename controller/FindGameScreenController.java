@@ -13,9 +13,9 @@ import data.GenericRequest;
 import data.GameLobbyData;
 import game.ClientUI;
 import menu_panels.FindGameScreen;
-import menu_panels.GameListingPanel;
 import menu_utilities.EightBitButton;
 import menu_utilities.GameCreationPanel;
+import menu_utilities.GameListingPanel;
 import server.Client;
 import server_utilities.ServerGameListingPanel;
 
@@ -44,20 +44,11 @@ public class FindGameScreenController implements ActionListener {
 	}
 	
 	public void addGameListings(ArrayList<GameLobbyData> games) {
+		gamesPanel.removeAll();
 		for (GameLobbyData g : games) {
-			boolean newGame = true;
-			for (Component c : gamesPanel.getComponents()) {
-				if (c instanceof GameListingPanel) {
-					if (((GameListingPanel) c).getGameID() == g.getGameID()) {
-						newGame = false;
-					} 
-				}
-			}
-			if (newGame) {
-				GameListingPanel temp = new GameListingPanel(g);
-				temp.setController(this);
-				gamesPanel.add(temp);
-			}
+			GameListingPanel temp = new GameListingPanel(g);
+			temp.setController(this);
+			gamesPanel.add(temp);
 		}
 		gamesPanel.revalidate();
 	}
@@ -92,7 +83,6 @@ public class FindGameScreenController implements ActionListener {
 						// request new game be made on the server
 						try {
 							client.sendToServer(GameLobbyData);
-							cl.show(clientPanel, "LOBBY");
 						} catch (IOException SERVER_DENIED_GAME_CREATION) {
 							SERVER_DENIED_GAME_CREATION.printStackTrace();
 							newGameScreen.setError("Server Error Encountered, please try again later.");
@@ -131,7 +121,15 @@ public class FindGameScreenController implements ActionListener {
 		case "Cancel":
 			newGameScreen.setVisible(false);
 			break;
-		
+			
+		case "GAME_CREATED":
+			cl.show(clientPanel, "LOBBY");
+			break;
+			
+		case "GAME_JOINED":
+			cl.show(clientPanel, "LOBBY");
+			break;
+			
 		case "GAME_FULL":
 			screen.setError("Game is full");
 			break;

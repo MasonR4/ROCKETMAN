@@ -10,6 +10,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import menu_utilities.*;
 
@@ -48,9 +49,10 @@ public class FindGameScreen extends JLayeredPane {
 		serverInfo = new EightBitLabel("Connected to: ", Font.PLAIN, 32f);
 		serverInfo.setBounds(1000, 40, 400, 20);
 		
-		errorLabel = new EightBitLabel("", Font.PLAIN, 28f);
+		errorLabel = new EightBitLabel("", Font.PLAIN, 18f);
 		errorLabel.setForeground(Color.RED);
-		errorLabel.setBounds(1010, 800, 400, 50);
+		errorLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		errorLabel.setBounds(1175, 800, 400, 50);
 		
 		gamesPanel = new JPanel();
 		gamesPanel.setLayout(new BoxLayout(gamesPanel, BoxLayout.PAGE_AXIS));
