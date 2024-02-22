@@ -3,6 +3,8 @@ package server;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
@@ -22,7 +24,7 @@ public class Server extends AbstractServer {
 	
 	private ServerMenuScreenController serverMenuController;
 	
-	private ArrayList<GameLobby> games = new ArrayList<GameLobby>(); 
+	private LinkedHashMap<Integer, GameLobby> games = new LinkedHashMap<Integer, GameLobby>(); 
 	private int gameCount = 0;
 	
 	// potentially not using these (?)
@@ -72,6 +74,20 @@ public class Server extends AbstractServer {
 		return connectedPlayers;
 	}
 	
+	public int getConnectedPlayerCount() {
+		return connectedPlayerCount;
+	}
+	
+	public ArrayList<GameLobbyData> getGames() {
+		ArrayList<GameLobbyData> gameList = new ArrayList<GameLobbyData>();
+		for (Entry<Integer, GameLobby> e : games.entrySet()) {
+			if (!((GameLobby) e).isFull()) {
+				gameList.add(((GameLobby) e).generateGameListing());
+			}
+		}
+		return gameList;
+	}
+	
 	protected void serverStarted() {
 		serverLog.append("Server '" + serverName + "' started on port '" + this.getPort() + "'\n");
 		serverStatus.setText("RUNNING");
@@ -94,15 +110,12 @@ public class Server extends AbstractServer {
 		
 		if (arg0 instanceof GenericRequest) {
 			String action = ((GenericRequest) arg0).getMsg();
-			// lol PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
-			switch (action) {
+			GenericRequest rq;
+			switch (action) { 			// lol PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
 			case "REQUEST_GAMES_INFO":
 				serverLog.append("[Client " + arg1.getId() + "] Requested games info\n");
-				GenericRequest rq = new GenericRequest("GAMES_INFO");
-				ArrayList<GameLobbyData> gameList = new ArrayList<GameLobbyData>();
-				for (GameLobby g : games) {
-					gameList.add(g.generateGameListing());
-				}
+				rq = new GenericRequest("GAMES_INFO");
+				ArrayList<GameLobbyData> gameList = getGames();
 				serverMenuController.addGameListings(gameList);
 				rq.setData(gameList);
 				try {
@@ -112,7 +125,42 @@ public class Server extends AbstractServer {
 					serverLog.append("Could not send game info to client\n");
 				}
 				break;
-			case "REQUEST_JOIN_GAME":
+			case "REQUEST_TO_JOIN_GAME":
+				String rqData = (String) ((GenericRequest) arg0).getData();
+				String[] rqSplitData = rqData.split(":"); // LOL
+				String usr = rqSplitData[0];
+				int gameID = Integer.parseInt(rqSplitData[1]);
+				if (games.containsKey(gameID)) {
+					if (!games.get(gameID).isFull()) {
+						games.get(gameID).addPlayer(arg1, usr);
+						try {
+							rq = new GenericRequest("GAME_JOINED");
+							rq.setData(gameID);
+							arg1.sendToClient(rq);
+							// TODO update client on other players within the lobby
+							// and other info such as current map idk some other stuff
+							// either done in gameLobby class or this class 
+							} catch (IOException CLIENT_VITALS_CANNOT_BE_CONFIRMED) {
+								CLIENT_VITALS_CANNOT_BE_CONFIRMED.printStackTrace();
+						}
+					} else {
+						try {
+							rq = new GenericRequest("GAME_FULL");
+							arg1.sendToClient(rq);
+							serverLog.append("[Client " + arg1.getId() + "] Failed to join game" + gameID + ": game is full\n");
+						} catch (IOException CLIENT_DID_NOT_CARE) {
+							CLIENT_DID_NOT_CARE.printStackTrace();
+						}
+					}
+				} else {
+					try {
+						rq = new GenericRequest("GAME_NOT_FOUND");
+						arg1.sendToClient(rq);
+						serverLog.append("[Client " + arg1.getId() + "] Failed to join game" + gameID + ": game no longer exists\n");
+					} catch (IOException CLIENT_DIED) {
+						CLIENT_DIED.printStackTrace();
+					}
+				}
 				
 				break;
 				
@@ -188,17 +236,12 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof GameLobbyData) {
 			GameLobbyData info = (GameLobbyData) arg0;
 			GameLobby newGame = new GameLobby(info.getName(), info.getHostName(), info.getMaxPlayers(), gameCount, this);
-			gameCount += 1;
-			ArrayList<GameLobbyData> gameList = new ArrayList<GameLobbyData>();
-			games.add(newGame);
-			serverLog.append("[Client " + arg1.getId() + "] Created Game ID: " + newGame.getGameID() + ", Name: " + info.getName() +", Host: " + info.getHostName() + ", Max Players: " + info.getMaxPlayers() + "\n");
-			for (GameLobby g : games) {
-				gameList.add(g.generateGameListing());
-			}
-			serverMenuController.addGameListings(gameList);
-			
-			// TODO connect client to the game they created automatically
 			newGame.addPlayer(arg1, info.getHostName());
+			gameCount += 1;
+			games.put(newGame.getGameID(), newGame);
+			ArrayList<GameLobbyData> gameList = getGames();
+			serverLog.append("[Client " + arg1.getId() + "] Created Game ID: " + newGame.getGameID() + ", Name: " + info.getName() +", Host: " + info.getHostName() + ", Max Players: " + info.getMaxPlayers() + "\n");
+			serverMenuController.addGameListings(gameList);
 		} 
 	}
 }

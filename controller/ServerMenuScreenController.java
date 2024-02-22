@@ -142,16 +142,22 @@ public class ServerMenuScreenController implements ActionListener {
 				}
 				break;
 			
-			case "/listconnections":
+			case "/list_connections":
 				for (Thread c : server.getClientConnections()) {
 					log.append(c.getName() + "\n");
 				}
 				break;
 				
-			case "/listplayers":
+			case "/list_players":
 				for (String s : server.getConnectedPlayers()) {
 					log.append(s + "\n");
 				}
+				log.append("Total: " + Integer.toString(server.getConnectedPlayerCount()) + "\n");
+				break;
+				
+			case "/refresh_lobbies":
+				addGameListings(server.getGames());
+				log.append("Refreshed Lobbies\n");
 				break;
 				
 			case "/quit":

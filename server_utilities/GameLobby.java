@@ -23,7 +23,7 @@ public class GameLobby {
 	// TODO here is where we store stuff like player objects, the grid
 	// other game relevant stuff
 	
-	// TODO also all of the game logic that needs to be handled server side goes in here too
+	// also all of the game logic that needs to be handled server side goes in here too
 	
 	public GameLobby(String n, String hn, int mp, int gid, Server s) {
 		lobbyName = n;
@@ -37,12 +37,22 @@ public class GameLobby {
 		return gameID;
 	}
 	
+	public boolean isFull() {
+		return playerCount == playerCap;
+	}
 	
+	public void removePlayer(ConnectionToClient c, String usr) {
+		playerConnections.remove(c);
+		playerNames.remove(usr);
+		playerCount -= 1;
+	}
 	public void addPlayer(ConnectionToClient c, String usr) {
 		playerConnections.add(c);
 		playerNames.add(usr);
 		playerCount = playerConnections.size();
 	}
+	
+	// public void updateClients() ?
 	
 	public GameLobbyData generateGameListing() {
 		GameLobbyData tempInfo = new GameLobbyData(lobbyName, hostUsername, playerCount, playerCap, gameID);

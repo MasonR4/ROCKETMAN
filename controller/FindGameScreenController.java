@@ -84,7 +84,7 @@ public class FindGameScreenController implements ActionListener {
 				newGameScreen.setError("Max players cannot be blank");
 			} else {
 				maxPlayers = Integer.parseInt(newGameScreen.getMaxPlayers()); 
-				if (maxPlayers > 2 && maxPlayers <= 4) {
+				if (maxPlayers >= 2 && maxPlayers <= 4) {
 					if (lobbyName.length() < 3) {
 						newGameScreen.setError("Lobby name must be at least 3 characters in length");
 					} else {
@@ -102,10 +102,6 @@ public class FindGameScreenController implements ActionListener {
 					newGameScreen.setError("Max Players must be between 2 & 4");
 				}
 			}
-			// also need: send game data to server from client
-			// have client change to lobby screen upon receiving confirmation 
-			// of game creation from server
-			// egads
 			break;
 			
 		case "Refresh":
@@ -118,16 +114,31 @@ public class FindGameScreenController implements ActionListener {
 			break;
 			
 		case "Join +":
-			System.out.println("attempted to join game NOT IMPLENENTED YET lol get rekt 5head SHUT UP");
 			EightBitButton buttonClicked = (EightBitButton) e.getSource();
 			GameListingPanel sourceScreen = (GameListingPanel) buttonClicked.getParent();
 			int gameID = sourceScreen.getGameID();
+			String rqData = client.getUserName() + ":" + Integer.toString(gameID); // can't send more than one data?!?! JUST MAKE IT CONCATENATED AND SPLIT ON SERVER END LOL // guys i might be an imbecile
+			GenericRequest rq = new GenericRequest("REQUEST_TO_JOIN_GAME");
+			rq.setData(rqData);
+			try {
+				client.sendToServer(rq);
+			} catch (IOException SERVER_DENIED_JOINING) {
+				SERVER_DENIED_JOINING.printStackTrace();
+			}
+			
 			break;
 			
 		case "Cancel":
 			newGameScreen.setVisible(false);
 			break;
 		
+		case "GAME_FULL":
+			screen.setError("Game is full");
+			break;
+			
+		case "GAME_NOT_FOUND":
+			screen.setError("Game not found - try refreshing");
+			break;
 		}
 	}
 }

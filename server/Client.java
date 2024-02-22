@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import controller.CreateAccountScreenController;
 import controller.FindGameScreenController;
+import controller.LobbyScreenController;
 import controller.LoginScreenController;
 import controller.MainMenuScreenController;
 import controller.ServerConnectionScreenController;
@@ -25,6 +26,7 @@ public class Client extends AbstractClient {
 	private CreateAccountScreenController createAccountController;
 	private FindGameScreenController findGameController;
 	private LoginScreenController loginController;
+	private LobbyScreenController lobbyController;
 	
 	private MainMenuScreenController mainMenuController;
 	private ServerConnectionScreenController serverConnectionController;
@@ -58,10 +60,24 @@ public class Client extends AbstractClient {
 				loginController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
 				break;
+				
 			case "INVALID_LOGIN":
 				loginController.actionPerformed(new ActionEvent(0, 0, action));
-			break;
-			}
+				break;
+				
+			case "GAME_FULL":
+				findGameController.actionPerformed(new ActionEvent(0, 0, action));
+				break;
+				
+			case "GAME_NOT_FOUND":
+				findGameController.actionPerformed(new ActionEvent(0, 0, action));
+				break;
+				
+			case "GAME_JOINED":
+				int gameID = (int) ((GenericRequest) arg0).getData();
+				
+				break;
+			} // else if (arg0 instanceof gameData) {}
 		}
 		
 	}
@@ -88,6 +104,10 @@ public class Client extends AbstractClient {
 	
 	public void setSplashController(SplashScreenController c) {
 		splashController = c;
+	}
+	
+	public void setLobbyController(LobbyScreenController c) {
+		lobbyController = c;
 	}
 
 	public String getUserName() {

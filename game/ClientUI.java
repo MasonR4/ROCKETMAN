@@ -37,6 +37,7 @@ public class ClientUI extends JFrame {
 	private CreateAccountScreenController createAccountScreenController;
 	private MainMenuScreenController mainMenuScreenController;
 	private FindGameScreenController findGameScreenController;
+	private LobbyScreenController lobbyScreenController;
 	
 	// menus
 	private ServerConnectionScreen serverConnectionScreen;
@@ -122,6 +123,7 @@ public class ClientUI extends JFrame {
 		createAccountScreenController = new CreateAccountScreenController(client, containerPanel, this);
 		mainMenuScreenController = new MainMenuScreenController(client, containerPanel, this);
 		findGameScreenController = new FindGameScreenController(client, containerPanel, this);
+		lobbyScreenController = new LobbyScreenController(client, containerPanel, this);
 		
 		// ANNOYING EXTRA STEP
 		serverConnectionScreen.setController(serverConnectionScreenController);
@@ -130,6 +132,7 @@ public class ClientUI extends JFrame {
 		createAccountScreen.setController(createAccountScreenController);
 		mainMenuScreen.setController(mainMenuScreenController);
 		findGameScreen.setController(findGameScreenController);
+		lobbyScreen.setController(lobbyScreenController);
 		
 		// ANNOYING EXTRA EXTRA STEP
 		client.setSplashController(splashScreenController);
@@ -138,6 +141,7 @@ public class ClientUI extends JFrame {
 		client.setLoginController(loginScreenController);
 		client.setMainMenuController(mainMenuScreenController);
 		client.setServerConnectionController(serverConnectionScreenController);
+		client.setLobbyController(lobbyScreenController);
 		
 		// pass a few default values
 		serverConnectionScreen.setDefaultConnectionInfo(configData.get("default_server"), configData.get("default_port"));
@@ -151,7 +155,7 @@ public class ClientUI extends JFrame {
 		// lol?
 		serverConnectionScreenController.actionPerformed(new ActionEvent(this, 0, "BYPASS_CONNECTION_AND_ATTEMPT_LOGIN"));
 		
-		//CL.show(containerPanel, "FIND_GAME"); // TODO FOR DEBUGGING REMOVE LATER
+		//CL.show(containerPanel, "LOBBY"); // TODO FOR DEBUGGING REMOVE LATER
 	}
 	
 	public void updateConfigData(String key, String value) {

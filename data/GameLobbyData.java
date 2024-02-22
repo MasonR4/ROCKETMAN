@@ -18,6 +18,7 @@ public class GameLobbyData implements Serializable {
 		maxPlayers = mp;	
 		hostUsername = hn;
 		gameID = gid;
+		playerCount = p;
 	}
 	
 	public void setHostUsername(String hn) {
