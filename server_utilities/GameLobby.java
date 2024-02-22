@@ -1,8 +1,6 @@
 package server_utilities;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-
 import data.NewGameData;
 import data.PlayerData;
 
