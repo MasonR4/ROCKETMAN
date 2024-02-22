@@ -141,6 +141,7 @@ public class Server extends AbstractServer {
 			
 			// TODO connect client to the game they created automatically
 			GenericRequest rq = new GenericRequest("CONFIRM_JOIN_GAME");
+			rq.setData(newGame.getGameID());
 			
 		} 
 	}
