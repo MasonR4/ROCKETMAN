@@ -46,12 +46,10 @@ public class CreateAccountScreenController implements ActionListener {
 			if (password.length >= 8) {
 				if (Arrays.equals(password, confirmPassword)) {
 					if (username.length() >= 3) {
-						// TODO CREATE THE ACCOUNT WHERE IS OUR DB AAAAAAH
 						CreateAccountData newAccount = new CreateAccountData(username, password);
 						try {
 							client.sendToServer(newAccount);
 							clientUI.updateConfigData("last_user", username);
-							//cl.show(clientPanel, "MAIN");
 						} catch (IOException SERVER_HATES_UR_ACC_LOL) {
 							SERVER_HATES_UR_ACC_LOL.printStackTrace();
 							screen.setError("Server encountered an error during account creation");

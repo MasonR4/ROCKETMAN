@@ -27,6 +27,7 @@ public class ServerMenuScreen extends JPanel {
 	private JPanel detailsPanel;
 	
 	private JScrollPane logPanel;
+	private JScrollPane gameScrollPane;
 	private JTextArea serverLog;
 	
 	private JTextField commandField;
@@ -50,9 +51,22 @@ public class ServerMenuScreen extends JPanel {
 	public ServerMenuScreen() {
 		setLayout(new BorderLayout());
 		
-		gameScreen = new JPanel(new FlowLayout());
+		gameScreen = new JPanel();
+		gameScreen.setLayout(new BoxLayout(gameScreen, BoxLayout.PAGE_AXIS));
         gameScreen.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        add(gameScreen, BorderLayout.CENTER);
+        //add(gameScreen, BorderLayout.CENTER);
+        
+        JPanel test = new JPanel();
+        test.setBackground(Color.RED);
+        JPanel test2 = new JPanel();
+        test2.setBackground(Color.BLUE);
+        
+        gameScreen.add(test);
+        gameScreen.add(test2);
+        
+        gameScrollPane = new JScrollPane(gameScreen, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        gameScrollPane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        add(gameScrollPane, BorderLayout.CENTER);
         
         commandPanel = new JPanel();
         commandPanel.setLayout(null);
@@ -150,6 +164,10 @@ public class ServerMenuScreen extends JPanel {
 	
 	public JLabel getServerStatusLabel() {
 		return statusUpdate;
+	}
+	
+	public JPanel getGamesPanel() {
+		return gameScreen;
 	}
 	
 	public void setStatus(String msg, Color c) {

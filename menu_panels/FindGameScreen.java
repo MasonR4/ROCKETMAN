@@ -16,7 +16,7 @@ public class FindGameScreen extends JLayeredPane {
 	
 	private EightBitLabel title;
 	private EightBitLabel info;
-	private EightBitLabel noGames;
+	private EightBitLabel serverInfo;
 	
 	private EightBitButton newGameButton;
 	private EightBitButton joinGameButton;
@@ -40,11 +40,11 @@ public class FindGameScreen extends JLayeredPane {
 		title = new EightBitLabel("Join or Create Game", Font.PLAIN, 48f);
 		title.setBounds(90, 25, 350, 50);
 		
-		info = new EightBitLabel("", Font.PLAIN, 25f);
-		info.setBounds(875, 815, 600, 20);
+		info = new EightBitLabel("Logged in as: ", Font.PLAIN, 32f);
+		info.setBounds(510, 40, 600, 20);
 		
-		noGames = new EightBitLabel("No Games Found!", Font.PLAIN, 32f);
-		noGames.setPreferredSize(new Dimension(300, 20));
+		serverInfo = new EightBitLabel("Connected to: ", Font.PLAIN, 32f);
+		serverInfo.setBounds(1000, 40, 400, 20);
 		
 		gamesPanel = new JPanel();
 		gamesPanel.setLayout(new BoxLayout(gamesPanel, BoxLayout.PAGE_AXIS));
@@ -65,17 +65,19 @@ public class FindGameScreen extends JLayeredPane {
 		joinGameButton.setBounds(365, 800, 250, 50);
 		
 		refreshButton = new EightBitButton("Refresh");
-		refreshButton.setBounds(635, 800, 250, 50);
+		refreshButton.setBounds(640, 800, 250, 50);
 		
 		backButton = new EightBitButton("Back");
 		backButton.setBounds(910, 800, 250, 50);
 		
 		add(title, 1);
 		add(info, 1);
+		add(serverInfo, 1);
 		add(newGamePanel, 0);
 		add(gameScrollPane, 1);
 		add(newGameButton, 1);
 		add(joinGameButton, 1);
+		add(refreshButton, 1);
 		add(backButton, 1);
 	}
 	
@@ -89,6 +91,11 @@ public class FindGameScreen extends JLayeredPane {
 	
 	public JPanel getGamesPanel() {
 		return gamesPanel;
+	}
+	
+	public void setInfoLabels(String s, String usr) {
+		serverInfo.setText("Connected to: " + s);
+		info.setText("Logged in as: " + usr);
 	}
 	
 	public void setController(ActionListener ac) {

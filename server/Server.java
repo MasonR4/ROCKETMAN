@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
+
+import controller.ServerMenuScreenController;
 import data.*;
 import ocsf.server.AbstractServer;
 import ocsf.server.ConnectionToClient;
@@ -17,6 +19,8 @@ public class Server extends AbstractServer {
 	private JLabel serverStatus;
 	
 	private String serverName;
+	
+	private ServerMenuScreenController serverMenuController;
 	
 	private ArrayList<GameLobby> games = new ArrayList<GameLobby>();
 	
@@ -32,8 +36,21 @@ public class Server extends AbstractServer {
 		serverStatus = label;
 	}
 	
+	public void setServerMenuController(ServerMenuScreenController c) {
+		serverMenuController = c;
+	}
+	
 	protected void clientConnected(ConnectionToClient client) {
-		serverLog.append("Client " + client.getId() + " connected\n");
+		try {
+			GenericRequest temp = new GenericRequest("SERVER_INFO");
+			temp.setData(serverName);
+			client.sendToClient(temp);
+			serverLog.append("[Client " + client.getId() + "] Connected\n");
+		} catch (IOException CLIENT_IS_MIA) {
+			CLIENT_IS_MIA.printStackTrace();
+		}
+		
+		
 	}
 	
 	protected void clientDisconnected(ConnectionToClient client) {
@@ -74,14 +91,15 @@ public class Server extends AbstractServer {
 			switch (action) {
 			case "REQUEST_GAMES_INFO":
 				serverLog.append("[Client " + arg1.getId() + "] Requested games info\n");
-				GenericRequest temp = new GenericRequest("GAMES_INFO");
+				GenericRequest rq = new GenericRequest("GAMES_INFO");
 				ArrayList<NewGameData> gameList = new ArrayList<NewGameData>();
 				for (GameLobby g : games) {
 					gameList.add(g.generateGameListing());
 				}
-				temp.setData(gameList);
+				rq.setData(gameList);
+				serverMenuController.addGameListings(gameList);
 				try {
-					arg1.sendToClient(temp);
+					arg1.sendToClient(rq);
 				} catch (IOException CLIENT_IS_MAYBE_DEAD) {
 					CLIENT_IS_MAYBE_DEAD.printStackTrace();
 					serverLog.append("Could not send game info to client");
@@ -100,9 +118,9 @@ public class Server extends AbstractServer {
 			// and if successful the code below runs
 			
 			try {
-				GenericRequest temp = new GenericRequest("ACCOUNT_CREATED");
-				temp.setData((String) username);
-				arg1.sendToClient(temp);
+				GenericRequest rq = new GenericRequest("ACCOUNT_CREATED");
+				rq.setData((String) username);
+				arg1.sendToClient(rq);
 				serverLog.append("[Client " + arg1.getId() + "] Created account '" + username + "' and logged in successfully \n");
 			} catch (IOException CLIENT_POSSIBLY_DECEASED) {
 				CLIENT_POSSIBLY_DECEASED.printStackTrace();
@@ -116,7 +134,10 @@ public class Server extends AbstractServer {
 			NewGameData info = (NewGameData) arg0;
 			GameLobby newGame = new GameLobby(info.getName(), info.getHostName(), info.getMaxPlayers(), games.size());
 			games.add(newGame);
-			serverLog.append("[Client " + arg1.getId() + "] Created Game: " + info.getName() + ", Max Players: " + info.getMaxPlayers() + "\n");
+			serverLog.append("[Client " + arg1.getId() + "] Created Game ID: " + info.getGameID() + ", Name: " + info.getName() + ", Max Players: " + info.getMaxPlayers() + "\n");
+			// TODO connect client to the game they created automatically
+			GenericRequest rq = new GenericRequest("CONFIRM_JOIN_GAME");
+			
 		} 
 	}
 }

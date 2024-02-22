@@ -1,15 +1,21 @@
 package controller;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import data.NewGameData;
 import game.ServerUI;
+import menu_panels.GameListingPanel;
 import menu_panels.ServerMenuScreen;
 import server.Server;
+import server_utilities.ServerGameListingPanel;
 
 public class ServerMenuScreenController implements ActionListener {
 
@@ -21,6 +27,8 @@ public class ServerMenuScreenController implements ActionListener {
 	private JTextArea log;
 	private JLabel status;
 	
+	private JPanel gamesPanel;
+	
 	public ServerMenuScreenController(Server s, ServerMenuScreen p, ServerUI ui) {
 		server = s;
 		screen = p;
@@ -28,15 +36,45 @@ public class ServerMenuScreenController implements ActionListener {
 		
 		log = screen.getServerLog();
 		status = screen.getServerStatusLabel();
+		gamesPanel = screen.getGamesPanel();
 	}	
 	
+//	public void addGameListings(ArrayList<NewGameData> games) {
+//		for (NewGameData g : games) {
+//			boolean newGame = true;
+//			for (Component c : gamesPanel.getComponents()) {
+//				if (c instanceof ServerGameListingPanel) {
+//					if (((ServerGameListingPanel) c).getGameID() == g.getGameID()) {
+//						newGame = false;
+//					} 
+//				}
+//			}
+//			if (newGame) {
+//				ServerGameListingPanel temp = new ServerGameListingPanel(g);
+//				temp.setController(this);
+//				gamesPanel.add(temp);
+//				
+//			}
+//		}
+//		gamesPanel.revalidate();
+//	}
+	
+	public void addGameListings(ArrayList<NewGameData> games) {
+		gamesPanel.removeAll();
+		for (NewGameData g : games) {
+			ServerGameListingPanel temp = new ServerGameListingPanel(g);
+			temp.setController(this);
+			gamesPanel.add(temp);
+		}
+		gamesPanel.revalidate();
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
 		
 		switch (action) {
 		case "Start":
-			// TODO start server and get info from fields
 			String name = screen.getServerName();
 			int port = screen.getPort();
 			int timeout = screen.getTimeout();
@@ -54,16 +92,12 @@ public class ServerMenuScreenController implements ActionListener {
 					serverUI.updateConfigData("default_timeout", Integer.toString(timeout));
 					
 					screen.enableQuitButton(false);
-					
-					//log.append("Server '" + name + "' started on port '" + port + "'\n");
-					//status.setText("RUNNING");
-					//status.setForeground(Color.GREEN);
 				} else {
 					log.append("Server already started.\n");
 				}
 				
 			} catch (IOException oops) {
-				// oops
+				oops.printStackTrace();
 			}
 			
 			break;
@@ -74,7 +108,6 @@ public class ServerMenuScreenController implements ActionListener {
 			try {
 				server.close();
 				screen.enableQuitButton(true);
-				//log.append("Server Stopped");
 			} catch (IOException bruh) {
 				
 			}

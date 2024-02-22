@@ -15,7 +15,8 @@ import ocsf.client.AbstractClient;
 
 public class Client extends AbstractClient {
 	
-	private String username;
+	private String username = "default";
+	private String serverName;
 		
 	private boolean isHost = false;
 	
@@ -30,7 +31,6 @@ public class Client extends AbstractClient {
 	
 	public Client() {
 		super("localhost", 8300);
-		username = "default";
 	}
 	
 	@Override
@@ -42,14 +42,20 @@ public class Client extends AbstractClient {
 				findGameController.addGameListings((ArrayList<NewGameData>) ((GenericRequest) arg0).getData());
 				break;
 				
+			case "SERVER_INFO":
+				serverName = (String) ((GenericRequest) arg0).getData();
+				break;
+				
 			case "ACCOUNT_CREATED":
 				username = (String) ((GenericRequest) arg0).getData();
 				createAccountController.actionPerformed(new ActionEvent(0, 0, action));
+				findGameController.setScreenInfoLabels();
 				break;
 			
 			case "LOGIN_CONFIRMED":
 				username = (String) ((GenericRequest) arg0).getData();
-				loginController.actionPerformed(new ActionEvent(0, 0, action));				
+				loginController.actionPerformed(new ActionEvent(0, 0, action));
+				findGameController.setScreenInfoLabels();
 				break;
 			}
 		}
@@ -82,6 +88,10 @@ public class Client extends AbstractClient {
 
 	public String getUserName() {
 		return username;
+	}
+	
+	public String getServerName() {
+		return serverName;
 	}
 	
 	protected void connectionClosed() {

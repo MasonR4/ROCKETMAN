@@ -44,7 +44,7 @@ public class ServerUI extends JFrame {
 		mainPanel = new ServerMenuScreen();
 		controller = new ServerMenuScreenController(server, mainPanel, this);
         mainPanel.setController(controller);
-		
+		server.setServerMenuController(controller);
         // READ CONFIG
      	config = new File("server_config.txt");
      	try {

@@ -28,7 +28,7 @@ public class GameListingPanel extends JPanel {
 	
 	private EightBitButton joinButton;
 	
-	private static Dimension size = new Dimension(1390, 100);
+	private static Dimension size = new Dimension(1398, 100);
 	private ActionListener controller;
 	
 	public GameListingPanel(String n, String hn, int mp, int gid) {
@@ -67,16 +67,26 @@ public class GameListingPanel extends JPanel {
 		name = info.getName();
 		maxPlayers = info.getMaxPlayers();
 		host = info.getHostName();
+		gameID = info.getGameID();
 		
 		lobbyName = new EightBitLabel(name, Font.PLAIN, 33f);
 		lobbyName.setHorizontalAlignment(SwingConstants.LEFT);
 		lobbyName.setBounds(20, 25, 800, 40);
 		
+		hostedBy = new EightBitLabel("Host: " + host, Font.PLAIN, 33f);
+		hostedBy.setHorizontalAlignment(SwingConstants.LEFT);
+		hostedBy.setBounds(830, 25, 200, 40);
+		
 		playerCountLabel = new EightBitLabel(Integer.toString(playerCount) + "/" + Integer.toString(maxPlayers), Font.PLAIN, 33f);
-		playerCountLabel.setBounds(1000, 25, 40, 40);
+		playerCountLabel.setBounds(1030, 25, 40, 40);
 		
 		joinButton = new EightBitButton("Join +");
-		joinButton.setBounds(1100, 25, 200, 50);
+		joinButton.setBounds(1130, 25, 200, 50);
+		
+		add(lobbyName);
+		add(hostedBy);
+		add(playerCountLabel);
+		add(joinButton);
 	}
 	
 	public void setController(ActionListener ac) {
@@ -86,6 +96,10 @@ public class GameListingPanel extends JPanel {
 				((EightBitButton) c).addActionListener(controller);
 			}
 		}
+	}
+	
+	public int getGameID() {
+		return gameID;
 	}
 	
 	@Override
