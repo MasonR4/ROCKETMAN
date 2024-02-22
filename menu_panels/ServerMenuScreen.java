@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
@@ -14,9 +15,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.BevelBorder;
 import javax.swing.text.AbstractDocument;
 
+import data.GameLobbyData;
 import menu_utilities.TextFieldFilters;
+import server_utilities.ServerGameListingPanel;
 
 public class ServerMenuScreen extends JPanel {
 	
@@ -26,6 +30,7 @@ public class ServerMenuScreen extends JPanel {
 	private JPanel detailsPanel;
 	
 	private JScrollPane logPanel;
+	private JScrollPane gameScrollPane;
 	private JTextArea serverLog;
 	
 	private JTextField commandField;
@@ -50,8 +55,25 @@ public class ServerMenuScreen extends JPanel {
 		setLayout(new BorderLayout());
 		
 		gameScreen = new JPanel();
-        gameScreen.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        add(gameScreen, BorderLayout.CENTER);
+		gameScreen.setLayout(new BoxLayout(gameScreen, BoxLayout.PAGE_AXIS));
+        //gameScreen.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        //add(gameScreen, BorderLayout.CENTER);
+        
+        JPanel test = new JPanel();
+        test.setBackground(Color.RED);
+        JPanel test2 = new JPanel();
+        test2.setBackground(Color.BLUE);
+        
+        GameLobbyData ng = new GameLobbyData("hey", "hello", 1, 4);
+        ServerGameListingPanel test3 = new ServerGameListingPanel(ng);
+        gameScreen.add(test3);
+        
+        //gameScreen.add(test);
+        //gameScreen.add(test2);
+        
+        gameScrollPane = new JScrollPane(gameScreen, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        gameScrollPane.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        add(gameScrollPane, BorderLayout.CENTER);
         
         commandPanel = new JPanel();
         commandPanel.setLayout(null);
@@ -149,6 +171,10 @@ public class ServerMenuScreen extends JPanel {
 	
 	public JLabel getServerStatusLabel() {
 		return statusUpdate;
+	}
+	
+	public JPanel getGamesPanel() {
+		return gameScreen;
 	}
 	
 	public void setStatus(String msg, Color c) {

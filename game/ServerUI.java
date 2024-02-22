@@ -31,7 +31,7 @@ public class ServerUI extends JFrame {
 	
 	// stuff
 	private static final Dimension WINDOW_SIZE = new Dimension(1100, 900);
-	
+	private static final long serialVersionUID = 1L;
 	
 	public ServerUI() {
 		setTitle("ROCKETMAN - SERVER");
@@ -42,12 +42,9 @@ public class ServerUI extends JFrame {
 		
 		server = new Server();
 		mainPanel = new ServerMenuScreen();
-		
 		controller = new ServerMenuScreenController(server, mainPanel, this);
-		
-        
         mainPanel.setController(controller);
-		
+		server.setServerMenuController(controller);
         // READ CONFIG
      	config = new File("server_config.txt");
      	try {
@@ -101,6 +98,7 @@ public class ServerUI extends JFrame {
 	public void closingProcedure() {
 		// TODO write some stuff to config and save player data in database
 		// this one might be ugly if there are multiple games running at once
+		// FOR (ALL GAMES) { FOR (ALL PLAYERS IN GAMES) { FOR (ALL DATA IN EACH PLAYER) { MAKE NEW DATABASE SUBMISSION }}}
 		
 		try {
 			FileWriter writer = new FileWriter(config, false);

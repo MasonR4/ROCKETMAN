@@ -3,7 +3,11 @@ package controller;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+
 import javax.swing.JPanel;
+
+import data.GenericRequest;
 import game.ClientUI;
 import menu_panels.MainMenuScreen;
 import server.Client;
@@ -27,17 +31,19 @@ public class MainMenuScreenController implements ActionListener {
 		mainScreen = (MainMenuScreen) clientPanel.getComponent(4); 
 	}
 	
-	public void setClientUI(ClientUI c) {
-		clientUI = c;
-	}
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
 		
 		switch(action) {
 		case "Play":
-			
+			try {
+				GenericRequest rq = new GenericRequest("REQUEST_GAMES_INFO");
+				client.sendToServer(rq);
+			} catch (IOException why) {
+				why.printStackTrace();
+			}
+			cl.show(clientPanel, "FIND_GAME");
 			break;
 			
 		case "Profile":

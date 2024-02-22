@@ -1,15 +1,18 @@
 package controller;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-
+import java.util.ArrayList;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextArea;
-
+import data.GameLobbyData;
 import game.ServerUI;
 import menu_panels.ServerMenuScreen;
 import server.Server;
+import server_utilities.ServerGameListingPanel;
 
 public class ServerMenuScreenController implements ActionListener {
 
@@ -21,6 +24,8 @@ public class ServerMenuScreenController implements ActionListener {
 	private JTextArea log;
 	private JLabel status;
 	
+	private JPanel gamesPanel;
+	
 	public ServerMenuScreenController(Server s, ServerMenuScreen p, ServerUI ui) {
 		server = s;
 		screen = p;
@@ -28,19 +33,37 @@ public class ServerMenuScreenController implements ActionListener {
 		
 		log = screen.getServerLog();
 		status = screen.getServerStatusLabel();
+		gamesPanel = screen.getGamesPanel();
 	}	
 	
+	public void addGameListings(ArrayList<GameLobbyData> games) {
+		for (GameLobbyData g : games) {
+			boolean newGame = true;
+			for (Component c : gamesPanel.getComponents()) {
+				if (c instanceof ServerGameListingPanel) {
+					if (((ServerGameListingPanel) c).getGameID() == g.getGameID()) {
+						newGame = false;
+					} 
+				}
+			}
+			if (newGame) {
+				ServerGameListingPanel temp = new ServerGameListingPanel(g);
+				temp.setController(this);
+				gamesPanel.add(temp);
+			}
+		}
+		gamesPanel.revalidate();
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
+		String name = screen.getServerName();
+		int port = screen.getPort();
+		int timeout = screen.getTimeout();
 		
 		switch (action) {
 		case "Start":
-			// TODO start server and get info from fields
-			String name = screen.getServerName();
-			int port = screen.getPort();
-			int timeout = screen.getTimeout();
-			
 			server.setPort(port);
 			server.setName(name);
 			server.setTimeout(timeout);
@@ -49,32 +72,25 @@ public class ServerMenuScreenController implements ActionListener {
 				if (!server.isListening()) {
 					server.listen();
 					
-					serverUI.updateConfigData("server_name", name);
+					serverUI.updateConfigData("server_name", name); 
 					serverUI.updateConfigData("default_port", Integer.toString(port));
 					serverUI.updateConfigData("default_timeout", Integer.toString(timeout));
 					
 					screen.enableQuitButton(false);
-					
-					//log.append("Server '" + name + "' started on port '" + port + "'\n");
-					//status.setText("RUNNING");
-					//status.setForeground(Color.GREEN);
 				} else {
 					log.append("Server already started.\n");
 				}
-				
 			} catch (IOException oops) {
-				// oops
+				oops.printStackTrace();
 			}
-			
 			break;
 			
 		case "Stop":
-			// TODO stop server
+			// TODO stop server and tell clients to disconnect (?)
 		
 			try {
 				server.close();
 				screen.enableQuitButton(true);
-				//log.append("Server Stopped");
 			} catch (IOException bruh) {
 				
 			}
@@ -95,11 +111,35 @@ public class ServerMenuScreenController implements ActionListener {
 			switch(args[0]) {
 			
 			case "/start":
-				// TODO start the server LOL
+				server.setPort(port);
+				server.setName(name);
+				server.setTimeout(timeout);
+				
+				try {
+					if (!server.isListening()) {
+						server.listen();
+						
+						serverUI.updateConfigData("server_name", name); 
+						serverUI.updateConfigData("default_port", Integer.toString(port));
+						serverUI.updateConfigData("default_timeout", Integer.toString(timeout));
+						
+						screen.enableQuitButton(false);
+					} else {
+						log.append("Server already started.\n");
+					}
+					
+				} catch (IOException oops) {
+					oops.printStackTrace();
+				}
 				break;
 				
 			case "/stop":
-				// TODO STOP THE SERVER NO WAY
+				try {
+					server.close();
+					screen.enableQuitButton(true);
+				} catch (IOException bruh) {
+					
+				}
 				break;
 			
 			case "/listconnections":

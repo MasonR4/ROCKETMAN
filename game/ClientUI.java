@@ -35,6 +35,7 @@ public class ClientUI extends JFrame {
 	private LoginScreenController loginScreenController;
 	private CreateAccountScreenController createAccountScreenController;
 	private MainMenuScreenController mainMenuScreenController;
+	private FindGameScreenController findGameScreenController;
 	
 	// menus
 	private ServerConnectionScreen serverConnectionScreen;
@@ -42,6 +43,8 @@ public class ClientUI extends JFrame {
 	private LoginScreen loginScreen;
 	private CreateAccountScreen createAccountScreen;
 	private MainMenuScreen mainMenuScreen;
+	private FindGameScreen findGameScreen;
+	private LobbyScreen lobbyScreen;
 	
 	// layout
 	private JPanel containerPanel;
@@ -67,7 +70,6 @@ public class ClientUI extends JFrame {
 		config = new File("config.txt");
 		try {
 			scanner = new Scanner(config);
-			
 			while (scanner.hasNextLine()) {
 				String[] input = scanner.nextLine().split("\\: ");
 				if (input.length > 1) {
@@ -76,22 +78,17 @@ public class ClientUI extends JFrame {
 					configData.put(input[0], "");
 				}
 			}
-			
 			scanner.close();
-			
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			System.out.println("Could not read config.");
 			System.out.println("falling back to defaults");
 			
 			configData.put("default_server", "127.0.0.1");
 			configData.put("default_port", "8300");
 			configData.put("last_user", "");
-			configData.put("last_password", "");
-			configData.put("save_login", "false");
-			//e.printStackTrace();
 		}
 			
-		// i stole this from someone elses project but i think it would be doing everyone a disservice if we didnt have this
+		// i stole this from someone else's project but i think it would be doing everyone a disservice if we didnt have this
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -105,6 +102,8 @@ public class ClientUI extends JFrame {
 		loginScreen = new LoginScreen();
 		createAccountScreen = new CreateAccountScreen();
 		mainMenuScreen = new MainMenuScreen();
+		findGameScreen = new FindGameScreen();
+		lobbyScreen = new LobbyScreen();
 		
 		// ADD THEM
 		containerPanel.add(serverConnectionScreen, "SERVER_CONNECTION");
@@ -112,6 +111,8 @@ public class ClientUI extends JFrame {
 		containerPanel.add(loginScreen, "LOGIN");
 		containerPanel.add(createAccountScreen, "CREATE_ACCOUNT");
 		containerPanel.add(mainMenuScreen, "MAIN");
+		containerPanel.add(findGameScreen, "FIND_GAME");
+		containerPanel.add(lobbyScreen, "LOBBY");
 		
 		// WE ARE DECLARING A NUMBER OF CONTROLLERS
 		serverConnectionScreenController = new ServerConnectionScreenController(client, containerPanel, this);
@@ -119,6 +120,7 @@ public class ClientUI extends JFrame {
 		loginScreenController = new LoginScreenController(client, containerPanel, this);
 		createAccountScreenController = new CreateAccountScreenController(client, containerPanel, this);
 		mainMenuScreenController = new MainMenuScreenController(client, containerPanel, this);
+		findGameScreenController = new FindGameScreenController(client, containerPanel, this);
 		
 		// ANNOYING EXTRA STEP
 		serverConnectionScreen.setController(serverConnectionScreenController);
@@ -126,6 +128,15 @@ public class ClientUI extends JFrame {
 		loginScreen.setController(loginScreenController);
 		createAccountScreen.setController(createAccountScreenController);
 		mainMenuScreen.setController(mainMenuScreenController);
+		findGameScreen.setController(findGameScreenController);
+		
+		// ANNOYING EXTRA EXTRA STEP
+		client.setSplashController(splashScreenController);
+		client.setCreateAccountController(createAccountScreenController);
+		client.setFindGameController(findGameScreenController);
+		client.setLoginController(loginScreenController);
+		client.setMainMenuController(mainMenuScreenController);
+		client.setServerConnectionController(serverConnectionScreenController);
 		
 		// pass a few default values
 		serverConnectionScreen.setDefaultConnectionInfo(configData.get("default_server"), configData.get("default_port"));
@@ -139,7 +150,7 @@ public class ClientUI extends JFrame {
 		// lol?
 		serverConnectionScreenController.actionPerformed(new ActionEvent(this, 0, "BYPASS_CONNECTION_AND_ATTEMPT_LOGIN"));
 		
-		//cl.show(containerPanel, "MAIN"); // REMOVE LATER
+		//CL.show(containerPanel, "FIND_GAME"); // TODO FOR DEBUGGING REMOVE LATER
 	}
 	
 	public void updateConfigData(String key, String value) {
@@ -147,7 +158,7 @@ public class ClientUI extends JFrame {
 	}
 	
 	public void closingProcedure() {
-		// TODO save player data in DB (maybe happens serverside instead?)
+		// TODO save player data in DB (maybe happens server side instead?)
 		
 		try {
 			client.closeConnection();
