@@ -11,6 +11,8 @@ import controller.MainMenuScreenController;
 import controller.ServerConnectionScreenController;
 import controller.SplashScreenController;
 import data.GenericRequest;
+import data.PlayerData;
+import data.PlayerJoinData;
 import data.GameLobbyData;
 import ocsf.client.AbstractClient;
 
@@ -81,7 +83,13 @@ public class Client extends AbstractClient {
 				int gameID = (int) ((GenericRequest) arg0).getData();
 				findGameController.actionPerformed(new ActionEvent(0, 0, action));
 				break;
-			} // else if (arg0 instanceof gameData) {}
+			} 
+		} else if (arg0 instanceof GameLobbyData) {
+			
+		} else if (arg0 instanceof PlayerJoinData) {
+			// for when a player joins lobby client is currently connected to
+		} else if (arg0 instanceof PlayerData) {
+			// for when client request player statistics from the server
 		}
 		
 	}

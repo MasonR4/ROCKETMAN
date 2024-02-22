@@ -2,7 +2,7 @@ package menu_utilities;
 
 import javax.swing.JPanel;
 
-public class PlayerPanel extends JPanel {
+public class PlayerListingPanel extends JPanel {
 	
 	private String username;
 	
@@ -11,7 +11,7 @@ public class PlayerPanel extends JPanel {
 	
 	private EightBitLabel usernameLabel;
 	
-	public PlayerPanel(String s) {
+	public PlayerListingPanel(String s) {
 		username = s;
 		
 	}

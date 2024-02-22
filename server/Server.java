@@ -87,7 +87,10 @@ public class Server extends AbstractServer {
 			}
 		}
 		for (Entry<Integer, GameLobby> e : games.entrySet()) {
-			gameList.add(e.getValue().generateGameListing());
+			GameLobby g = e.getValue();
+			if (!g.isStarted()) {
+				gameList.add(e.getValue().generateGameListing());
+			}
 		}
 		return gameList;
 	}
@@ -109,9 +112,14 @@ public class Server extends AbstractServer {
 		serverLog.append("Restart Required\n");
 	}
 	
+	public void cancelGame(int id) {
+		GameLobby g = games.get(id);
+		serverLog.append("[Info] Canceled Game " + id + "\n");
+		games.remove(id);
+	}
+	
 	@Override
 	protected void handleMessageFromClient(Object arg0, ConnectionToClient arg1) {
-		
 		if (arg0 instanceof GenericRequest) {
 			String action = ((GenericRequest) arg0).getMsg();
 			GenericRequest rq;
