@@ -127,7 +127,7 @@ public class Client extends AbstractClient {
 		lobbyController = c;
 	}
 
-	public String getUserName() {
+	public String getUsername() {
 		return username;
 	}
 	
@@ -137,6 +137,10 @@ public class Client extends AbstractClient {
 	
 	public int getGameID() {
 		return gameID;
+	}
+	
+	public void setGameID(int g) {
+		gameID = g;
 	}
 	
 	protected void connectionClosed() {

@@ -19,6 +19,7 @@ import menu_utilities.PlayerListingPanel;
 
 public class LobbyScreen extends JPanel {
 	
+	private int gameID;
 	
 	private EightBitLabel lobbyName;
 	private EightBitLabel hostLabel;
@@ -90,6 +91,14 @@ public class LobbyScreen extends JPanel {
 	
 	public void enableHostControls() {
 		
+	}
+	
+	public void unreadyReadyButton() {
+		readyButton.setText("Not Ready");
+	}
+	
+	public void readyReadyButton() {
+		readyButton.setText("Ready");
 	}
 	
 	public JPanel getPlayerPanel() {

@@ -55,7 +55,7 @@ public class FindGameScreenController implements ActionListener {
 	}
 	
 	public void setScreenInfoLabels() {
-		screen.setInfoLabels(client.getServerName(), client.getUserName()); 
+		screen.setInfoLabels(client.getServerName(), client.getUsername()); 
 	}
 	
 	@Override
@@ -64,7 +64,7 @@ public class FindGameScreenController implements ActionListener {
 		
 		switch(action) {
 		case "New Game":
-			newGameScreen.setFieldDefaults(client.getUserName());
+			newGameScreen.setFieldDefaults(client.getUsername());
 			newGameScreen.setVisible(true);
 			break;
 		case "Back":
@@ -81,7 +81,7 @@ public class FindGameScreenController implements ActionListener {
 					if (lobbyName.length() < 3) {
 						newGameScreen.setError("Lobby name must be at least 3 characters in length");
 					} else {
-						GameLobbyData GameLobbyData = new GameLobbyData(lobbyName, client.getUserName(), 0, maxPlayers, -1);
+						GameLobbyData GameLobbyData = new GameLobbyData(lobbyName, client.getUsername(), 0, maxPlayers, -1);
 						// request new game be made on the server
 						try {
 							client.sendToServer(GameLobbyData);
@@ -109,7 +109,7 @@ public class FindGameScreenController implements ActionListener {
 			EightBitButton buttonClicked = (EightBitButton) e.getSource();
 			GameListingPanel sourceScreen = (GameListingPanel) buttonClicked.getParent();
 			int gameID = sourceScreen.getGameID();
-			String rqData = client.getUserName() + ":" + Integer.toString(gameID); // can't send more than one data?!?! JUST MAKE IT CONCATENATED AND SPLIT ON SERVER END LOL // guys i might be an imbecile
+			String rqData = client.getUsername() + ":" + Integer.toString(gameID); // can't send more than one data?!?! JUST MAKE IT CONCATENATED AND SPLIT ON SERVER END LOL // guys i might be an imbecile
 			GenericRequest rq = new GenericRequest("REQUEST_TO_JOIN_GAME");
 			rq.setData(rqData);
 			try {

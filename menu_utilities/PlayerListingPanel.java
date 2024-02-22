@@ -60,6 +60,10 @@ public class PlayerListingPanel extends JPanel {
 		readyLabel.repaint();
 	}
 	
+	public boolean isReady() {
+		return ready;
+	}
+	
 	@Override
 	public Dimension getPreferredSize() {
 		return size;

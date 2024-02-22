@@ -166,9 +166,10 @@ public class ClientUI extends JFrame {
 	public void disconnectProcedure() {
 		try {
 			GenericRequest rq = new GenericRequest("PLAYER_DISCONNECTING");
-			rq.setData(client.getUserName());
+			rq.setData(client.getUsername());
 			client.sendToServer(rq);
 			client.closeConnection();
+			client.setGameID(-1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

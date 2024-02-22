@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import data.GameLobbyData;
 import data.GenericRequest;
@@ -25,8 +26,10 @@ public class GameLobby {
 	private int playerCap;
 	private int gameID;
 	
+	private LinkedHashMap<String, PlayerData> players2 = new LinkedHashMap<String, PlayerData>();
+	
 	private LinkedHashMap<String, ConnectionToClient> playerConnections = new LinkedHashMap<String, ConnectionToClient>();
-	private ArrayList<String> playerNames = new ArrayList<String>();
+	private ArrayList<String> players = new ArrayList<String>();
 	
 	// TODO here is where we store stuff like player objects, the grid
 	// other game relevant stuff
@@ -58,16 +61,16 @@ public class GameLobby {
 	}
 	
 	public ArrayList<String> getPlayerUsernames() {
-		return playerNames;
+		return players;
 	}
 	
 	public ArrayList<PlayerJoinData> getJoinedPlayers() {
-		ArrayList<PlayerJoinData> players = new ArrayList<PlayerJoinData>();
-		for (String s : playerNames) {
+		ArrayList<PlayerJoinData> joinedPlayers = new ArrayList<PlayerJoinData>();
+		for (String s : players) {
 			PlayerJoinData player = new PlayerJoinData(s, (hostUsername == s));
-			players.add(player);
+			joinedPlayers.add(player);
 		}
-		return players;
+		return joinedPlayers;
 	}
 	
 	public boolean isFull() {
@@ -92,20 +95,21 @@ public class GameLobby {
 	
 	public void removePlayer(ConnectionToClient c, String usr) {
 		playerConnections.remove(usr);
-		playerNames.remove(usr);
+		players.remove(usr);
 		playerCount -= 1;
 		
 		if (playerCount == 0) {
 			server.cancelGame(gameID);
-		} else if (usr == hostUsername && playerNames.isEmpty() == false) {
-			hostUsername = playerNames.get(0);
+		} else if (usr == hostUsername && players2.isEmpty() == false) {
+			String[] usernames = (String[]) players2.keySet().toArray();
+			hostUsername = usernames[0];
 			updateClients(getJoinedPlayers());
 		}
 	}
 	
 	public void addPlayer(ConnectionToClient c, String usr) {
 		playerConnections.put(usr, c);
-		playerNames.add(usr);
+		players.add(usr);
 		if (playerCount == 0) {
 			hostUsername = usr;
 		}
