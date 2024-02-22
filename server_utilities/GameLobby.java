@@ -11,6 +11,7 @@ public class GameLobby {
 	
 	private int playerCount;
 	private int playerCap;
+	private int gameID;
 	
 	private ArrayList<PlayerData> players = new ArrayList<PlayerData>();
 	
@@ -19,14 +20,15 @@ public class GameLobby {
 	
 	// TODO also all of the game logic that needs to be handled server side goes in here too
 	
-	public GameLobby(String n, int mp) {
+	public GameLobby(String n, String hn, int mp, int gid) {
 		lobbyName = n;
-		hostUsername = "testing"; // get username from client later
+		hostUsername = hn;
+		gameID = gid;
 		playerCap = mp;
 	}
 	
 	public NewGameData generateGameListing() {
-		NewGameData tempInfo = new NewGameData(lobbyName, playerCap);
+		NewGameData tempInfo = new NewGameData(lobbyName, hostUsername, playerCap, gameID);
 		return tempInfo;
 	}
 }

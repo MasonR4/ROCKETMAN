@@ -5,20 +5,24 @@ import java.io.Serializable;
 import server.Client;
 
 public class NewGameData implements Serializable {
+	
 	private String name;
-	private int maxPlayers;
-	
 	private String hostUsername;
-	private Client host;
 	
-	public NewGameData(String n, int mp) {
+	private int maxPlayers;
+	private int gameID;
+
+	public NewGameData(String n, String hn, int mp, int gid) {
 		name = n;
 		maxPlayers = mp;	
-		//host = c;
-		//hostUsername = host.getUserName();
-		hostUsername = "testing"; // TODO figure out how we get the username from the client oh wait we need to login to do that crap
+		hostUsername = hn;
+		gameID = gid;
 	}
-
+	
+	public void setHostUsername(String hn) {
+		hostUsername = hn;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -31,8 +35,7 @@ public class NewGameData implements Serializable {
 		return maxPlayers;
 	}
 	
-	public Client getHost() {
-		return host;
-	}
-	
+	public int getGameID() {
+		return gameID;
+	}	
 }

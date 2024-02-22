@@ -1,8 +1,11 @@
 package menu_panels;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -17,6 +20,7 @@ public class GameListingPanel extends JPanel {
 	
 	private int playerCount;
 	private int maxPlayers;
+	private int gameID;
 	
 	private EightBitLabel lobbyName;
 	private EightBitLabel playerCountLabel;
@@ -25,14 +29,16 @@ public class GameListingPanel extends JPanel {
 	private EightBitButton joinButton;
 	
 	private static Dimension size = new Dimension(1390, 100);
+	private ActionListener controller;
 	
-	public GameListingPanel(String n, String hn, int mp) {
+	public GameListingPanel(String n, String hn, int mp, int gid) {
 		setLayout(null);
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		
 		name = n;
-		playerCount = 0;
+		playerCount = 0; // TODO how do we find this IDK
 		maxPlayers = mp;
+		gameID = gid;
 		host = hn;
 		
 		lobbyName = new EightBitLabel(name, Font.PLAIN, 33f);
@@ -71,6 +77,15 @@ public class GameListingPanel extends JPanel {
 		
 		joinButton = new EightBitButton("Join +");
 		joinButton.setBounds(1100, 25, 200, 50);
+	}
+	
+	public void setController(ActionListener ac) {
+		controller = ac;
+		for (Component c : this.getComponents()) {
+			if (c instanceof EightBitButton) {
+				((EightBitButton) c).addActionListener(controller);
+			}
+		}
 	}
 	
 	@Override

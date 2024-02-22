@@ -40,7 +40,8 @@ public class FindGameScreenController implements ActionListener {
 	
 	public void addGameListings(ArrayList<NewGameData> games) {
 		for (NewGameData g : games) {
-			GameListingPanel temp = new GameListingPanel(g.getName(), g.getHostName(), g.getMaxPlayers());
+			GameListingPanel temp = new GameListingPanel(g.getName(), g.getHostName(), g.getMaxPlayers(), g.getGameID());
+			temp.setController(this);
 			gamesPanel.add(temp);
 			gamesPanel.revalidate();
 		}
@@ -68,7 +69,7 @@ public class FindGameScreenController implements ActionListener {
 					if (lobbyName.length() < 3) {
 						newGameScreen.setError("Lobby name must be at least 3 characters in length");
 					} else {
-						NewGameData newGameData = new NewGameData(lobbyName, maxPlayers);
+						NewGameData newGameData = new NewGameData(lobbyName, client.getUserName(), maxPlayers, -1);
 						// request new game be made on the server
 						try {
 							client.sendToServer(newGameData);
@@ -86,6 +87,9 @@ public class FindGameScreenController implements ActionListener {
 			// have client change to lobby screen upon receiving confirmation 
 			// of game creation from server
 			// egads
+			break;
+		case "Join +":
+			System.out.println("attempted to join game NOT IMPLENENTED YET lol get rekt 5head SHUT UP");
 			break;
 		case "Cancel":
 			newGameScreen.setVisible(false);

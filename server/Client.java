@@ -1,5 +1,6 @@
 package server;
 
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
 import controller.CreateAccountScreenController;
@@ -15,7 +16,6 @@ import ocsf.client.AbstractClient;
 public class Client extends AbstractClient {
 	
 	private String username;
-	private int userID;
 		
 	private boolean isHost = false;
 	
@@ -30,7 +30,7 @@ public class Client extends AbstractClient {
 	
 	public Client() {
 		super("localhost", 8300);
-		// TODO Auto-generated constructor stub
+		username = "default";
 	}
 	
 	@Override
@@ -40,6 +40,16 @@ public class Client extends AbstractClient {
 			switch(action) {
 			case "GAMES_INFO":
 				findGameController.addGameListings((ArrayList<NewGameData>) ((GenericRequest) arg0).getData());
+				break;
+				
+			case "ACCOUNT_CREATED":
+				username = (String) ((GenericRequest) arg0).getData();
+				createAccountController.actionPerformed(new ActionEvent(0, 0, action));
+				break;
+			
+			case "LOGIN_CONFIRMED":
+				username = (String) ((GenericRequest) arg0).getData();
+				loginController.actionPerformed(new ActionEvent(0, 0, action));				
 				break;
 			}
 		}
@@ -68,11 +78,6 @@ public class Client extends AbstractClient {
 	
 	public void setSplashController(SplashScreenController c) {
 		splashController = c;
-	}
-	
-	public void updateUser(String usr, int id) {
-		username = usr;
-		userID = id;
 	}
 
 	public String getUserName() {

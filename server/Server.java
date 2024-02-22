@@ -68,27 +68,12 @@ public class Server extends AbstractServer {
 	@Override
 	protected void handleMessageFromClient(Object arg0, ConnectionToClient arg1) {
 		
-		if (arg0 instanceof LoginData) {
-			// TODO login here
-			
-			
-		} else if (arg0 instanceof CreateAccountData) {
-			// TODO create account here
-			
-		} else if (arg0 instanceof PlayerData) {
-			// TODO load player data server side
-			
-		} else if (arg0 instanceof NewGameData) {
-			NewGameData info = (NewGameData) arg0;
-			GameLobby newGame = new GameLobby(info.getName(), info.getMaxPlayers());
-			games.add(newGame);
-			serverLog.append("New Game Created: " + info.getName() + ", Max Players: " + info.getMaxPlayers() + ", Created By Client: " + arg1.getId() + "\n");
-		} else if (arg0 instanceof GenericRequest) {
+		if (arg0 instanceof GenericRequest) {
 			String action = ((GenericRequest) arg0).getMsg();
 			// lol PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
 			switch (action) {
 			case "REQUEST_GAMES_INFO":
-				serverLog.append("Client " + arg1.getId() + " requested games info\n");
+				serverLog.append("[Client " + arg1.getId() + "] Requested games info\n");
 				GenericRequest temp = new GenericRequest("GAMES_INFO");
 				ArrayList<NewGameData> gameList = new ArrayList<NewGameData>();
 				for (GameLobby g : games) {
@@ -102,8 +87,36 @@ public class Server extends AbstractServer {
 					serverLog.append("Could not send game info to client");
 				}
 				break;
-				
 			}
-		}
+			
+			
+		} else if (arg0 instanceof LoginData) {
+			// TODO login here 
+		} else if (arg0 instanceof CreateAccountData) {
+			String username = ((CreateAccountData) arg0).getUsername();
+			String password = ((CreateAccountData) arg0).getPassword();
+			
+			// TODO here is where it should submit the new account to the database
+			// and if successful the code below runs
+			
+			try {
+				GenericRequest temp = new GenericRequest("ACCOUNT_CREATED");
+				temp.setData((String) username);
+				arg1.sendToClient(temp);
+				serverLog.append("[Client " + arg1.getId() + "] Created account '" + username + "' and logged in successfully \n");
+			} catch (IOException CLIENT_POSSIBLY_DECEASED) {
+				CLIENT_POSSIBLY_DECEASED.printStackTrace();
+				serverLog.append("[Client " + arg1.getId() + "] Error creating account\n");
+			}
+			
+		} else if (arg0 instanceof PlayerData) {
+			// TODO load player data server side
+			
+		} else if (arg0 instanceof NewGameData) {
+			NewGameData info = (NewGameData) arg0;
+			GameLobby newGame = new GameLobby(info.getName(), info.getHostName(), info.getMaxPlayers(), games.size());
+			games.add(newGame);
+			serverLog.append("[Client " + arg1.getId() + "] Created Game: " + info.getName() + ", Max Players: " + info.getMaxPlayers() + "\n");
+		} 
 	}
 }
