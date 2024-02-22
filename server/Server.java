@@ -33,14 +33,10 @@ public class Server extends AbstractServer {
 	}
 	
 	protected void clientConnected(ConnectionToClient client) {
-		// TODO not really sure what to send back tbh maybe just connection successful
 		serverLog.append("Client " + client.getId() + " connected\n");
 	}
 	
 	protected void clientDisconnected(ConnectionToClient client) {
-		// idk if im stupid but this method never seems to get called?
-		// even if i have client.closeConnection() in the other end
-		// pretty inconvenient
 		serverLog.append("Client " + client.getId() + " disconnected\n");
 	}
 	
@@ -65,7 +61,6 @@ public class Server extends AbstractServer {
 	}
 	
 	public void listeningException(Throwable exception) {
-		
 		serverLog.append("Listening Exception Occurred: " + exception.getMessage());
 		serverLog.append("Restart Required");
 	}
@@ -87,15 +82,19 @@ public class Server extends AbstractServer {
 			NewGameData info = (NewGameData) arg0;
 			GameLobby newGame = new GameLobby(info.getName(), info.getMaxPlayers());
 			games.add(newGame);
-			serverLog.append("New Game Created: " + info.getName() + ", Max Players: " + info.getMaxPlayers() + ", Created By Client: " + arg1.getId());
+			serverLog.append("New Game Created: " + info.getName() + ", Max Players: " + info.getMaxPlayers() + ", Created By Client: " + arg1.getId() + "\n");
 		} else if (arg0 instanceof GenericRequest) {
 			String action = ((GenericRequest) arg0).getMsg();
 			// lol PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
 			switch (action) {
 			case "REQUEST_GAMES_INFO":
-				serverLog.append("Client " + arg1.getId() + " requested games info");
+				serverLog.append("Client " + arg1.getId() + " requested games info\n");
 				GenericRequest temp = new GenericRequest("GAMES_INFO");
-				temp.setData(games.clone());
+				ArrayList<NewGameData> gameList = new ArrayList<NewGameData>();
+				for (GameLobby g : games) {
+					gameList.add(g.generateGameListing());
+				}
+				temp.setData(gameList);
 				try {
 					arg1.sendToClient(temp);
 				} catch (IOException CLIENT_IS_MAYBE_DEAD) {

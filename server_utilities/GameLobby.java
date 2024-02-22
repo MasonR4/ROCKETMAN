@@ -1,5 +1,6 @@
 package server_utilities;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import data.NewGameData;
@@ -23,6 +24,7 @@ public class GameLobby {
 	public GameLobby(String n, int mp) {
 		lobbyName = n;
 		//hostUsername = hn;
+		hostUsername = "testing";
 		playerCap = mp;
 	}
 	

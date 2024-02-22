@@ -130,6 +130,14 @@ public class ClientUI extends JFrame {
 		mainMenuScreen.setController(mainMenuScreenController);
 		findGameScreen.setController(findGameScreenController);
 		
+		// ANNOYING EXTRA EXTRA STEP
+		client.setSplashController(splashScreenController);
+		client.setCreateAccountController(createAccountScreenController);
+		client.setFindGameController(findGameScreenController);
+		client.setLoginController(loginScreenController);
+		client.setMainMenuController(mainMenuScreenController);
+		client.setServerConnectionController(serverConnectionScreenController);
+		
 		// pass a few default values
 		serverConnectionScreen.setDefaultConnectionInfo(configData.get("default_server"), configData.get("default_port"));
 		loginScreen.setDefaultUsername(configData.get("last_user"));

@@ -4,12 +4,14 @@ import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
 import data.NewGameData;
 import game.ClientUI;
 import menu_panels.FindGameScreen;
+import menu_panels.GameListingPanel;
 import menu_utilities.GameCreationPanel;
 import server.Client;
 
@@ -19,6 +21,7 @@ public class FindGameScreenController implements ActionListener {
 	private ClientUI clientUI;
 	
 	private JPanel clientPanel;
+	private JPanel gamesPanel;
 	private FindGameScreen screen;
 	private GameCreationPanel newGameScreen;
 	
@@ -32,15 +35,24 @@ public class FindGameScreenController implements ActionListener {
 		cl = (CardLayout) clientPanel.getLayout();
 		screen = (FindGameScreen) clientPanel.getComponent(5);
 		newGameScreen = screen.getGameCreationPanel();
+		gamesPanel = screen.getGamesPanel();
 	}
-
+	
+	public void addGameListings(ArrayList<NewGameData> games) {
+		for (NewGameData g : games) {
+			GameListingPanel temp = new GameListingPanel(g.getName(), g.getHostName(), g.getMaxPlayers());
+			gamesPanel.add(temp);
+			gamesPanel.revalidate();
+		}
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
 		
 		switch(action) {
 		case "New Game":
-			screen.showGameCreationPanel();
+			newGameScreen.setVisible(true);
 			break;
 		case "Back":
 			cl.show(clientPanel, "MAIN");
@@ -76,7 +88,7 @@ public class FindGameScreenController implements ActionListener {
 			// egads
 			break;
 		case "Cancel":
-			// make the game creation panel go away 
+			newGameScreen.setVisible(false);
 			break;
 		
 		}

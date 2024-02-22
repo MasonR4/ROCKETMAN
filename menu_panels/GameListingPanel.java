@@ -26,14 +26,14 @@ public class GameListingPanel extends JPanel {
 	
 	private static Dimension size = new Dimension(1390, 100);
 	
-	public GameListingPanel() {
+	public GameListingPanel(String n, String hn, int mp) {
 		setLayout(null);
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		
-		name = "Lobby Name Goes Here - imagine if this doesn't actually work LOL";
+		name = n;
 		playerCount = 0;
-		maxPlayers = 6;
-		host = "test_user";
+		maxPlayers = mp;
+		host = hn;
 		
 		lobbyName = new EightBitLabel(name, Font.PLAIN, 33f);
 		lobbyName.setHorizontalAlignment(SwingConstants.LEFT);

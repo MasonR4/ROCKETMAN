@@ -21,6 +21,7 @@ public class FindGameScreen extends JLayeredPane {
 	private EightBitButton newGameButton;
 	private EightBitButton joinGameButton;
 	private EightBitButton backButton;
+	private EightBitButton refreshButton;
 	
 	private JPanel gamesPanel;
 	private JScrollPane gameScrollPane;
@@ -63,8 +64,11 @@ public class FindGameScreen extends JLayeredPane {
 		joinGameButton = new EightBitButton("Join Game");
 		joinGameButton.setBounds(365, 800, 250, 50);
 		
+		refreshButton = new EightBitButton("Refresh");
+		refreshButton.setBounds(635, 800, 250, 50);
+		
 		backButton = new EightBitButton("Back");
-		backButton.setBounds(635, 800, 250, 50);
+		backButton.setBounds(910, 800, 250, 50);
 		
 		add(title, 1);
 		add(info, 1);
@@ -81,6 +85,10 @@ public class FindGameScreen extends JLayeredPane {
 	
 	public GameCreationPanel getGameCreationPanel() {
 		return newGamePanel;
+	}
+	
+	public JPanel getGamesPanel() {
+		return gamesPanel;
 	}
 	
 	public void setController(ActionListener ac) {
