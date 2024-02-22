@@ -76,8 +76,8 @@ public class Server extends AbstractServer {
 	}
 	
 	public void listeningException(Throwable exception) {
-		serverLog.append("Listening Exception Occurred: " + exception.getMessage());
-		serverLog.append("Restart Required");
+		serverLog.append("Listening Exception Occurred: " + exception.getMessage() + "\n");
+		serverLog.append("Restart Required\n");
 	}
 	
 	@Override
@@ -94,20 +94,39 @@ public class Server extends AbstractServer {
 				for (GameLobby g : games) {
 					gameList.add(g.generateGameListing());
 				}
-				serverMenuController.addGameListings((ArrayList<GameLobbyData>) gameList.clone());
+				serverMenuController.addGameListings(gameList);
 				rq.setData(gameList);
 				try {
 					arg1.sendToClient(rq);
 				} catch (IOException CLIENT_IS_MAYBE_DEAD) {
 					CLIENT_IS_MAYBE_DEAD.printStackTrace();
-					serverLog.append("Could not send game info to client");
+					serverLog.append("Could not send game info to client\n");
 				}
 				break;
+			case "REQUEST_JOIN_GAME":
+				
 			}
 			
 			
 		} else if (arg0 instanceof LoginData) {
+			String username = ((LoginData) arg0).getUsername();
+			String password = ((LoginData) arg0).getPassword();
+			
 			// TODO login here 
+			// if (validLogin) login!
+			// else sendToClient(INVALID_LOGIN INFO) -- wrap in generic request
+			// query dataBase and whatever
+			
+			try {
+				GenericRequest rq = new GenericRequest("LOGIN_CONFIRMED");
+				rq.setData(username);
+				arg1.sendToClient(rq);
+				serverLog.append("[Client " + arg1.getId() + "] Sucessfully logged in as " + username + "\n");
+			} catch (IOException CLIENT_LIKELY_DEPARTED) {
+				CLIENT_LIKELY_DEPARTED.printStackTrace();
+				serverLog.append("[Client " + arg1.getId() + "] Login Failed\n");
+			}
+			
 		} else if (arg0 instanceof CreateAccountData) {
 			String username = ((CreateAccountData) arg0).getUsername();
 			String password = ((CreateAccountData) arg0).getPassword();
@@ -133,7 +152,7 @@ public class Server extends AbstractServer {
 			GameLobby newGame = new GameLobby(info.getName(), info.getHostName(), info.getMaxPlayers(), games.size());
 			ArrayList<GameLobbyData> gameList = new ArrayList<GameLobbyData>();
 			games.add(newGame);
-			serverLog.append("[Client " + arg1.getId() + "] Created Game ID: " + newGame.getGameID() + ", Name: " + info.getName() + ", Max Players: " + info.getMaxPlayers() + "\n");
+			serverLog.append("[Client " + arg1.getId() + "] Created Game ID: " + newGame.getGameID() + ", Name: " + info.getName() +", Host: " + info.getHostName() + ", Max Players: " + info.getMaxPlayers() + "\n");
 			for (GameLobby g : games) {
 				gameList.add(g.generateGameListing());
 			}
