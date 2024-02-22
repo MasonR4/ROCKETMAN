@@ -98,6 +98,7 @@ public class ServerUI extends JFrame {
 	public void closingProcedure() {
 		// TODO write some stuff to config and save player data in database
 		// this one might be ugly if there are multiple games running at once
+		// FOR (ALL GAMES) { FOR (ALL PLAYERS IN GAMES) { FOR (ALL DATA IN EACH PLAYER) { MAKE NEW DATABASE SUBMISSION }}}
 		
 		try {
 			FileWriter writer = new FileWriter(config, false);

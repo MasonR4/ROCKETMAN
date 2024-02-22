@@ -9,7 +9,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import data.NewGameData;
+import data.GameLobbyData;
 import menu_utilities.EightBitButton;
 import menu_utilities.EightBitLabel;
 
@@ -61,7 +61,7 @@ public class GameListingPanel extends JPanel {
 		add(joinButton);
 	}
 	
-	public GameListingPanel(NewGameData info) {
+	public GameListingPanel(GameLobbyData info) {
 		setLayout(null);
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		name = info.getName();

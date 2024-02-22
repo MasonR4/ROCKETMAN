@@ -5,14 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-
-import data.NewGameData;
+import data.GameLobbyData;
 import game.ServerUI;
-import menu_panels.GameListingPanel;
 import menu_panels.ServerMenuScreen;
 import server.Server;
 import server_utilities.ServerGameListingPanel;
@@ -39,32 +36,21 @@ public class ServerMenuScreenController implements ActionListener {
 		gamesPanel = screen.getGamesPanel();
 	}	
 	
-//	public void addGameListings(ArrayList<NewGameData> games) {
-//		for (NewGameData g : games) {
-//			boolean newGame = true;
-//			for (Component c : gamesPanel.getComponents()) {
-//				if (c instanceof ServerGameListingPanel) {
-//					if (((ServerGameListingPanel) c).getGameID() == g.getGameID()) {
-//						newGame = false;
-//					} 
-//				}
-//			}
-//			if (newGame) {
-//				ServerGameListingPanel temp = new ServerGameListingPanel(g);
-//				temp.setController(this);
-//				gamesPanel.add(temp);
-//				
-//			}
-//		}
-//		gamesPanel.revalidate();
-//	}
-	
-	public void addGameListings(ArrayList<NewGameData> games) {
-		gamesPanel.removeAll();
-		for (NewGameData g : games) {
-			ServerGameListingPanel temp = new ServerGameListingPanel(g);
-			temp.setController(this);
-			gamesPanel.add(temp);
+	public void addGameListings(ArrayList<GameLobbyData> games) {
+		for (GameLobbyData g : games) {
+			boolean newGame = true;
+			for (Component c : gamesPanel.getComponents()) {
+				if (c instanceof ServerGameListingPanel) {
+					if (((ServerGameListingPanel) c).getGameID() == g.getGameID()) {
+						newGame = false;
+					} 
+				}
+			}
+			if (newGame) {
+				ServerGameListingPanel temp = new ServerGameListingPanel(g);
+				temp.setController(this);
+				gamesPanel.add(temp);
+			}
 		}
 		gamesPanel.revalidate();
 	}
@@ -72,13 +58,12 @@ public class ServerMenuScreenController implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
+		String name = screen.getServerName();
+		int port = screen.getPort();
+		int timeout = screen.getTimeout();
 		
 		switch (action) {
 		case "Start":
-			String name = screen.getServerName();
-			int port = screen.getPort();
-			int timeout = screen.getTimeout();
-			
 			server.setPort(port);
 			server.setName(name);
 			server.setTimeout(timeout);
@@ -87,7 +72,7 @@ public class ServerMenuScreenController implements ActionListener {
 				if (!server.isListening()) {
 					server.listen();
 					
-					serverUI.updateConfigData("server_name", name);
+					serverUI.updateConfigData("server_name", name); 
 					serverUI.updateConfigData("default_port", Integer.toString(port));
 					serverUI.updateConfigData("default_timeout", Integer.toString(timeout));
 					
@@ -95,15 +80,13 @@ public class ServerMenuScreenController implements ActionListener {
 				} else {
 					log.append("Server already started.\n");
 				}
-				
 			} catch (IOException oops) {
 				oops.printStackTrace();
 			}
-			
 			break;
 			
 		case "Stop":
-			// TODO stop server
+			// TODO stop server and tell clients to disconnect (?)
 		
 			try {
 				server.close();
@@ -128,11 +111,35 @@ public class ServerMenuScreenController implements ActionListener {
 			switch(args[0]) {
 			
 			case "/start":
-				// TODO start the server LOL
+				server.setPort(port);
+				server.setName(name);
+				server.setTimeout(timeout);
+				
+				try {
+					if (!server.isListening()) {
+						server.listen();
+						
+						serverUI.updateConfigData("server_name", name); 
+						serverUI.updateConfigData("default_port", Integer.toString(port));
+						serverUI.updateConfigData("default_timeout", Integer.toString(timeout));
+						
+						screen.enableQuitButton(false);
+					} else {
+						log.append("Server already started.\n");
+					}
+					
+				} catch (IOException oops) {
+					oops.printStackTrace();
+				}
 				break;
 				
 			case "/stop":
-				// TODO STOP THE SERVER NO WAY
+				try {
+					server.close();
+					screen.enableQuitButton(true);
+				} catch (IOException bruh) {
+					
+				}
 				break;
 			
 			case "/listconnections":

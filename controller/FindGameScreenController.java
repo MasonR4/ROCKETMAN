@@ -1,6 +1,7 @@
 package controller;
 
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -9,13 +10,14 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import data.GenericRequest;
-import data.NewGameData;
+import data.GameLobbyData;
 import game.ClientUI;
 import menu_panels.FindGameScreen;
 import menu_panels.GameListingPanel;
 import menu_utilities.EightBitButton;
 import menu_utilities.GameCreationPanel;
 import server.Client;
+import server_utilities.ServerGameListingPanel;
 
 public class FindGameScreenController implements ActionListener {
 	
@@ -41,18 +43,27 @@ public class FindGameScreenController implements ActionListener {
 		
 	}
 	
-	public void addGameListings(ArrayList<NewGameData> games) {
-		gamesPanel.removeAll();
-		for (NewGameData g : games) {
-			GameListingPanel temp = new GameListingPanel(g);
-			temp.setController(this);
-			gamesPanel.add(temp);
+	public void addGameListings(ArrayList<GameLobbyData> games) {
+		for (GameLobbyData g : games) {
+			boolean newGame = true;
+			for (Component c : gamesPanel.getComponents()) {
+				if (c instanceof GameListingPanel) {
+					if (((GameListingPanel) c).getGameID() == g.getGameID()) {
+						newGame = false;
+					} 
+				}
+			}
+			if (newGame) {
+				GameListingPanel temp = new GameListingPanel(g);
+				temp.setController(this);
+				gamesPanel.add(temp);
+			}
 		}
 		gamesPanel.revalidate();
 	}
 	
 	public void setScreenInfoLabels() {
-		screen.setInfoLabels(client.getServerName(), client.getUserName());
+		screen.setInfoLabels(client.getServerName(), client.getUserName()); 
 	}
 	
 	@Override
@@ -77,10 +88,10 @@ public class FindGameScreenController implements ActionListener {
 					if (lobbyName.length() < 3) {
 						newGameScreen.setError("Lobby name must be at least 3 characters in length");
 					} else {
-						NewGameData newGameData = new NewGameData(lobbyName, client.getUserName(), maxPlayers, -1);
+						GameLobbyData GameLobbyData = new GameLobbyData(lobbyName, client.getUserName(), maxPlayers, -1);
 						// request new game be made on the server
 						try {
-							client.sendToServer(newGameData);
+							client.sendToServer(GameLobbyData);
 							cl.show(clientPanel, "LOBBY");
 						} catch (IOException SERVER_DENIED_GAME_CREATION) {
 							SERVER_DENIED_GAME_CREATION.printStackTrace();

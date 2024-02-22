@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import server.Client;
 
-public class NewGameData implements Serializable {
+public class GameLobbyData implements Serializable {
 	
 	private String name;
 	private String hostUsername;
@@ -12,7 +12,7 @@ public class NewGameData implements Serializable {
 	private int maxPlayers;
 	private int gameID;
 
-	public NewGameData(String n, String hn, int mp, int gid) {
+	public GameLobbyData(String n, String hn, int mp, int gid) {
 		name = n;
 		maxPlayers = mp;	
 		hostUsername = hn;

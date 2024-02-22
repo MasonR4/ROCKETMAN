@@ -10,7 +10,7 @@ import controller.MainMenuScreenController;
 import controller.ServerConnectionScreenController;
 import controller.SplashScreenController;
 import data.GenericRequest;
-import data.NewGameData;
+import data.GameLobbyData;
 import ocsf.client.AbstractClient;
 
 public class Client extends AbstractClient {
@@ -39,7 +39,7 @@ public class Client extends AbstractClient {
 			String action = ((GenericRequest) arg0).getMsg();
 			switch(action) {
 			case "GAMES_INFO":
-				findGameController.addGameListings((ArrayList<NewGameData>) ((GenericRequest) arg0).getData());
+				findGameController.addGameListings((ArrayList<GameLobbyData>) ((GenericRequest) arg0).getData());
 				break;
 				
 			case "SERVER_INFO":

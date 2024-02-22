@@ -15,9 +15,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.BevelBorder;
 import javax.swing.text.AbstractDocument;
 
+import data.GameLobbyData;
 import menu_utilities.TextFieldFilters;
+import server_utilities.ServerGameListingPanel;
 
 public class ServerMenuScreen extends JPanel {
 	
@@ -53,7 +56,7 @@ public class ServerMenuScreen extends JPanel {
 		
 		gameScreen = new JPanel();
 		gameScreen.setLayout(new BoxLayout(gameScreen, BoxLayout.PAGE_AXIS));
-        gameScreen.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        //gameScreen.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         //add(gameScreen, BorderLayout.CENTER);
         
         JPanel test = new JPanel();
@@ -61,11 +64,15 @@ public class ServerMenuScreen extends JPanel {
         JPanel test2 = new JPanel();
         test2.setBackground(Color.BLUE);
         
-        gameScreen.add(test);
-        gameScreen.add(test2);
+        GameLobbyData ng = new GameLobbyData("hey", "hello", 1, 4);
+        ServerGameListingPanel test3 = new ServerGameListingPanel(ng);
+        gameScreen.add(test3);
+        
+        //gameScreen.add(test);
+        //gameScreen.add(test2);
         
         gameScrollPane = new JScrollPane(gameScreen, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        gameScrollPane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        gameScrollPane.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         add(gameScrollPane, BorderLayout.CENTER);
         
         commandPanel = new JPanel();

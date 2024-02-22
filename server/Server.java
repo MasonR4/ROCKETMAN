@@ -22,7 +22,7 @@ public class Server extends AbstractServer {
 	
 	private ServerMenuScreenController serverMenuController;
 	
-	private ArrayList<GameLobby> games = new ArrayList<GameLobby>();
+	private ArrayList<GameLobby> games = new ArrayList<GameLobby>(); 
 	
 	public Server() {
 		super(8300);
@@ -42,19 +42,17 @@ public class Server extends AbstractServer {
 	
 	protected void clientConnected(ConnectionToClient client) {
 		try {
-			GenericRequest temp = new GenericRequest("SERVER_INFO");
-			temp.setData(serverName);
-			client.sendToClient(temp);
+			GenericRequest rq = new GenericRequest("SERVER_INFO");
+			rq.setData(serverName);
+			client.sendToClient(rq);
 			serverLog.append("[Client " + client.getId() + "] Connected\n");
 		} catch (IOException CLIENT_IS_MIA) {
 			CLIENT_IS_MIA.printStackTrace();
 		}
-		
-		
 	}
 	
 	protected void clientDisconnected(ConnectionToClient client) {
-		serverLog.append("Client " + client.getId() + " disconnected\n");
+		serverLog.append("[Client " + client.getId() + "] disconnected\n");
 	}
 	
 	protected void clientException(ConnectionToClient client) {
@@ -92,12 +90,12 @@ public class Server extends AbstractServer {
 			case "REQUEST_GAMES_INFO":
 				serverLog.append("[Client " + arg1.getId() + "] Requested games info\n");
 				GenericRequest rq = new GenericRequest("GAMES_INFO");
-				ArrayList<NewGameData> gameList = new ArrayList<NewGameData>();
+				ArrayList<GameLobbyData> gameList = new ArrayList<GameLobbyData>();
 				for (GameLobby g : games) {
 					gameList.add(g.generateGameListing());
 				}
+				serverMenuController.addGameListings((ArrayList<GameLobbyData>) gameList.clone());
 				rq.setData(gameList);
-				serverMenuController.addGameListings(gameList);
 				try {
 					arg1.sendToClient(rq);
 				} catch (IOException CLIENT_IS_MAYBE_DEAD) {
@@ -130,11 +128,17 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof PlayerData) {
 			// TODO load player data server side
 			
-		} else if (arg0 instanceof NewGameData) {
-			NewGameData info = (NewGameData) arg0;
+		} else if (arg0 instanceof GameLobbyData) {
+			GameLobbyData info = (GameLobbyData) arg0;
 			GameLobby newGame = new GameLobby(info.getName(), info.getHostName(), info.getMaxPlayers(), games.size());
+			ArrayList<GameLobbyData> gameList = new ArrayList<GameLobbyData>();
 			games.add(newGame);
-			serverLog.append("[Client " + arg1.getId() + "] Created Game ID: " + info.getGameID() + ", Name: " + info.getName() + ", Max Players: " + info.getMaxPlayers() + "\n");
+			serverLog.append("[Client " + arg1.getId() + "] Created Game ID: " + newGame.getGameID() + ", Name: " + info.getName() + ", Max Players: " + info.getMaxPlayers() + "\n");
+			for (GameLobby g : games) {
+				gameList.add(g.generateGameListing());
+			}
+			serverMenuController.addGameListings(gameList);
+			
 			// TODO connect client to the game they created automatically
 			GenericRequest rq = new GenericRequest("CONFIRM_JOIN_GAME");
 			

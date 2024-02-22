@@ -1,7 +1,7 @@
 package server_utilities;
 
 import java.util.ArrayList;
-import data.NewGameData;
+import data.GameLobbyData;
 import data.PlayerData;
 
 public class GameLobby {
@@ -27,8 +27,12 @@ public class GameLobby {
 		playerCap = mp;
 	}
 	
-	public NewGameData generateGameListing() {
-		NewGameData tempInfo = new NewGameData(lobbyName, hostUsername, playerCap, gameID);
+	public int getGameID() {
+		return gameID;
+	}
+	
+	public GameLobbyData generateGameListing() {
+		GameLobbyData tempInfo = new GameLobbyData(lobbyName, hostUsername, playerCap, gameID);
 		return tempInfo;
 	}
 }
