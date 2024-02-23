@@ -81,12 +81,12 @@ public class Server extends AbstractServer {
 	
 	public ArrayList<GameLobbyData> getGames() {
 		ArrayList<GameLobbyData> gameList = new ArrayList<GameLobbyData>();
-		for (Entry<Integer, GameLobby> e : games.entrySet()) {
-			GameLobby g = e.getValue();
-			if (g.isEmpty()) {
-				games.remove(e.getKey());
-			}
-		}
+//		for (Entry<Integer, GameLobby> e : games.entrySet()) {
+//			GameLobby g = e.getValue();
+//			if (g.isEmpty()) {
+//				games.remove(e.getKey());
+//			}
+//		}
 		for (Entry<Integer, GameLobby> e : games.entrySet()) {
 			GameLobby g = e.getValue();
 			if (!g.isStarted()) {
@@ -103,6 +103,10 @@ public class Server extends AbstractServer {
 	}
 	
 	protected void serverStopped() {
+		for (Entry<Integer, GameLobby> e :  games.entrySet()) {
+			cancelGame(e.getKey());
+		}
+		// TODO save player data to database upon server stopping
 		serverLog.append("Server Stopped\n");
 		serverStatus.setText("STOPPED");
 		serverStatus.setForeground(Color.RED);
@@ -114,9 +118,13 @@ public class Server extends AbstractServer {
 	}
 	
 	public void cancelGame(int id) {
-		GameLobby g = games.get(id);
+		//GameLobby g = games.get(id);
 		serverLog.append("[Info] Canceled Game " + id + "\n");
 		games.remove(id);
+	}
+	
+	public void logMessage(String msg) {
+		serverLog.append("[Server] " + msg + "\n");
 	}
 	
 	@Override
@@ -135,7 +143,7 @@ public class Server extends AbstractServer {
 					arg1.sendToClient(rq);
 				} catch (IOException CLIENT_IS_MAYBE_DEAD) {
 					CLIENT_IS_MAYBE_DEAD.printStackTrace();
-					serverLog.append("Could not send game info to client\n");
+					serverLog.append("[Server] Could not send game info to client\n");
 				}
 				break;
 			case "REQUEST_TO_JOIN_GAME":
@@ -175,20 +183,23 @@ public class Server extends AbstractServer {
 				}
 				break;
 				
-			case "PLAYER_DISCONNECTING":
+			case "CLIENT_DISCONNECTING":
 				String username = (String) ((GenericRequest) arg0).getData();
 				if (username != "default") {
 					// TODO save player data to database
 					for (Entry<Integer, GameLobby> e : games.entrySet()) {
 						if (e.getValue().getPlayerUsernames().contains(username)) {
+							serverLog.append("yep\n");
+						}
+						if (e.getValue().getPlayerUsernames().contains(username)) {
 							e.getValue().removePlayer(arg1, username);
 							serverLog.append("[Client " + arg1.getId() + "] " + username + " left game " + e.getValue().getGameID() + ": " + e.getValue().getlobbyName() + "\n");
 						}
 					}
-					connectedPlayers.remove(username);
-					connectedPlayerCount -= 1;
-					serverLog.append("[Client " + arg1.getId() + "] Logged out as " + username + "\n");
-					serverMenuController.addGameListings(getGames());
+//					connectedPlayers.remove(username);
+//					connectedPlayerCount -= 1;
+//					serverLog.append("[Client " + arg1.getId() + "] Logged out as " + username + "\n");
+//					serverMenuController.addGameListings(getGames());
 					try {
 						arg1.close();
 						connectedPlayers.remove(username);

@@ -28,4 +28,8 @@ public class PlayerJoinData implements Serializable {
 	public void setReady(boolean r) {
 		ready = r;
 	}
+	
+	public void setHost(boolean h) {
+		isHost = h;
+	}
 }

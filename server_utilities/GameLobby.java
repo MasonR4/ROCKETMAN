@@ -71,6 +71,7 @@ public class GameLobby {
 		for (Entry<String, PlayerData> e : players.entrySet()) {
 			PlayerJoinData player = new PlayerJoinData(e.getKey(), (hostUsername == e.getKey()));
 			player.setReady(e.getValue().isReady());
+			player.setHost(e.getValue().getUsername().equals(hostUsername));
 			joinedPlayers.add(player);
 		}
 		return joinedPlayers;
@@ -100,14 +101,17 @@ public class GameLobby {
 		players.remove(usr);
 		playerConnections.remove(usr);
 		playerCount -= 1;
-		
+		server.logMessage(usr + " leaving host: " + hostUsername);
 		if (playerCount == 0) {
 			server.cancelGame(gameID);
-		} else if (usr == hostUsername && players.isEmpty() == false) {
+		} else if (usr.equals(hostUsername)) {
 			String[] usernames = (String[]) players.keySet().toArray();
+			server.logMessage(usernames[0] + " user left");
 			hostUsername = usernames[0];
-			updateClients(getJoinedPlayers());
 		}
+		server.logMessage(Integer.toString(playerCount) + " players in lobby");
+		server.logMessage(hostUsername + " is host");
+		updateClients(getJoinedPlayers());
 	}
 	
 	public void addPlayer(ConnectionToClient c, String usr) {
@@ -120,6 +124,7 @@ public class GameLobby {
 		playerCount += 1;
 		players.put(usr, temp);
 		playerConnections.put(usr, c);
+		server.logMessage(Integer.toString(playerCount) + " players in lobby");
 		updateClients(getJoinedPlayers());
 	}
 	
