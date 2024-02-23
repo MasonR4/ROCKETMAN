@@ -62,8 +62,9 @@ public class Server extends AbstractServer {
 		serverLog.append("[Client " + client.getId() + "] disconnected\n");
 	}
 	
-	protected void clientException(ConnectionToClient client) {
-		
+	protected void clientException(ConnectionToClient client, Exception CLIENT_PRONOUNCED_DEAD) {
+		serverLog.append("[Client " + client.getId() + "] Client Exception Occurred " + "\n");
+		CLIENT_PRONOUNCED_DEAD.printStackTrace();
 	}
 	
 	public void setName(String name) {
@@ -146,9 +147,7 @@ public class Server extends AbstractServer {
 					if (!games.get(gameID).isFull()) {
 						games.get(gameID).addPlayer(arg1, usr);
 						try {
-							rq = new GenericRequest("GAME_JOINED");
-							rq.setData(gameID);
-							arg1.sendToClient(rq);
+							arg1.sendToClient(games.get(gameID).generateGameListing());
 							serverMenuController.addGameListings(getGames());
 							serverLog.append("[Client " + arg1.getId() + "] Joined game " + gameID + " as " + usr + "\n");
 							// TODO update client on other players within the lobby
@@ -174,7 +173,6 @@ public class Server extends AbstractServer {
 						CLIENT_DIED.printStackTrace();
 					}
 				}
-				
 				break;
 				
 			case "PLAYER_DISCONNECTING":
@@ -187,6 +185,10 @@ public class Server extends AbstractServer {
 							serverLog.append("[Client " + arg1.getId() + "] " + username + " left game " + e.getValue().getGameID() + ": " + e.getValue().getlobbyName() + "\n");
 						}
 					}
+					connectedPlayers.remove(username);
+					connectedPlayerCount -= 1;
+					serverLog.append("[Client " + arg1.getId() + "] Logged out as " + username + "\n");
+					serverMenuController.addGameListings(getGames());
 					try {
 						arg1.close();
 						connectedPlayers.remove(username);
@@ -255,15 +257,16 @@ public class Server extends AbstractServer {
 			}
 			
 		} else if (arg0 instanceof PlayerData) {
-			// TODO load player data server side
+			// TODO query database for playerdata
+			// may change this to a genericRequest that receives only username from the client
+			// and sends PlayerData back
 			
 		} else if (arg0 instanceof GameLobbyData) {
 			GameLobbyData info = (GameLobbyData) arg0;
 			try {
 				GameLobby newGame = new GameLobby(info.getName(), info.getHostName(), info.getMaxPlayers(), gameCount, this);
-				GenericRequest rq = new GenericRequest("GAME_CREATED");
 				newGame.addPlayer(arg1, info.getHostName());
-				arg1.sendToClient(rq);
+				arg1.sendToClient(newGame.generateGameListing());
 				gameCount += 1;
 				games.put(newGame.getGameID(), newGame);
 				ArrayList<GameLobbyData> gameList = getGames();
@@ -272,7 +275,11 @@ public class Server extends AbstractServer {
 			} catch (IOException CLIENT_WENT_TO_SLEEP) {
 				CLIENT_WENT_TO_SLEEP.printStackTrace();
 			}
-			
+		} else if (arg0 instanceof PlayerReadyData) {
+			PlayerReadyData info = (PlayerReadyData) arg0;
+			int gameID = info.getGameID();
+			GameLobby game = games.get(gameID);
+			game.readyPlayer(info);
 		} 
 	}
 }

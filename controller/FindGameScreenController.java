@@ -58,6 +58,10 @@ public class FindGameScreenController implements ActionListener {
 		screen.setInfoLabels(client.getServerName(), client.getUsername()); 
 	}
 	
+	public void changeToGameLobbyMenu() {
+		cl.show(clientPanel, "LOBBY");
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();

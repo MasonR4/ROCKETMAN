@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import data.GameLobbyData;
+import data.GenericRequest;
 import game.ServerUI;
 import menu_panels.ServerMenuScreen;
 import server.Server;
@@ -81,6 +82,7 @@ public class ServerMenuScreenController implements ActionListener {
 			// TODO stop server and tell clients to disconnect (?)
 		
 			try {
+				server.sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
 				server.close();
 				screen.enableQuitButton(true);
 			} catch (IOException bruh) {

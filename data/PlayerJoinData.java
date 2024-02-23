@@ -6,6 +6,8 @@ public class PlayerJoinData implements Serializable {
 	private String username;
 	private boolean isHost;
 	
+	private boolean ready;
+	
 	public PlayerJoinData(String s, boolean h) {
 		username = s;
 		isHost = h;
@@ -19,4 +21,11 @@ public class PlayerJoinData implements Serializable {
 		return isHost;
 	}
 	
+	public boolean isReady() {
+		return ready;
+	}
+	
+	public void setReady(boolean r) {
+		ready = r;
+	}
 }

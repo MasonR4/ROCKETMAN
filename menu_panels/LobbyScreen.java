@@ -19,7 +19,9 @@ import menu_utilities.PlayerListingPanel;
 
 public class LobbyScreen extends JPanel {
 	
-	private int gameID;
+	private String hostUsername;
+	private int playerCount;
+	private int maxPlayers;
 	
 	private EightBitLabel lobbyName;
 	private EightBitLabel hostLabel;
@@ -90,19 +92,39 @@ public class LobbyScreen extends JPanel {
 	}
 	
 	public void enableHostControls() {
-		
+		add(startGameButton);
 	}
 	
 	public void unreadyReadyButton() {
 		readyButton.setText("Not Ready");
+		readyButton.repaint();
 	}
 	
 	public void readyReadyButton() {
 		readyButton.setText("Ready");
+		readyButton.repaint();
 	}
 	
 	public JPanel getPlayerPanel() {
 		return playersPanel;
+	}
+	
+	public void setLobbyInfo(String h, int p, int mp) {
+		hostUsername = h;
+		playerCount = p;
+		maxPlayers = mp;
+	}
+	
+	public void setDynamicLobbyInfo(String h, int p) {
+		hostUsername = h;
+		playerCount = p;
+	}
+	
+	public void updateLobbyInfo() {
+		hostLabel.setText("Host: " + hostUsername);
+		playerCountLabel.setText(Integer.toString(playerCount) + "/" + Integer.toString(maxPlayers));
+		hostLabel.repaint();
+		playerCountLabel.repaint();
 	}
 	
 	public void setController(ActionListener ac) {

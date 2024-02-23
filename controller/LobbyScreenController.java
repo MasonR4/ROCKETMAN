@@ -3,13 +3,16 @@ package controller;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import javax.swing.JPanel;
 
+import data.GameLobbyData;
 import data.PlayerJoinData;
+import data.PlayerReadyData;
 import game.ClientUI;
 import menu_panels.LobbyScreen;
 import menu_utilities.PlayerListingPanel;
@@ -27,8 +30,6 @@ public class LobbyScreenController implements ActionListener {
 	
 	private CardLayout cl;
 	
-	private LinkedHashMap<String, PlayerListingPanel> players = new LinkedHashMap<String, PlayerListingPanel>();
-	
 	public LobbyScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
 		clientPanel = p;
@@ -39,33 +40,43 @@ public class LobbyScreenController implements ActionListener {
 		playerPanel = screen.getPlayerPanel();
 	}
 	
-	public void updateReadyPlayers() {
-		playerPanel.removeAll();
-		for (Entry<String, PlayerListingPanel> e : players.entrySet()) {
-			playerPanel.add(e.getValue());
-		}
-		playerPanel.repaint();
-		playerPanel.revalidate();
-	}
-	
 	public void addPlayerListing(ArrayList<PlayerJoinData> data) {
 		playerPanel.removeAll();
 		for (PlayerJoinData d : data) {
 			PlayerListingPanel p = new PlayerListingPanel(d.getUsername());
-			System.out.println(d.getUsername() + " " + client.getUsername());
+			if (d.isReady()) {
+				p.ready();
+			} else {
+				p.unready();
+			}
 			if (d.getUsername().equals(client.getUsername()) && d.isHost()) {
 				p.setHost("Host (You)");
+				screen.setDynamicLobbyInfo(d.getUsername(), data.size());
 				screen.enableHostControls();
 			} else if (d.getUsername().equals(client.getUsername())) {
 				p.setHost("You");
 			} else if (d.isHost()) {
 				p.setHost("Host");
+				screen.setDynamicLobbyInfo(d.getUsername(), data.size());
 			}
-			players.put(d.getUsername(), p);
 			playerPanel.add(p);
 		}
+		screen.updateLobbyInfo();
 		playerPanel.repaint();
 		playerPanel.revalidate();
+	}
+	
+	public void readyButton() {
+		screen.readyReadyButton();
+	}
+	
+	public void unreadyButton() {
+		screen.unreadyReadyButton();
+	}
+	
+	public void joinGameLobby(GameLobbyData info) {
+		screen.setLobbyInfo(info.getHostName(), info.getPlayerCount(), info.getMaxPlayers());
+		screen.updateLobbyInfo();
 	}
 	
 	@Override
@@ -74,15 +85,28 @@ public class LobbyScreenController implements ActionListener {
 		
 		switch (action) {
 		case "Ready":
-			screen.unreadyReadyButton();
-			players.get(client.getUsername()).ready();
-			
+			if (client.isConnected()) {
+				try {
+					PlayerReadyData pr = new PlayerReadyData(client.getUsername(), client.getGameID(), true);
+					client.sendToServer(pr);
+				} catch (IOException READY_UP_DENIED) {
+					READY_UP_DENIED.printStackTrace();
+				}
+			} else {
+				System.out.println("Server connection lost");
+			}
 			break;
 		case "Not Ready":
-			System.out.println("oop");
-			screen.unreadyReadyButton();
-			players.get(client.getUsername()).unready();
-			
+			if (client.isConnected()) {
+				try {
+					PlayerReadyData pr = new PlayerReadyData(client.getUsername(), client.getGameID(), false);
+					client.sendToServer(pr);
+				} catch (IOException UNREADY_UP_DENIED) {
+				UNREADY_UP_DENIED.printStackTrace();
+				}
+			} else {
+				System.out.println("Server connection Lost");
+			}
 			break;
 			
 		case "Start Game":

@@ -176,7 +176,9 @@ public class ClientUI extends JFrame {
 	}
 	
 	public void closingProcedure() {
-		disconnectProcedure();
+		if (client.isConnected()) {
+			disconnectProcedure();
+		}
 		try {
 			FileWriter writer = new FileWriter(config, false);
 

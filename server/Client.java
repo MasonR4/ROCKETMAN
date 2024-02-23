@@ -66,10 +66,6 @@ public class Client extends AbstractClient {
 			case "INVALID_LOGIN":
 				loginController.actionPerformed(new ActionEvent(0, 0, action));
 				break;
-			
-			case "GAME_CREATED":
-				findGameController.actionPerformed(new ActionEvent(0, 0, action));
-				break;
 				
 			case "GAME_FULL":
 				findGameController.actionPerformed(new ActionEvent(0, 0, action));
@@ -79,17 +75,28 @@ public class Client extends AbstractClient {
 				findGameController.actionPerformed(new ActionEvent(0, 0, action));
 				break;
 				
-			case "GAME_JOINED":
-				int gid = (int) ((GenericRequest) arg0).getData();
-				gameID = gid;
-				findGameController.actionPerformed(new ActionEvent(0, 0, action));
-				break;
-				
 			case "LOBBY_PLAYER_INFO":
 				lobbyController.addPlayerListing((ArrayList<PlayerJoinData>) ((GenericRequest) arg0).getData());
 				break;
+				
+			case "CONFIRM_READY":
+				lobbyController.unreadyButton();
+				break;
+				
+			case "CONFIRM_UNREADY":
+				lobbyController.readyButton();
+				break;
+				
+			case "FORCE_DISCONNECT":
+				serverConnectionController.connectionTerminated();
+				break;
 			} 
 		} else if (arg0 instanceof GameLobbyData) {
+			GameLobbyData info = (GameLobbyData) arg0;
+			gameID = info.getGameID();
+			findGameController.changeToGameLobbyMenu();
+			lobbyController.joinGameLobby(info);
+			
 			
 		} else if (arg0 instanceof PlayerJoinData) {
 			// for when a player joins lobby client is currently connected to
