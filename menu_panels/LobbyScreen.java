@@ -79,7 +79,7 @@ public class LobbyScreen extends JPanel {
 		leaveButton.setBounds(910, 800, 250, 50);
 		
 		startGameButton = new EightBitButton("Start Game");
-		startGameButton.setBounds(365, 800, 250, 40);
+		startGameButton.setBounds(365, 800, 250, 50);
 		
 		add(lobbyName);
 		add(hostLabel);
