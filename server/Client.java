@@ -13,7 +13,7 @@ import controller.ServerConnectionScreenController;
 import controller.SplashScreenController;
 import data.GenericRequest;
 import data.PlayerData;
-import data.PlayerJoinData;
+import data.PlayerJoinLeaveData;
 import data.GameLobbyData;
 import ocsf.client.AbstractClient;
 
@@ -77,7 +77,7 @@ public class Client extends AbstractClient {
 				break;
 				
 			case "LOBBY_PLAYER_INFO":
-				lobbyController.addPlayerListing((ArrayList<PlayerJoinData>) ((GenericRequest) arg0).getData());
+				lobbyController.addPlayerListing((ArrayList<PlayerJoinLeaveData>) ((GenericRequest) arg0).getData());
 				break;
 				
 			case "CONFIRM_READY":
@@ -86,6 +86,17 @@ public class Client extends AbstractClient {
 				
 			case "CONFIRM_UNREADY":
 				lobbyController.readyButton();
+				break;
+			
+			case "CONFIRM_LEAVE_GAME":
+				gameID = -1;
+				try {
+					GenericRequest rq = new GenericRequest("REQUEST_GAMES_INFO");
+					sendToServer(rq);
+				} catch (IOException why) {
+					why.printStackTrace();
+				}
+				lobbyController.leaveGameLobby();
 				break;
 				
 			case "FORCE_DISCONNECT":
@@ -96,7 +107,7 @@ public class Client extends AbstractClient {
 				try {
 					closeConnection();
 				} catch (IOException YOU_CANT_LEAVE) {
-					
+					YOU_CANT_LEAVE.printStackTrace();
 				}
 				break;
 			} 
@@ -107,12 +118,11 @@ public class Client extends AbstractClient {
 			lobbyController.joinGameLobby(info);
 			
 			
-		} else if (arg0 instanceof PlayerJoinData) {
+		} else if (arg0 instanceof PlayerJoinLeaveData) {
 			// for when a player joins lobby client is currently connected to
 		} else if (arg0 instanceof PlayerData) {
 			// for when client request player statistics from the server
-		}
-		
+		} 		
 	}
 	
 	public void setCreateAccountController(CreateAccountScreenController c) {

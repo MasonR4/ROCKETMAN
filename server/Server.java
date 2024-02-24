@@ -154,13 +154,11 @@ public class Server extends AbstractServer {
 				int gameID = Integer.parseInt(rqSplitData[1]);
 				if (games.containsKey(gameID)) {
 					if (!games.get(gameID).isFull()) {
-						games.get(gameID).addPlayer(arg1, usr);
+						//games.get(gameID).addPlayer(arg1, usr);
 						try {
 							arg1.sendToClient(games.get(gameID).generateGameListing());
 							serverMenuController.addGameListings(getGames());
 							serverLog.append("[Client " + arg1.getId() + "] Joined game " + gameID + " as " + usr + "\n");
-							// TODO update client on other players within the lobby
-							
 							} catch (IOException CLIENT_VITALS_CANNOT_BE_CONFIRMED) {
 								CLIENT_VITALS_CANNOT_BE_CONFIRMED.printStackTrace();
 						}
@@ -186,19 +184,19 @@ public class Server extends AbstractServer {
 				
 			case "CLIENT_DISCONNECTING":
 				String username = (String) ((GenericRequest) arg0).getData();
-				if (username != "default") {
-					// TODO save player data to database
-					for (Entry<Integer, GameLobby> e : games.entrySet()) {
-						GameLobby game = e.getValue();
-						if (game.getPlayerUsernames().contains(username)) {
-							game.removePlayer(arg1, username);
-							serverLog.append("[Client " + arg1.getId() + "] " + username + " left game " + e.getValue().getGameID() + ": " + e.getValue().getlobbyName() + "\n");
-						}
-					}
+				
+//				if (username != "default") {
+//					// TODO save player data to database
+//					for (Entry<Integer, GameLobby> e : games.entrySet()) {
+//						GameLobby game = e.getValue();
+//						if (game.getPlayerUsernames().contains(username)) {
+//							game.removePlayer(arg1, username);
+//							serverLog.append("[Client " + arg1.getId() + "] " + username + " left game " + e.getValue().getGameID() + ": " + e.getValue().getlobbyName() + "\n");
+//						}
+//					}
 					try {
 						GenericRequest rq2 = new GenericRequest("CONFIRM_DISCONNECT_AND_EXIT");
-						//arg1.sendToClient(rq2);
-						arg1.close();
+						arg1.sendToClient(rq2);
 						connectedPlayers.remove(username);
 						connectedPlayerCount -= 1;
 						serverLog.append("[Client " + arg1.getId() + "] Logged out as " + username + "\n");
@@ -206,7 +204,7 @@ public class Server extends AbstractServer {
 					} catch (IOException CLIENT_ALREADY_GONE) {
 						CLIENT_ALREADY_GONE.printStackTrace();
 					}
-				}
+				//}
 				break;
 			}
 			
@@ -273,7 +271,8 @@ public class Server extends AbstractServer {
 			GameLobbyData info = (GameLobbyData) arg0;
 			try {
 				GameLobby newGame = new GameLobby(info.getName(), info.getHostName(), info.getMaxPlayers(), gameCount, this);
-				newGame.addPlayer(arg1, info.getHostName());
+				PlayerJoinLeaveData firstPlayer = new PlayerJoinLeaveData(info.getHostName());
+				newGame.addPlayer(arg1, firstPlayer);
 				arg1.sendToClient(newGame.generateGameListing());
 				gameCount += 1;
 				games.put(newGame.getGameID(), newGame);
@@ -283,11 +282,53 @@ public class Server extends AbstractServer {
 			} catch (IOException CLIENT_WENT_TO_SLEEP) {
 				CLIENT_WENT_TO_SLEEP.printStackTrace();
 			}
+			
 		} else if (arg0 instanceof PlayerReadyData) {
 			PlayerReadyData info = (PlayerReadyData) arg0;
 			int gameID = info.getGameID();
 			GameLobby game = games.get(gameID);
 			game.readyPlayer(info);
-		} 
+			
+		} else if (arg0 instanceof PlayerJoinLeaveData) {
+			PlayerJoinLeaveData info = (PlayerJoinLeaveData) arg0;
+			int gameID = info.getGameID();
+			String username = info.getUsername();
+			if (info.isJoining()) {
+				if (games.containsKey(gameID)) {
+					if (!games.get(gameID).isFull()) {
+						games.get(gameID).addPlayer(arg1, info);
+						try {
+							arg1.sendToClient(games.get(gameID).generateGameListing());
+							serverMenuController.addGameListings(getGames());
+							serverLog.append("[Client " + arg1.getId() + "] Joined game " + gameID + " as " + username + "\n");
+							} catch (IOException CLIENT_VITALS_CANNOT_BE_CONFIRMED) {
+								CLIENT_VITALS_CANNOT_BE_CONFIRMED.printStackTrace();
+						}
+					} else {
+						try {
+							arg1.sendToClient(new GenericRequest("GAME_FULL"));
+							serverLog.append("[Client " + arg1.getId() + "] Failed to join game " + gameID + ": game is full\n");
+						} catch (IOException CLIENT_DID_NOT_CARE) {
+							CLIENT_DID_NOT_CARE.printStackTrace();
+						}
+					}
+				} else {
+					try {
+						arg1.sendToClient(new GenericRequest("GAME_NOT_FOUND"));
+						serverLog.append("[Client " + arg1.getId() + "] Failed to join game " + gameID + ": game no longer exists\n");
+					} catch (IOException CLIENT_DIED) {
+						CLIENT_DIED.printStackTrace();
+					}
+				}
+			} else if (!info.isJoining()) {
+				serverLog.append("[Client " + arg1.getId() + "] " + username + " left game " + gameID + ": " + games.get(gameID).getlobbyName() + "\n");
+				games.get(gameID).removePlayer(arg1, info);
+				try {
+					arg1.sendToClient(new GenericRequest("CONFIRM_LEAVE_GAME"));
+				} catch (IOException CLIENT_NONRESPONSIVE) {
+					CLIENT_NONRESPONSIVE.printStackTrace();
+				}
+			}
+		}
 	}
 }

@@ -3,6 +3,7 @@ package game;
 import javax.swing.SwingUtilities;
 import controller.*;
 import data.GenericRequest;
+import data.PlayerJoinLeaveData;
 import menu_panels.*;
 import menu_panels.SplashScreen;
 import menu_utilities.TextFieldFilters;
@@ -165,10 +166,13 @@ public class ClientUI extends JFrame {
 	
 	public void disconnectProcedure() {
 		try {
+			PlayerJoinLeaveData leaveData = new PlayerJoinLeaveData(client.getUsername());
+			leaveData.setGameID(client.getGameID());
+			leaveData.setJoining(false);
+			client.sendToServer(leaveData);
 			GenericRequest rq = new GenericRequest("CLIENT_DISCONNECTING");
 			rq.setData(client.getUsername());
 			client.sendToServer(rq);
-			//client.closeConnection();
 			client.setGameID(-1);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -176,9 +180,7 @@ public class ClientUI extends JFrame {
 	}
 	
 	public void closingProcedure() {
-		System.out.println("h");
 		if (client.isConnected()) {
-			System.out.println("h2");
 			disconnectProcedure();
 		}
 		try {

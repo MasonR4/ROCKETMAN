@@ -5,13 +5,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map.Entry;
-
 import javax.swing.JPanel;
-
 import data.GameLobbyData;
-import data.PlayerJoinData;
+import data.GenericRequest;
+import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
 import game.ClientUI;
 import menu_panels.LobbyScreen;
@@ -40,9 +37,9 @@ public class LobbyScreenController implements ActionListener {
 		playerPanel = screen.getPlayerPanel();
 	}
 	
-	public void addPlayerListing(ArrayList<PlayerJoinData> data) {
+	public void addPlayerListing(ArrayList<PlayerJoinLeaveData> data) {
 		playerPanel.removeAll();
-		for (PlayerJoinData d : data) {
+		for (PlayerJoinLeaveData d : data) {
 			PlayerListingPanel p = new PlayerListingPanel(d.getUsername());
 			if (d.isReady()) {
 				p.ready();
@@ -77,6 +74,10 @@ public class LobbyScreenController implements ActionListener {
 	public void joinGameLobby(GameLobbyData info) {
 		screen.setLobbyInfo(info.getHostName(), info.getPlayerCount(), info.getMaxPlayers());
 		screen.updateLobbyInfo();
+	}
+	
+	public void leaveGameLobby() {
+		cl.show(clientPanel, "FIND_GAME");
 	}
 	
 	@Override
@@ -114,8 +115,14 @@ public class LobbyScreenController implements ActionListener {
 			break;
 			
 		case "Leave":
-			// TODO notify server of player leaving lobby
-			client.setGameID(-1);
+			PlayerJoinLeaveData leaveData = new PlayerJoinLeaveData(client.getUsername());
+			leaveData.setJoining(false);
+			leaveData.setGameID(client.getGameID());
+			try {
+				client.sendToServer(leaveData);
+			} catch (IOException LEAVING_FAILED_YOU_ARE_TRAPPED) {
+				LEAVING_FAILED_YOU_ARE_TRAPPED.printStackTrace();
+			}
 			break;
 		}
 		

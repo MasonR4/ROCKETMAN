@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import data.GenericRequest;
+import data.PlayerJoinLeaveData;
 import data.GameLobbyData;
 import game.ClientUI;
 import menu_panels.FindGameScreen;
@@ -86,9 +87,9 @@ public class FindGameScreenController implements ActionListener {
 						newGameScreen.setError("Lobby name must be at least 3 characters in length");
 					} else {
 						GameLobbyData GameLobbyData = new GameLobbyData(lobbyName, client.getUsername(), 0, maxPlayers, -1);
-						// request new game be made on the server
 						try {
 							client.sendToServer(GameLobbyData);
+							newGameScreen.setVisible(false);
 						} catch (IOException SERVER_DENIED_GAME_CREATION) {
 							SERVER_DENIED_GAME_CREATION.printStackTrace();
 							newGameScreen.setError("Server Error Encountered, please try again later.");
@@ -113,11 +114,11 @@ public class FindGameScreenController implements ActionListener {
 			EightBitButton buttonClicked = (EightBitButton) e.getSource();
 			GameListingPanel sourceScreen = (GameListingPanel) buttonClicked.getParent();
 			int gameID = sourceScreen.getGameID();
-			String rqData = client.getUsername() + ":" + Integer.toString(gameID); // can't send more than one data?!?! JUST MAKE IT CONCATENATED AND SPLIT ON SERVER END LOL // guys i might be an imbecile
-			GenericRequest rq = new GenericRequest("REQUEST_TO_JOIN_GAME");
-			rq.setData(rqData);
+			PlayerJoinLeaveData joinData = new PlayerJoinLeaveData(client.getUsername());
+			joinData.setGameID(gameID);
+			joinData.setJoining(true);
 			try {
-				client.sendToServer(rq);
+				client.sendToServer(joinData);
 			} catch (IOException SERVER_DENIED_JOINING) {
 				SERVER_DENIED_JOINING.printStackTrace();
 			}
