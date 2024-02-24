@@ -91,10 +91,6 @@ public class ServerUI extends JFrame {
 		configData.put(key, value);
 	}
 	
-	public void playerJoined() {
-		// TODO graphical representation of the player in the lobby
-	}
-	
 	public void closingProcedure() {
 		// TODO write some stuff to config and save player data in database
 		// this one might be ugly if there are multiple games running at once

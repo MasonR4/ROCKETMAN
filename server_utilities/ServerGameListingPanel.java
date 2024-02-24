@@ -29,7 +29,7 @@ public class ServerGameListingPanel extends JPanel {
 	
 	private JButton joinButton;
 	
-	private static Dimension size = new Dimension(710, 100);
+	private static Dimension size = new Dimension(712, 100);
 	private ActionListener controller;
 		
 	public ServerGameListingPanel(GameLobbyData info) {
@@ -40,6 +40,7 @@ public class ServerGameListingPanel extends JPanel {
 		maxPlayers = info.getMaxPlayers();
 		host = info.getHostName();
 		gameID = info.getGameID();
+		playerCount = info.getPlayerCount();
 		
 		lobbyName = new EightBitLabel(name, Font.PLAIN, 20f);
 		lobbyName.setHorizontalAlignment(SwingConstants.LEFT);

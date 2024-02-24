@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import data.GameLobbyData;
+import data.GenericRequest;
 import game.ServerUI;
 import menu_panels.ServerMenuScreen;
 import server.Server;
@@ -37,21 +38,13 @@ public class ServerMenuScreenController implements ActionListener {
 	}	
 	
 	public void addGameListings(ArrayList<GameLobbyData> games) {
+		gamesPanel.removeAll();
 		for (GameLobbyData g : games) {
-			boolean newGame = true;
-			for (Component c : gamesPanel.getComponents()) {
-				if (c instanceof ServerGameListingPanel) {
-					if (((ServerGameListingPanel) c).getGameID() == g.getGameID()) {
-						newGame = false;
-					} 
-				}
-			}
-			if (newGame) {
 				ServerGameListingPanel temp = new ServerGameListingPanel(g);
 				temp.setController(this);
 				gamesPanel.add(temp);
-			}
 		}
+		gamesPanel.repaint();
 		gamesPanel.revalidate();
 	}
 
@@ -89,6 +82,7 @@ public class ServerMenuScreenController implements ActionListener {
 			// TODO stop server and tell clients to disconnect (?)
 		
 			try {
+				server.sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
 				server.close();
 				screen.enableQuitButton(true);
 			} catch (IOException bruh) {
@@ -104,9 +98,7 @@ public class ServerMenuScreenController implements ActionListener {
 			
 			break;
 			
-		case "Submit":
-			// TODO i want to make commands if we have time
-			
+		case "Submit": // commands just like a real server console			
 			String[] args = screen.getCommand();
 			switch(args[0]) {
 			
@@ -142,10 +134,22 @@ public class ServerMenuScreenController implements ActionListener {
 				}
 				break;
 			
-			case "/listconnections":
+			case "/list_connections":
 				for (Thread c : server.getClientConnections()) {
 					log.append(c.getName() + "\n");
 				}
+				break;
+				
+			case "/list_players":
+				for (String s : server.getConnectedPlayers()) {
+					log.append(s + "\n");
+				}
+				log.append("Total: " + Integer.toString(server.getConnectedPlayerCount()) + "\n");
+				break;
+				
+			case "/refresh_lobbies":
+				addGameListings(server.getGames());
+				log.append("Refreshed Lobbies\n");
 				break;
 				
 			case "/quit":

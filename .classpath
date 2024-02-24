@@ -6,8 +6,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path=""/>
-	<classpathentry kind="lib" path="C:/sw_labs/Rocketman_MasonPrototype/ocsf.jar"/>
-	<classpathentry kind="lib" path="C:/sw_labs/Rocketman_MasonPrototype/mysql-connector-java-5.1.40-bin.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/Eclipse Adoptium/jdk-17.0.10.7-hotspot/lib/jrt-fs.jar"/>
+	<classpathentry kind="lib" path="V:/Eclipse-Workspace/ROCKETMAN/ocsf.jar"/>
+	<classpathentry kind="lib" path="V:/Eclipse-Workspace/ROCKETMAN/mysql-connector-java-5.1.40-bin.jar"/>
 	<classpathentry kind="output" path=""/>
 </classpath>

@@ -47,6 +47,17 @@ public class ServerConnectionScreenController implements ActionListener {
 		clientUI = c;
 	}
 	
+	public void connectionTerminated() {
+		//clientUI.disconnectProcedure();
+		try {
+			client.closeConnection();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		cl.show(clientPanel, "SERVER_CONNECTION");
+		screenPanel.setError("Server Closed");
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
@@ -87,8 +98,7 @@ public class ServerConnectionScreenController implements ActionListener {
 				connect(address, port);
 				cl.show(clientPanel, "LOGIN");
 				loginController.actionPerformed(new ActionEvent(this, 0, "BYPASS_LOGIN"));
-			} catch (IOException oops2) {
-				oops2.printStackTrace();
+			} catch (IOException QUIET_EXCEPTION) {
 				screenPanel.setError("Automatic Connection Failed, Please Connect Manually.");
 			}
 			break;

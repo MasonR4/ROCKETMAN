@@ -10,12 +10,13 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import data.GenericRequest;
+import data.PlayerJoinLeaveData;
 import data.GameLobbyData;
 import game.ClientUI;
 import menu_panels.FindGameScreen;
-import menu_panels.GameListingPanel;
 import menu_utilities.EightBitButton;
 import menu_utilities.GameCreationPanel;
+import menu_utilities.GameListingPanel;
 import server.Client;
 import server_utilities.ServerGameListingPanel;
 
@@ -44,26 +45,22 @@ public class FindGameScreenController implements ActionListener {
 	}
 	
 	public void addGameListings(ArrayList<GameLobbyData> games) {
+		gamesPanel.removeAll();
 		for (GameLobbyData g : games) {
-			boolean newGame = true;
-			for (Component c : gamesPanel.getComponents()) {
-				if (c instanceof GameListingPanel) {
-					if (((GameListingPanel) c).getGameID() == g.getGameID()) {
-						newGame = false;
-					} 
-				}
-			}
-			if (newGame) {
-				GameListingPanel temp = new GameListingPanel(g);
-				temp.setController(this);
-				gamesPanel.add(temp);
-			}
+			GameListingPanel temp = new GameListingPanel(g);
+			temp.setController(this);
+			gamesPanel.add(temp);
 		}
+		gamesPanel.repaint();
 		gamesPanel.revalidate();
 	}
 	
 	public void setScreenInfoLabels() {
-		screen.setInfoLabels(client.getServerName(), client.getUserName()); 
+		screen.setInfoLabels(client.getServerName(), client.getUsername()); 
+	}
+	
+	public void changeToGameLobbyMenu() {
+		cl.show(clientPanel, "LOBBY");
 	}
 	
 	@Override
@@ -72,6 +69,7 @@ public class FindGameScreenController implements ActionListener {
 		
 		switch(action) {
 		case "New Game":
+			newGameScreen.setFieldDefaults(client.getUsername());
 			newGameScreen.setVisible(true);
 			break;
 		case "Back":
@@ -84,15 +82,14 @@ public class FindGameScreenController implements ActionListener {
 				newGameScreen.setError("Max players cannot be blank");
 			} else {
 				maxPlayers = Integer.parseInt(newGameScreen.getMaxPlayers()); 
-				if (maxPlayers > 2 && maxPlayers <= 4) {
+				if (maxPlayers >= 2 && maxPlayers <= 4) {
 					if (lobbyName.length() < 3) {
 						newGameScreen.setError("Lobby name must be at least 3 characters in length");
 					} else {
-						GameLobbyData GameLobbyData = new GameLobbyData(lobbyName, client.getUserName(), maxPlayers, -1);
-						// request new game be made on the server
+						GameLobbyData GameLobbyData = new GameLobbyData(lobbyName, client.getUsername(), 0, maxPlayers, -1);
 						try {
 							client.sendToServer(GameLobbyData);
-							cl.show(clientPanel, "LOBBY");
+							newGameScreen.setVisible(false);
 						} catch (IOException SERVER_DENIED_GAME_CREATION) {
 							SERVER_DENIED_GAME_CREATION.printStackTrace();
 							newGameScreen.setError("Server Error Encountered, please try again later.");
@@ -102,10 +99,6 @@ public class FindGameScreenController implements ActionListener {
 					newGameScreen.setError("Max Players must be between 2 & 4");
 				}
 			}
-			// also need: send game data to server from client
-			// have client change to lobby screen upon receiving confirmation 
-			// of game creation from server
-			// egads
 			break;
 			
 		case "Refresh":
@@ -118,16 +111,39 @@ public class FindGameScreenController implements ActionListener {
 			break;
 			
 		case "Join +":
-			System.out.println("attempted to join game NOT IMPLENENTED YET lol get rekt 5head SHUT UP");
 			EightBitButton buttonClicked = (EightBitButton) e.getSource();
 			GameListingPanel sourceScreen = (GameListingPanel) buttonClicked.getParent();
 			int gameID = sourceScreen.getGameID();
+			PlayerJoinLeaveData joinData = new PlayerJoinLeaveData(client.getUsername());
+			joinData.setGameID(gameID);
+			joinData.setJoining(true);
+			try {
+				client.sendToServer(joinData);
+			} catch (IOException SERVER_DENIED_JOINING) {
+				SERVER_DENIED_JOINING.printStackTrace();
+			}
+			
 			break;
 			
 		case "Cancel":
 			newGameScreen.setVisible(false);
 			break;
-		
+			
+		case "GAME_CREATED":
+			cl.show(clientPanel, "LOBBY");
+			break;
+			
+		case "GAME_JOINED":
+			cl.show(clientPanel, "LOBBY");
+			break;
+			
+		case "GAME_FULL":
+			screen.setError("Game is full");
+			break;
+			
+		case "GAME_NOT_FOUND":
+			screen.setError("Game not found - try refreshing");
+			break;
 		}
 	}
 }

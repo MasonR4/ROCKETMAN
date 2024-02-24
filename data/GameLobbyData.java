@@ -9,14 +9,16 @@ public class GameLobbyData implements Serializable {
 	private String name;
 	private String hostUsername;
 	
+	private int playerCount;
 	private int maxPlayers;
 	private int gameID;
 
-	public GameLobbyData(String n, String hn, int mp, int gid) {
+	public GameLobbyData(String n, String hn, int p, int mp, int gid) {
 		name = n;
 		maxPlayers = mp;	
 		hostUsername = hn;
 		gameID = gid;
+		playerCount = p;
 	}
 	
 	public void setHostUsername(String hn) {
@@ -33,6 +35,10 @@ public class GameLobbyData implements Serializable {
 	
 	public int getMaxPlayers() {
 		return maxPlayers;
+	}
+	
+	public int getPlayerCount() {
+		return playerCount;
 	}
 	
 	public int getGameID() {

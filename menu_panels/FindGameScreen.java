@@ -1,5 +1,6 @@
 package menu_panels;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -9,6 +10,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import menu_utilities.*;
 
@@ -17,6 +19,7 @@ public class FindGameScreen extends JLayeredPane {
 	private EightBitLabel title;
 	private EightBitLabel info;
 	private EightBitLabel serverInfo;
+	private EightBitLabel errorLabel;
 	
 	private EightBitButton newGameButton;
 	private EightBitButton joinGameButton;
@@ -45,6 +48,11 @@ public class FindGameScreen extends JLayeredPane {
 		
 		serverInfo = new EightBitLabel("Connected to: ", Font.PLAIN, 32f);
 		serverInfo.setBounds(1000, 40, 400, 20);
+		
+		errorLabel = new EightBitLabel("", Font.PLAIN, 18f);
+		errorLabel.setForeground(Color.RED);
+		errorLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		errorLabel.setBounds(1175, 800, 400, 50);
 		
 		gamesPanel = new JPanel();
 		gamesPanel.setLayout(new BoxLayout(gamesPanel, BoxLayout.PAGE_AXIS));
@@ -79,6 +87,7 @@ public class FindGameScreen extends JLayeredPane {
 		add(joinGameButton, 1);
 		add(refreshButton, 1);
 		add(backButton, 1);
+		add(errorLabel, 1);
 	}
 	
 	public void showGameCreationPanel() {
@@ -91,6 +100,10 @@ public class FindGameScreen extends JLayeredPane {
 	
 	public JPanel getGamesPanel() {
 		return gamesPanel;
+	}
+	
+	public void setError(String msg) {
+		errorLabel.setText(msg);
 	}
 	
 	public void setInfoLabels(String s, String usr) {

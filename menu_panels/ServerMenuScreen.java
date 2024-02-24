@@ -56,20 +56,6 @@ public class ServerMenuScreen extends JPanel {
 		
 		gameScreen = new JPanel();
 		gameScreen.setLayout(new BoxLayout(gameScreen, BoxLayout.PAGE_AXIS));
-        //gameScreen.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        //add(gameScreen, BorderLayout.CENTER);
-        
-        JPanel test = new JPanel();
-        test.setBackground(Color.RED);
-        JPanel test2 = new JPanel();
-        test2.setBackground(Color.BLUE);
-        
-        GameLobbyData ng = new GameLobbyData("hey", "hello", 1, 4);
-        ServerGameListingPanel test3 = new ServerGameListingPanel(ng);
-        gameScreen.add(test3);
-        
-        //gameScreen.add(test);
-        //gameScreen.add(test2);
         
         gameScrollPane = new JScrollPane(gameScreen, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         gameScrollPane.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
@@ -206,7 +192,7 @@ public class ServerMenuScreen extends JPanel {
 	
 	public void enableQuitButton(boolean toggle) {
 		if (toggle == true) {
-			quitButton.setToolTipText("Quit Server Interface");
+			quitButton.setToolTipText("Quit");
 			quitButton.setEnabled(toggle);
 		} else {
 			quitButton.setToolTipText("Server must be stopped before quitting");
