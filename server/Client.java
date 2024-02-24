@@ -1,6 +1,7 @@
 package server;
 
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import controller.CreateAccountScreenController;
@@ -89,6 +90,14 @@ public class Client extends AbstractClient {
 				
 			case "FORCE_DISCONNECT":
 				serverConnectionController.connectionTerminated();
+				break;
+			case "CONFIRM_DISCONNECT_AND_EXIT":
+				serverConnectionController.connectionTerminated();
+				try {
+					closeConnection();
+				} catch (IOException YOU_CANT_LEAVE) {
+					
+				}
 				break;
 			} 
 		} else if (arg0 instanceof GameLobbyData) {

@@ -98,19 +98,22 @@ public class GameLobby {
 	}
 	
 	public void removePlayer(ConnectionToClient c, String usr) {
-		players.remove(usr);
-		playerConnections.remove(usr);
 		playerCount -= 1;
-		server.logMessage(usr + " leaving host: " + hostUsername);
+		if (usr.equals(hostUsername)) {
+			players.remove(usr);
+			playerConnections.remove(usr);
+			String[] usernames = players.keySet().toArray(new String[0]);
+			if (usernames.length > 0) {
+				hostUsername = usernames[0];
+			}			
+		} else {
+			players.remove(usr);
+			playerConnections.remove(usr);
+		}
+		
 		if (playerCount == 0) {
 			server.cancelGame(gameID);
-		} else if (usr.equals(hostUsername)) {
-			String[] usernames = (String[]) players.keySet().toArray();
-			server.logMessage(usernames[0] + " user left");
-			hostUsername = usernames[0];
 		}
-		server.logMessage(Integer.toString(playerCount) + " players in lobby");
-		server.logMessage(hostUsername + " is host");
 		updateClients(getJoinedPlayers());
 	}
 	

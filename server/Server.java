@@ -121,6 +121,7 @@ public class Server extends AbstractServer {
 		//GameLobby g = games.get(id);
 		serverLog.append("[Info] Canceled Game " + id + "\n");
 		games.remove(id);
+		serverMenuController.addGameListings(getGames());
 	}
 	
 	public void logMessage(String msg) {
@@ -188,19 +189,15 @@ public class Server extends AbstractServer {
 				if (username != "default") {
 					// TODO save player data to database
 					for (Entry<Integer, GameLobby> e : games.entrySet()) {
-						if (e.getValue().getPlayerUsernames().contains(username)) {
-							serverLog.append("yep\n");
-						}
-						if (e.getValue().getPlayerUsernames().contains(username)) {
-							e.getValue().removePlayer(arg1, username);
+						GameLobby game = e.getValue();
+						if (game.getPlayerUsernames().contains(username)) {
+							game.removePlayer(arg1, username);
 							serverLog.append("[Client " + arg1.getId() + "] " + username + " left game " + e.getValue().getGameID() + ": " + e.getValue().getlobbyName() + "\n");
 						}
 					}
-//					connectedPlayers.remove(username);
-//					connectedPlayerCount -= 1;
-//					serverLog.append("[Client " + arg1.getId() + "] Logged out as " + username + "\n");
-//					serverMenuController.addGameListings(getGames());
 					try {
+						GenericRequest rq2 = new GenericRequest("CONFIRM_DISCONNECT_AND_EXIT");
+						//arg1.sendToClient(rq2);
 						arg1.close();
 						connectedPlayers.remove(username);
 						connectedPlayerCount -= 1;
