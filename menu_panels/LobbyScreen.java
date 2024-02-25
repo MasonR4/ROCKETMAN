@@ -89,6 +89,7 @@ public class LobbyScreen extends JPanel {
 	}
 	
 	public void enableHostControls() {
+		startGameButton.addActionListener(controller);
 		add(startGameButton);
 	}
 	

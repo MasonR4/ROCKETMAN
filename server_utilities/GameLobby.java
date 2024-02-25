@@ -8,14 +8,17 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import data.GameLobbyData;
 import data.GenericRequest;
+import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
 import data.StartGameData;
+import game_utilities.Player;
 import ocsf.server.ConnectionToClient;
 import server.Server;
 
 public class GameLobby {
+	private final long TARGET_DELTA = 16;
 	
 	private Server server;
 	private boolean gameStarted = false;
@@ -27,7 +30,8 @@ public class GameLobby {
 	private int playerCap;
 	private int gameID;
 	
-	private LinkedHashMap<String, PlayerData> players = new LinkedHashMap<String, PlayerData>();
+	private LinkedHashMap<String, PlayerData> playerInfo = new LinkedHashMap<String, PlayerData>();
+	private LinkedHashMap<String, Player> players = new LinkedHashMap<String, Player>();
 	private LinkedHashMap<String, ConnectionToClient> playerConnections = new LinkedHashMap<String, ConnectionToClient>();
 	
 	// TODO here is where we store stuff like player objects, the grid
@@ -60,20 +64,20 @@ public class GameLobby {
 	}
 	
 	public ArrayList<String> getPlayerUsernames() {
-		List<String> temp = players.keySet().stream().collect(Collectors.toList());
+		List<String> temp = playerInfo.keySet().stream().collect(Collectors.toList());
 		return new ArrayList<>(temp);
 	}
 	
-	public ArrayList<PlayerJoinLeaveData> getJoinedPlayers() {
-		ArrayList<PlayerJoinLeaveData> joinedPlayers = new ArrayList<PlayerJoinLeaveData>();
-		for (Entry<String, PlayerData> e : players.entrySet()) {
+	public ArrayList<PlayerJoinLeaveData> getJoinedPlayerInfo() {
+		ArrayList<PlayerJoinLeaveData> joinedplayerInfo = new ArrayList<PlayerJoinLeaveData>();
+		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
 			PlayerJoinLeaveData player = new PlayerJoinLeaveData(e.getKey());
 			player.setReady(e.getValue().isReady());
 			player.setHost(hostUsername.equals(e.getKey()));
 			player.setGameID(gameID);
-			joinedPlayers.add(player);
+			joinedplayerInfo.add(player);
 		}
-		return joinedPlayers;
+		return joinedplayerInfo;
 	}
 	
 	public boolean isFull() {
@@ -88,40 +92,56 @@ public class GameLobby {
 		return gameStarted;
 	}
 	
-	public void startGame(StartGameData info) {
+	public void setStartGameData(StartGameData info) {
 		// TODO start the game
 		// this function needs to do a number of things:
 		// - load map and sent it to all clients
 		// - add in player game object representations
-		// - initialize the game
-		// - start timers and threads
-		// - its gonna be really long and messy im scared
-		playerLives = info.getPlayerLives();
-		mapName = info.getMap();
 		
+		//playerLives = info.getPlayerLives();
+		//mapName = info.getMap();
 		// map = server.getMap(mapName);
+		
+		GenericRequest rq = new GenericRequest("GAME_STARTED");
+		rq.setData(getJoinedPlayerInfo());
+		for (Entry<String, ConnectionToClient> e : playerConnections.entrySet()) {
+			try {
+				e.getValue().sendToClient(rq);
+			} catch (IOException CLIENT_DECEASED) {
+				CLIENT_DECEASED.printStackTrace();
+				server.logMessage("failed to send game start to [Client " + e.getValue().getId() + "] " + e.getKey());
+			}
+		}
+		gameStarted = true;
+	}
+	
+	public void stopGame() {
+		// TODO make this more elaborate 
+		// also may not need TBD
+		gameStarted = false;
+		Thread.currentThread().interrupt();
 	}
 	
 	public void removePlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
 		playerCount -= 1;
-		ConnectionToClient conn = players.get(usr.getUsername()).getConnection();
 		if (usr.getUsername().equals(hostUsername)) {
-			players.remove(usr.getUsername());
+			playerInfo.remove(usr.getUsername());
 			playerConnections.remove(usr.getUsername());
 			
-			String[] usernames = players.keySet().toArray(new String[0]);
+			String[] usernames = playerInfo.keySet().toArray(new String[0]);
 			if (usernames.length > 0) {
 				hostUsername = usernames[0];
 			}			
 		} else {
-			players.remove(usr.getUsername());
+			playerInfo.remove(usr.getUsername());
 			playerConnections.remove(usr.getUsername());
 		}
 		
 		if (playerCount == 0) {
+			gameStarted = false;
 			server.cancelGame(gameID);
 		}
-		updatePlayersInLobbyForClients(getJoinedPlayers());
+		updateplayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
 	
 	public void addPlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
@@ -133,19 +153,19 @@ public class GameLobby {
 		}
 		playerCount += 1;
 		playerConnections.put(usr.getUsername(), c);
-		players.put(usr.getUsername(), temp);
-		updatePlayersInLobbyForClients(getJoinedPlayers());
+		playerInfo.put(usr.getUsername(), temp);
+		updateplayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
 	
 	public void readyPlayer(PlayerReadyData r) {
 		String name = r.getUsername();
-		players.get(name).setReady(r.isReady());
+		playerInfo.get(name).setReady(r.isReady());
 		setReadyClients();
 	}
 	
 	public void setReadyClients() {
 		GenericRequest rq;
-		for (Entry<String, PlayerData> e : players.entrySet()) {
+		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
 			if (e.getValue().isReady()) {
 				rq = new GenericRequest("CONFIRM_READY");
 			} else {
@@ -153,24 +173,23 @@ public class GameLobby {
 			}
 			try {
 				playerConnections.get(e.getKey()).sendToClient(rq);
-				updatePlayersInLobbyForClients(getJoinedPlayers());
+				updateplayerInfoInLobbyForClients(getJoinedPlayerInfo());
 			} catch (IOException CLIENT_WAS_NOT_READY) {
 				CLIENT_WAS_NOT_READY.printStackTrace();
 			}
 		}
 	}
 	
-	public void updatePlayersInLobbyForClients(ArrayList<PlayerJoinLeaveData> a) {
+	public void updateplayerInfoInLobbyForClients(ArrayList<PlayerJoinLeaveData> a) {
 		GenericRequest rq = new GenericRequest("LOBBY_PLAYER_INFO");
 		rq.setData(a);
 		updateClients(rq);
 	}
 	
 	public void updateClients(Object data) {
-		for (Entry<String, PlayerData> e : players.entrySet()) {
+		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
 			try {
 				playerConnections.get(e.getKey()).sendToClient(data);
-				server.logMessage("sent player data to clients");
 			} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
 				CLIENT_DOESNT_LIKE_YOU.printStackTrace();
 			}
@@ -181,6 +200,31 @@ public class GameLobby {
 		GameLobbyData tempInfo = new GameLobbyData(lobbyName, hostUsername, playerCount, playerCap, gameID);
 		return tempInfo;
 	}
-
-
+	
+	public void handlePlayerAction(PlayerActionData data) {
+		// TODO rectify actions sent by clients
+	}
+	
+	public void run() {
+		// TODO yeah...
+		while (!Thread.currentThread().interrupted() && gameStarted) {
+			long startTime = System.currentTimeMillis();
+			// check collision for all players
+			// check collision for rockets and stuff
+			// check block updates
+			// send info to clients
+			server.logMessage("test" + gameID);
+			long endTime = System.currentTimeMillis();
+			long delta = endTime - startTime;
+			long sleepTime = TARGET_DELTA - delta;
+			try {
+				Thread.sleep(sleepTime);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				gameStarted = false;
+				break;
+				
+			}
+		}
+	}
 }

@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import data.GameLobbyData;
 import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
+import data.StartGameData;
 import game.ClientUI;
 import menu_panels.LobbyScreen;
 import menu_utilities.PlayerListingPanel;
@@ -110,7 +111,14 @@ public class LobbyScreenController implements ActionListener {
 			break;
 			
 		case "Start Game":
-			// TODO start game pass all info to server and game id and uhhh
+			System.out.println("egas");
+			try {
+				StartGameData info = new StartGameData(client.getGameID());
+				// TODO set other game parameters before sending once they are implemented
+				client.sendToServer(info);
+			} catch (IOException SERVER_DECLINED_TO_START_GAME) {
+				
+			}
 			break;
 			
 		case "Leave":

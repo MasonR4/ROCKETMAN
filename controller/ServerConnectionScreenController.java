@@ -51,8 +51,8 @@ public class ServerConnectionScreenController implements ActionListener {
 		//clientUI.disconnectProcedure();
 		try {
 			client.closeConnection();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException YOU_CANT_LEAVE) {
+			YOU_CANT_LEAVE.printStackTrace();
 		}
 		cl.show(clientPanel, "SERVER_CONNECTION");
 		screenPanel.setError("Server Closed");
@@ -82,18 +82,15 @@ public class ServerConnectionScreenController implements ActionListener {
 			} catch (IOException oops) {
 				oops.printStackTrace();
 				screenPanel.setError("Server Connection Failed");
-			}
-			
+			}			
 			break;
 		
 		case "BYPASS_CONNECTION_AND_ATTEMPT_LOGIN":
-			
 			for(Component c : loginScreen.getComponents()) {
 				if (c instanceof EightBitButton) {
 					loginController = (LoginScreenController) ((EightBitButton) c).getActionListeners()[0];
 				}
-			}
-			
+			}			
 			try {
 				connect(address, port);
 				cl.show(clientPanel, "LOGIN");

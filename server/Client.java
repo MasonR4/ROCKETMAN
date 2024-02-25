@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import controller.CreateAccountScreenController;
 import controller.FindGameScreenController;
+import controller.GameScreenController;
 import controller.LobbyScreenController;
 import controller.LoginScreenController;
 import controller.MainMenuScreenController;
@@ -30,6 +31,7 @@ public class Client extends AbstractClient {
 	private FindGameScreenController findGameController;
 	private LoginScreenController loginController;
 	private LobbyScreenController lobbyController;
+	private GameScreenController gameController;
 	
 	private MainMenuScreenController mainMenuController;
 	private ServerConnectionScreenController serverConnectionController;
@@ -102,14 +104,19 @@ public class Client extends AbstractClient {
 				
 			case "FORCE_DISCONNECT":
 				serverConnectionController.connectionTerminated();
+//				try {
+//					closeConnection();
+//				} catch (IOException YOU_CANT_LEAVE) {
+//					YOU_CANT_LEAVE.printStackTrace();
+//				}
 				break;
 			case "CONFIRM_DISCONNECT_AND_EXIT":
 				serverConnectionController.connectionTerminated();
-				try {
-					closeConnection();
-				} catch (IOException YOU_CANT_LEAVE) {
-					YOU_CANT_LEAVE.printStackTrace();
-				}
+//				try {
+//					closeConnection();
+//				} catch (IOException YOU_CANT_LEAVE) {
+//					YOU_CANT_LEAVE.printStackTrace();
+//				}
 				break;
 			} 
 		} else if (arg0 instanceof GameLobbyData) {
@@ -152,6 +159,10 @@ public class Client extends AbstractClient {
 	
 	public void setLobbyController(LobbyScreenController c) {
 		lobbyController = c;
+	}
+	
+	public void setGameController(GameScreenController c) {
+		gameController = c;
 	}
 
 	public String getUsername() {

@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
@@ -25,7 +28,10 @@ public class Server extends AbstractServer {
 	private ServerMenuScreenController serverMenuController;
 	
 	private LinkedHashMap<Integer, GameLobby> games = new LinkedHashMap<Integer, GameLobby>(); 
+	private LinkedHashMap<Integer, Future<?>> runningGames = new LinkedHashMap<Integer, Future<?>>();
 	private int gameCount = 0;
+	
+	private final ExecutorService executor = Executors.newCachedThreadPool();
 	
 	// potentially not using these (?)
 	private ArrayList<String> connectedPlayers = new ArrayList<String>();
@@ -90,6 +96,15 @@ public class Server extends AbstractServer {
 		return gameList;
 	}
 	
+	public ArrayList<GameLobbyData> getAllGames() {
+		ArrayList<GameLobbyData> gameList = new ArrayList<GameLobbyData>();
+		for (Entry<Integer, GameLobby> e : games.entrySet()) {
+			GameLobby g = e.getValue();
+			gameList.add(e.getValue().generateGameListing());
+		}
+		return gameList;
+	}
+	
 	protected void serverStarted() {
 		serverLog.append("Server '" + serverName + "' started on port '" + this.getPort() + "'\n");
 		serverStatus.setText("RUNNING");
@@ -99,6 +114,9 @@ public class Server extends AbstractServer {
 	protected void serverStopped() {
 		for (Entry<Integer, GameLobby> e :  games.entrySet()) {
 			cancelGame(e.getKey());
+			connectedPlayerCount = 0;
+			connectedPlayers.clear();
+			//executor.shutdown();
 		}
 		// TODO save player data to database upon server stopping
 		serverLog.append("Server Stopped\n");
@@ -113,8 +131,12 @@ public class Server extends AbstractServer {
 	
 	public void cancelGame(int id) {
 		serverLog.append("[Info] Canceled Game " + id + "\n");
+		if (games.get(id).isStarted()) {
+			runningGames.get(id).cancel(true);
+			runningGames.remove(id);
+		}
 		games.remove(id);
-		serverMenuController.addGameListings(getGames());
+		serverMenuController.addGameListings(getAllGames());
 	}
 	
 	public void logMessage(String msg) {
@@ -131,7 +153,7 @@ public class Server extends AbstractServer {
 				serverLog.append("[Client " + arg1.getId() + "] Requested games info\n");
 				rq = new GenericRequest("GAMES_INFO");
 				ArrayList<GameLobbyData> gameList = getGames();
-				serverMenuController.addGameListings(gameList);
+				//serverMenuController.addGameListings(gameList);
 				rq.setData(gameList);
 				try {
 					arg1.sendToClient(rq);
@@ -146,10 +168,11 @@ public class Server extends AbstractServer {
 				try {
 					GenericRequest rq2 = new GenericRequest("CONFIRM_DISCONNECT_AND_EXIT");
 					arg1.sendToClient(rq2);
+					arg1.close();
 					connectedPlayers.remove(username);
 					connectedPlayerCount -= 1;
 					serverLog.append("[Client " + arg1.getId() + "] Logged out as " + username + "\n");
-					serverMenuController.addGameListings(getGames());
+					serverMenuController.addGameListings(getAllGames());
 				} catch (IOException CLIENT_ALREADY_GONE) {
 					CLIENT_ALREADY_GONE.printStackTrace();
 				}
@@ -223,9 +246,8 @@ public class Server extends AbstractServer {
 				arg1.sendToClient(newGame.generateGameListing());
 				gameCount += 1;
 				games.put(newGame.getGameID(), newGame);
-				ArrayList<GameLobbyData> gameList = getGames();
 				serverLog.append("[Client " + arg1.getId() + "] Created Game ID: " + newGame.getGameID() + ", Name: " + info.getName() +", Host: " + info.getHostName() + ", Max Players: " + info.getMaxPlayers() + "\n");
-				serverMenuController.addGameListings(gameList);
+				serverMenuController.addGameListings(getAllGames());
 			} catch (IOException CLIENT_WENT_TO_SLEEP) {
 				CLIENT_WENT_TO_SLEEP.printStackTrace();
 			}
@@ -246,7 +268,7 @@ public class Server extends AbstractServer {
 						games.get(gameID).addPlayer(arg1, info);
 						try {
 							arg1.sendToClient(games.get(gameID).generateGameListing());
-							serverMenuController.addGameListings(getGames());
+							serverMenuController.addGameListings(getAllGames());
 							serverLog.append("[Client " + arg1.getId() + "] Joined game " + gameID + " as " + username + "\n");
 							} catch (IOException CLIENT_VITALS_CANNOT_BE_CONFIRMED) {
 								CLIENT_VITALS_CANNOT_BE_CONFIRMED.printStackTrace();
@@ -276,6 +298,11 @@ public class Server extends AbstractServer {
 					CLIENT_NONRESPONSIVE.printStackTrace();
 				}
 			}
+		} else if (arg0 instanceof StartGameData) {
+			StartGameData info = (StartGameData) arg0;
+			int gid = info.getGameID();
+			games.get(gid).setStartGameData(info);
+			runningGames.put(gid, executor.submit(games.get(gid)::run));
 		}
 	}
 }

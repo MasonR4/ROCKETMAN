@@ -8,7 +8,6 @@ public class PlayerData implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private String username;
-	private ConnectionToClient connection;
 	
 	private boolean ready = false;
 	private boolean isHost = false;
@@ -20,10 +19,6 @@ public class PlayerData implements Serializable {
 	
 	public String getUsername() {
 		return username;
-	}
-	
-	public ConnectionToClient getConnection() {
-		return connection;
 	}
 	
 	public boolean isReady() {
@@ -40,10 +35,6 @@ public class PlayerData implements Serializable {
 
 	public void setUsername(String username) {
 		this.username = username;
-	}
-	
-	public void setConnection(ConnectionToClient c) {
-		connection = c;
 	}
 	
 	public void setReady(boolean ready) {

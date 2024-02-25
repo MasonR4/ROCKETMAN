@@ -1,6 +1,5 @@
 package controller;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -23,7 +22,7 @@ public class ServerMenuScreenController implements ActionListener {
 	private ServerMenuScreen screen;
 	
 	private JTextArea log;
-	private JLabel status;
+	//private JLabel status;
 	
 	private JPanel gamesPanel;
 	
@@ -33,7 +32,7 @@ public class ServerMenuScreenController implements ActionListener {
 		serverUI = ui;
 		
 		log = screen.getServerLog();
-		status = screen.getServerStatusLabel();
+		//status = screen.getServerStatusLabel();
 		gamesPanel = screen.getGamesPanel();
 	}	
 	
@@ -79,14 +78,14 @@ public class ServerMenuScreenController implements ActionListener {
 			break;
 			
 		case "Stop":
-			// TODO stop server and tell clients to disconnect (?)
-		
+			// TODO !! save database !!		
 			try {
 				server.sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
 				server.close();
 				screen.enableQuitButton(true);
 			} catch (IOException bruh) {
-				
+				bruh.printStackTrace();
+				log.append("couldnt disconnect clients\n");
 			}
 			
 			break;
