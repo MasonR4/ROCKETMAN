@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import ocsf.server.ConnectionToClient;
 
 public class PlayerData implements Serializable {
+	private static final long serialVersionUID = 1L;
 	
 	private String username;
 	private ConnectionToClient connection;

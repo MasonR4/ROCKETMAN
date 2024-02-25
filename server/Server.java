@@ -81,12 +81,6 @@ public class Server extends AbstractServer {
 	
 	public ArrayList<GameLobbyData> getGames() {
 		ArrayList<GameLobbyData> gameList = new ArrayList<GameLobbyData>();
-//		for (Entry<Integer, GameLobby> e : games.entrySet()) {
-//			GameLobby g = e.getValue();
-//			if (g.isEmpty()) {
-//				games.remove(e.getKey());
-//			}
-//		}
 		for (Entry<Integer, GameLobby> e : games.entrySet()) {
 			GameLobby g = e.getValue();
 			if (!g.isStarted()) {
@@ -118,7 +112,6 @@ public class Server extends AbstractServer {
 	}
 	
 	public void cancelGame(int id) {
-		//GameLobby g = games.get(id);
 		serverLog.append("[Info] Canceled Game " + id + "\n");
 		games.remove(id);
 		serverMenuController.addGameListings(getGames());
@@ -133,7 +126,7 @@ public class Server extends AbstractServer {
 		if (arg0 instanceof GenericRequest) {
 			String action = ((GenericRequest) arg0).getMsg();
 			GenericRequest rq;
-			switch (action) { 			// lol PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
+			switch (action) { 			// PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
 			case "REQUEST_GAMES_INFO":
 				serverLog.append("[Client " + arg1.getId() + "] Requested games info\n");
 				rq = new GenericRequest("GAMES_INFO");
@@ -147,67 +140,21 @@ public class Server extends AbstractServer {
 					serverLog.append("[Server] Could not send game info to client\n");
 				}
 				break;
-			case "REQUEST_TO_JOIN_GAME":
-				String rqData = (String) ((GenericRequest) arg0).getData();
-				String[] rqSplitData = rqData.split(":"); // LOL
-				String usr = rqSplitData[0];
-				int gameID = Integer.parseInt(rqSplitData[1]);
-				if (games.containsKey(gameID)) {
-					if (!games.get(gameID).isFull()) {
-						//games.get(gameID).addPlayer(arg1, usr);
-						try {
-							arg1.sendToClient(games.get(gameID).generateGameListing());
-							serverMenuController.addGameListings(getGames());
-							serverLog.append("[Client " + arg1.getId() + "] Joined game " + gameID + " as " + usr + "\n");
-							} catch (IOException CLIENT_VITALS_CANNOT_BE_CONFIRMED) {
-								CLIENT_VITALS_CANNOT_BE_CONFIRMED.printStackTrace();
-						}
-					} else {
-						try {
-							rq = new GenericRequest("GAME_FULL");
-							arg1.sendToClient(rq);
-							serverLog.append("[Client " + arg1.getId() + "] Failed to join game " + gameID + ": game is full\n");
-						} catch (IOException CLIENT_DID_NOT_CARE) {
-							CLIENT_DID_NOT_CARE.printStackTrace();
-						}
-					}
-				} else {
-					try {
-						rq = new GenericRequest("GAME_NOT_FOUND");
-						arg1.sendToClient(rq);
-						serverLog.append("[Client " + arg1.getId() + "] Failed to join game " + gameID + ": game no longer exists\n");
-					} catch (IOException CLIENT_DIED) {
-						CLIENT_DIED.printStackTrace();
-					}
-				}
-				break;
 				
 			case "CLIENT_DISCONNECTING":
 				String username = (String) ((GenericRequest) arg0).getData();
-				
-//				if (username != "default") {
-//					// TODO save player data to database
-//					for (Entry<Integer, GameLobby> e : games.entrySet()) {
-//						GameLobby game = e.getValue();
-//						if (game.getPlayerUsernames().contains(username)) {
-//							game.removePlayer(arg1, username);
-//							serverLog.append("[Client " + arg1.getId() + "] " + username + " left game " + e.getValue().getGameID() + ": " + e.getValue().getlobbyName() + "\n");
-//						}
-//					}
-					try {
-						GenericRequest rq2 = new GenericRequest("CONFIRM_DISCONNECT_AND_EXIT");
-						arg1.sendToClient(rq2);
-						connectedPlayers.remove(username);
-						connectedPlayerCount -= 1;
-						serverLog.append("[Client " + arg1.getId() + "] Logged out as " + username + "\n");
-						serverMenuController.addGameListings(getGames());
-					} catch (IOException CLIENT_ALREADY_GONE) {
-						CLIENT_ALREADY_GONE.printStackTrace();
-					}
-				//}
+				try {
+					GenericRequest rq2 = new GenericRequest("CONFIRM_DISCONNECT_AND_EXIT");
+					arg1.sendToClient(rq2);
+					connectedPlayers.remove(username);
+					connectedPlayerCount -= 1;
+					serverLog.append("[Client " + arg1.getId() + "] Logged out as " + username + "\n");
+					serverMenuController.addGameListings(getGames());
+				} catch (IOException CLIENT_ALREADY_GONE) {
+					CLIENT_ALREADY_GONE.printStackTrace();
+				}
 				break;
 			}
-			
 			
 		} else if (arg0 instanceof LoginData) {
 			String username = ((LoginData) arg0).getUsername();

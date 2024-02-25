@@ -90,6 +90,12 @@ public class GameLobby {
 	
 	public void startGame(StartGameData info) {
 		// TODO start the game
+		// this function needs to do a number of things:
+		// - load map and sent it to all clients
+		// - add in player game object representations
+		// - initialize the game
+		// - start timers and threads
+		// - its gonna be really long and messy im scared
 		playerLives = info.getPlayerLives();
 		mapName = info.getMap();
 		

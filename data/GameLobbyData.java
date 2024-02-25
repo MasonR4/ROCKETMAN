@@ -2,9 +2,8 @@ package data;
 
 import java.io.Serializable;
 
-import server.Client;
-
 public class GameLobbyData implements Serializable {
+	private static final long serialVersionUID = 1L;
 	
 	private String name;
 	private String hostUsername;

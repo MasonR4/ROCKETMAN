@@ -119,4 +119,12 @@ public class ServerUI extends JFrame {
 			}
 		});
 	}
+
+	public Database getDatabase() {
+		return database;
+	}
+
+	public void setDatabase(Database database) {
+		this.database = database;
+	}
 }

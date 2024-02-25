@@ -39,6 +39,7 @@ public class Client extends AbstractClient {
 		super("localhost", 8300);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void handleMessageFromServer(Object arg0) {
 		if (arg0 instanceof GenericRequest) {

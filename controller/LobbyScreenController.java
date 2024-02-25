@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 import data.GameLobbyData;
-import data.GenericRequest;
 import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
 import game.ClientUI;
@@ -18,7 +17,7 @@ import server.Client;
 public class LobbyScreenController implements ActionListener {
 	
 	private Client client;
-	private ClientUI clientUI;
+	//private ClientUI clientUI;
 	
 	private LobbyScreen screen;
 	
@@ -30,7 +29,7 @@ public class LobbyScreenController implements ActionListener {
 	public LobbyScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
 		clientPanel = p;
-		clientUI = ui;
+		//clientUI = ui;
 		
 		cl = (CardLayout) clientPanel.getLayout();
 		screen = (LobbyScreen) clientPanel.getComponent(6);

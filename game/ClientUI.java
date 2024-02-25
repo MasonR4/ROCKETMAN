@@ -6,7 +6,6 @@ import data.GenericRequest;
 import data.PlayerJoinLeaveData;
 import menu_panels.*;
 import menu_panels.SplashScreen;
-import menu_utilities.TextFieldFilters;
 import server.Client;
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -22,6 +20,7 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 
 public class ClientUI extends JFrame {
+	private static final long serialVersionUID = 1L;
 
 	// hurr durr
 	private Client client;
@@ -91,8 +90,6 @@ public class ClientUI extends JFrame {
 			configData.put("last_user", "");
 		}
 
-		// i stole this from someone else's project but i think it would be doing
-		// everyone a disservice if we didnt have this
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
