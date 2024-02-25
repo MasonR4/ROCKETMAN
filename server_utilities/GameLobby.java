@@ -1,10 +1,12 @@
 package server_utilities;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.stream.Collectors;
 import data.GameLobbyData;
 import data.GenericRequest;
@@ -29,6 +31,8 @@ public class GameLobby {
 	private int playerCount = 0;
 	private int playerCap;
 	private int gameID;
+	
+	private Random random = new Random();
 	
 	private LinkedHashMap<String, PlayerData> playerInfo = new LinkedHashMap<String, PlayerData>();
 	private LinkedHashMap<String, Player> players = new LinkedHashMap<String, Player>();
@@ -92,18 +96,24 @@ public class GameLobby {
 		return gameStarted;
 	}
 	
-	public void setStartGameData(StartGameData info) {
+	public void startGame(StartGameData info) {
 		// TODO start the game
 		// this function needs to do a number of things:
 		// - load map and sent it to all clients
 		// - add in player game object representations
+		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
+			Player newPlayer = new Player(20, random.nextInt(10, 900), random.nextInt(10, 900));
+			newPlayer.setUsername(e.getKey());
+			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
+			players.put(e.getKey(), newPlayer);
+		}
 		
 		//playerLives = info.getPlayerLives();
 		//mapName = info.getMap();
 		// map = server.getMap(mapName);
 		
 		GenericRequest rq = new GenericRequest("GAME_STARTED");
-		rq.setData(getJoinedPlayerInfo());
+		rq.setData(players);
 		for (Entry<String, ConnectionToClient> e : playerConnections.entrySet()) {
 			try {
 				e.getValue().sendToClient(rq);
@@ -206,8 +216,9 @@ public class GameLobby {
 	}
 	
 	public void run() {
+		Thread.currentThread();
 		// TODO yeah...
-		while (!Thread.currentThread().interrupted() && gameStarted) {
+		while (!Thread.interrupted() && gameStarted) {
 			long startTime = System.currentTimeMillis();
 			// check collision for all players
 			// check collision for rockets and stuff

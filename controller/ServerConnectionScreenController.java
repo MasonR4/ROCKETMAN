@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import game.ClientUI;
 import menu_panels.LoginScreen;
@@ -48,14 +49,16 @@ public class ServerConnectionScreenController implements ActionListener {
 	}
 	
 	public void connectionTerminated() {
-		//clientUI.disconnectProcedure();
-		try {
-			client.closeConnection();
-		} catch (IOException YOU_CANT_LEAVE) {
-			YOU_CANT_LEAVE.printStackTrace();
-		}
+		clientUI.disconnectProcedure();
+//		try {
+//			client.closeConnection();
+//		} catch (IOException YOU_CANT_LEAVE) {
+//			YOU_CANT_LEAVE.printStackTrace();
+//		}
+		SwingUtilities.invokeLater(() -> {
 		cl.show(clientPanel, "SERVER_CONNECTION");
 		screenPanel.setError("Server Closed");
+		});
 	}
 	
 	@Override

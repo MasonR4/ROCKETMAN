@@ -3,6 +3,13 @@ package server;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import javax.swing.SwingUtilities;
 
 import controller.CreateAccountScreenController;
 import controller.FindGameScreenController;
@@ -15,6 +22,7 @@ import controller.SplashScreenController;
 import data.GenericRequest;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
+import game_utilities.Player;
 import data.GameLobbyData;
 import ocsf.client.AbstractClient;
 
@@ -24,6 +32,7 @@ public class Client extends AbstractClient {
 	private String serverName;
 		
 	private int gameID = -1;
+	private Future<?> currentGame;
 	
 	// controllers for each menu
 	// possible that we won't need all of them in the client class
@@ -36,6 +45,8 @@ public class Client extends AbstractClient {
 	private MainMenuScreenController mainMenuController;
 	private ServerConnectionScreenController serverConnectionController;
 	private SplashScreenController splashController;
+	
+	private ExecutorService executor = Executors.newCachedThreadPool();
 	
 	public Client() {
 		super("localhost", 8300);
@@ -102,21 +113,18 @@ public class Client extends AbstractClient {
 				lobbyController.leaveGameLobby();
 				break;
 				
+			case "GAME_STARTED":
+				lobbyController.startGame();
+				gameController.addPlayers((LinkedHashMap<String, Player>) ((GenericRequest) arg0).getData());
+				gameController.startGame();
+				currentGame = executor.submit(gameController::run);
+				break;
+				
 			case "FORCE_DISCONNECT":
-				serverConnectionController.connectionTerminated();
-//				try {
-//					closeConnection();
-//				} catch (IOException YOU_CANT_LEAVE) {
-//					YOU_CANT_LEAVE.printStackTrace();
-//				}
+				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
 				break;
 			case "CONFIRM_DISCONNECT_AND_EXIT":
-				serverConnectionController.connectionTerminated();
-//				try {
-//					closeConnection();
-//				} catch (IOException YOU_CANT_LEAVE) {
-//					YOU_CANT_LEAVE.printStackTrace();
-//				}
+				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
 				break;
 			} 
 		} else if (arg0 instanceof GameLobbyData) {
@@ -131,6 +139,10 @@ public class Client extends AbstractClient {
 		} else if (arg0 instanceof PlayerData) {
 			// for when client request player statistics from the server
 		} 		
+	}
+	
+	public void cancelGame() {
+		currentGame.cancel(true);
 	}
 	
 	public void setCreateAccountController(CreateAccountScreenController c) {

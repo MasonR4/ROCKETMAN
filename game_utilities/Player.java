@@ -3,12 +3,12 @@ package game_utilities;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public class Player extends Rectangle {
 	private String username;
 	
-	private int ID;
 	private int size;
 	private int lives = 3;
 	private int speed = 5;
@@ -32,15 +32,19 @@ public class Player extends Rectangle {
 	    collisions.put("HORIZONTAL", false);
 	    collisions.put("VERTICAL", false);
 	}
-	
+
 	public void draw(Graphics g) {
-		g.setColor(Color.WHITE);
+		g.setColor(color);
 		g.fillRect(x, y, size, size);
 		//rocket.draw(g);
 	}
 	
 	public void setVelocity(String dir) {
 		velocities.put(dir, speed);
+	}
+	
+	public void cancelVelocity(String dir) {
+		velocities.put(dir, 0);
 	}
 	
 	public void setCollision(String dir, boolean col) {
@@ -52,9 +56,26 @@ public class Player extends Rectangle {
 	}
 	
 	public void move() {
-		if (!collisions.get("HORIZONTAL")) {x = (velocities.get("LEFT") - velocities.get("RIGHT"));}
-		if (!collisions.get("VERTICAL")) {y = (velocities.get("DOWN") - velocities.get("UP"));}
+		if (!collisions.get("HORIZONTAL")) {x += (velocities.get("LEFT") - velocities.get("RIGHT"));}
+		if (!collisions.get("VERTICAL")) {y += (velocities.get("DOWN") - velocities.get("UP"));}
 		//rocket.move();
+	}
+	
+	public boolean checkCollision(int newX, int newY) {
+		Rectangle futureBounds = new Rectangle(newX, newY, size, size);
+		
+//		for (Block block : new ArrayList<Block>()) {
+//			if (futureBounds.intersects(block.getBounds())) {
+//				return true;
+//			}
+//		}
+		if (futureBounds.x < 350 || futureBounds.x > 1250 - size) {
+        	return true;
+        }
+        if (futureBounds.y < 0 || futureBounds.y > 900 - size) {
+        	return true;
+        }
+		return false;
 	}
 	
 	public int getXVelocity() {
@@ -63,5 +84,33 @@ public class Player extends Rectangle {
 	
 	public int getYVelocity() {
 		return velocities.get("DOWN") - velocities.get("UP");
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public int getLives() {
+		return lives;
+	}
+	
+	public void setLives(int lives) {
+		this.lives = lives;
+	}
+	
+	public int getBlockSize() {
+		return size;
+	}
+	
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
 	}
 }

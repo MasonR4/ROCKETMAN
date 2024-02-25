@@ -6,11 +6,14 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
 import data.GameLobbyData;
 import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
 import data.StartGameData;
 import game.ClientUI;
+import game_utilities.Player;
 import menu_panels.LobbyScreen;
 import menu_utilities.PlayerListingPanel;
 import server.Client;
@@ -58,7 +61,7 @@ public class LobbyScreenController implements ActionListener {
 			}
 			playerPanel.add(p);
 		}
-		screen.updateLobbyInfo();
+		SwingUtilities.invokeLater(() -> screen.updateLobbyInfo());
 		playerPanel.repaint();
 		playerPanel.revalidate();
 	}
@@ -72,12 +75,16 @@ public class LobbyScreenController implements ActionListener {
 	}
 	
 	public void joinGameLobby(GameLobbyData info) {
-		screen.setLobbyInfo(info.getHostName(), info.getPlayerCount(), info.getMaxPlayers());
-		screen.updateLobbyInfo();
+		SwingUtilities.invokeLater(() -> screen.setLobbyInfo(info.getHostName(), info.getPlayerCount(), info.getMaxPlayers()));
+		SwingUtilities.invokeLater(() -> screen.updateLobbyInfo());
 	}
 	
 	public void leaveGameLobby() {
-		cl.show(clientPanel, "FIND_GAME");
+		SwingUtilities.invokeLater(() -> cl.show(clientPanel, "FIND_GAME"));
+	}
+	
+	public void startGame() {
+		SwingUtilities.invokeLater(() -> cl.show(clientPanel, "GAME"));
 	}
 	
 	@Override
@@ -103,7 +110,7 @@ public class LobbyScreenController implements ActionListener {
 					PlayerReadyData pr = new PlayerReadyData(client.getUsername(), client.getGameID(), false);
 					client.sendToServer(pr);
 				} catch (IOException UNREADY_UP_DENIED) {
-				UNREADY_UP_DENIED.printStackTrace();
+					UNREADY_UP_DENIED.printStackTrace();
 				}
 			} else {
 				System.out.println("Server connection Lost");
@@ -111,13 +118,12 @@ public class LobbyScreenController implements ActionListener {
 			break;
 			
 		case "Start Game":
-			System.out.println("egas");
 			try {
 				StartGameData info = new StartGameData(client.getGameID());
 				// TODO set other game parameters before sending once they are implemented
 				client.sendToServer(info);
 			} catch (IOException SERVER_DECLINED_TO_START_GAME) {
-				
+				SERVER_DECLINED_TO_START_GAME.printStackTrace();
 			}
 			break;
 			
