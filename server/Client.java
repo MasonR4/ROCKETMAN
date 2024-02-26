@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,6 +21,7 @@ import controller.MainMenuScreenController;
 import controller.ServerConnectionScreenController;
 import controller.SplashScreenController;
 import data.GenericRequest;
+import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
 import game_utilities.Player;
@@ -33,6 +35,7 @@ public class Client extends AbstractClient {
 		
 	private int gameID = -1;
 	private Future<?> currentGame;
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	
 	// controllers for each menu
 	// possible that we won't need all of them in the client class
@@ -46,7 +49,7 @@ public class Client extends AbstractClient {
 	private ServerConnectionScreenController serverConnectionController;
 	private SplashScreenController splashController;
 	
-	private ExecutorService executor = Executors.newCachedThreadPool();
+	//private ExecutorService executor = Executors.newCachedThreadPool();
 	
 	public Client() {
 		super("localhost", 8300);
@@ -57,6 +60,7 @@ public class Client extends AbstractClient {
 	protected void handleMessageFromServer(Object arg0) {
 		if (arg0 instanceof GenericRequest) {
 			String action = ((GenericRequest) arg0).getMsg();
+			System.out.println("recieved from server: " + action);
 			switch(action) {
 			case "GAMES_INFO":
 				findGameController.addGameListings((ArrayList<GameLobbyData>) ((GenericRequest) arg0).getData());
@@ -115,9 +119,14 @@ public class Client extends AbstractClient {
 				
 			case "GAME_STARTED":
 				lobbyController.startGame();
-				gameController.addPlayers((LinkedHashMap<String, Player>) ((GenericRequest) arg0).getData());
+				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData());
 				gameController.startGame();
-				currentGame = executor.submit(gameController::run);
+				//currentGame = executor.submit(gameController::run);
+				break;
+				
+			case "GAME_STATE_UPDATE":
+				System.out.println("GAME UPDATE RECIEVED");
+				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData());
 				break;
 				
 			case "FORCE_DISCONNECT":
@@ -138,11 +147,16 @@ public class Client extends AbstractClient {
 			// for when a player joins lobby client is currently connected to
 		} else if (arg0 instanceof PlayerData) {
 			// for when client request player statistics from the server
-		} 		
+		} else if (arg0 instanceof PlayerActionData) {
+			PlayerActionData info = (PlayerActionData) arg0;
+			System.out.println("received player action from server: " + info.getType() + " " + info.getAction() + " from: " + info.getUsername());
+			gameController.handlePlayerAction(info);
+		}
 	}
 	
 	public void cancelGame() {
-		currentGame.cancel(true);
+		//currentGame.cancel(true);
+		gameController.stopGame();
 	}
 	
 	public void setCreateAccountController(CreateAccountScreenController c) {

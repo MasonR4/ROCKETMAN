@@ -10,8 +10,7 @@ public class PlayerCollision implements Serializable {
 	
 	private boolean colliding;
 	
-	public PlayerCollision (String s, String d, boolean c) {
-		username = s;
+	public PlayerCollision (String d, boolean c) {
 		direction = d;
 		colliding = c;
 	}

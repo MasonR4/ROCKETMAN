@@ -55,10 +55,8 @@ public class ServerConnectionScreenController implements ActionListener {
 //		} catch (IOException YOU_CANT_LEAVE) {
 //			YOU_CANT_LEAVE.printStackTrace();
 //		}
-		SwingUtilities.invokeLater(() -> {
 		cl.show(clientPanel, "SERVER_CONNECTION");
 		screenPanel.setError("Server Closed");
-		});
 	}
 	
 	@Override

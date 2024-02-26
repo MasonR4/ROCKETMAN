@@ -125,12 +125,8 @@ public class ServerMenuScreenController implements ActionListener {
 				break;
 				
 			case "/stop":
-				try {
-					server.close();
-					screen.enableQuitButton(true);
-				} catch (IOException bruh) {
-					
-				}
+				server.stopServer();
+				screen.enableQuitButton(true);
 				break;
 			
 			case "/list_connections":

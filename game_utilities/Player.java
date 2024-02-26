@@ -3,10 +3,11 @@ package game_utilities;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-public class Player extends Rectangle {
+public class Player extends Rectangle implements Serializable {
 	private String username;
 	
 	private int size;
@@ -64,7 +65,7 @@ public class Player extends Rectangle {
 	public boolean checkCollision(int newX, int newY) {
 		Rectangle futureBounds = new Rectangle(newX, newY, size, size);
 		
-//		for (Block block : new ArrayList<Block>()) {
+//		for (Block block : new ArrayList<Block>()) { // TODO after the map is added we have to enable this
 //			if (futureBounds.intersects(block.getBounds())) {
 //				return true;
 //			}

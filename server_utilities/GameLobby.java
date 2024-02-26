@@ -7,7 +7,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Timer;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+
+import javax.swing.SwingUtilities;
+
 import data.GameLobbyData;
 import data.GenericRequest;
 import data.PlayerActionData;
@@ -16,6 +26,7 @@ import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
 import data.StartGameData;
 import game_utilities.Player;
+import game_utilities.PlayerCollision;
 import ocsf.server.ConnectionToClient;
 import server.Server;
 
@@ -34,9 +45,16 @@ public class GameLobby {
 	
 	private Random random = new Random();
 	
-	private LinkedHashMap<String, PlayerData> playerInfo = new LinkedHashMap<String, PlayerData>();
-	private LinkedHashMap<String, Player> players = new LinkedHashMap<String, Player>();
-	private LinkedHashMap<String, ConnectionToClient> playerConnections = new LinkedHashMap<String, ConnectionToClient>();
+	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
+	private ConcurrentHashMap<String, PlayerData> playerInfo = new ConcurrentHashMap<String, PlayerData>();
+	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
+	private final ConcurrentHashMap<String, ExecutorService> playerExecutors = new ConcurrentHashMap<String, ExecutorService>();
+	private final ConcurrentHashMap<ConnectionToClient, ReentrantLock> clientLocks = new ConcurrentHashMap<>();
+	
+	private ExecutorService gameExecutor = Executors.newSingleThreadExecutor();
+	private ScheduledExecutorService clientUpdateExecutor = Executors.newScheduledThreadPool(1);
+	
+	private Timer gameStateTimer;
 	
 	// TODO here is where we store stuff like player objects, the grid
 	// other game relevant stuff
@@ -114,15 +132,38 @@ public class GameLobby {
 		
 		GenericRequest rq = new GenericRequest("GAME_STARTED");
 		rq.setData(players);
-		for (Entry<String, ConnectionToClient> e : playerConnections.entrySet()) {
-			try {
-				e.getValue().sendToClient(rq);
-			} catch (IOException CLIENT_DECEASED) {
-				CLIENT_DECEASED.printStackTrace();
-				server.logMessage("failed to send game start to [Client " + e.getValue().getId() + "] " + e.getKey());
-			}
-		}
+		updateClients(rq);
+		//clientUpdateExecutor.scheduleAtFixedRate(this::updateClientsOnGameState, 0, TARGET_DELTA, TimeUnit.MILLISECONDS);
 		gameStarted = true;
+		
+		GenericRequest update = new GenericRequest("GAME_STATE_UPDATE"); // update clients maybe move
+		update.setData(players);
+		updateClients(update);
+		
+//		gameExecutor.submit(() -> {
+//            while (!Thread.currentThread().isInterrupted()) {
+//            	long startTime = System.currentTimeMillis();
+//    			
+//            	run();
+//            	updateClientsOnGameState();
+//            	
+//   			GenericRequest update = new GenericRequest("GAME_STATE_UPDATE"); // update clients maybe move
+//  			update.setData(players);
+//    			updateClients(update);
+//    			
+//    			
+//    			long endTime = System.currentTimeMillis();
+//    			long delta = endTime - startTime;
+//    			long sleepTime = TARGET_DELTA - delta;
+//                try {
+//                    Thread.sleep(sleepTime); 
+//                } catch (InterruptedException e) {
+//                    Thread.currentThread().interrupt();
+//                    System.out.println("Game logic execution interrupted.");
+//                }
+//            }
+//        });
+		
 	}
 	
 	public void stopGame() {
@@ -130,28 +171,42 @@ public class GameLobby {
 		// also may not need TBD
 		gameStarted = false;
 		Thread.currentThread().interrupt();
+		gameExecutor.shutdown();
+		clientUpdateExecutor.shutdown();
+		
 	}
 	
 	public void removePlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
 		playerCount -= 1;
+		playerInfo.remove(usr.getUsername());
+		playerConnections.remove(usr.getUsername());
+		removePlayerExecutor(usr.getUsername());
 		if (usr.getUsername().equals(hostUsername)) {
-			playerInfo.remove(usr.getUsername());
-			playerConnections.remove(usr.getUsername());
-			
 			String[] usernames = playerInfo.keySet().toArray(new String[0]);
 			if (usernames.length > 0) {
 				hostUsername = usernames[0];
 			}			
-		} else {
-			playerInfo.remove(usr.getUsername());
-			playerConnections.remove(usr.getUsername());
-		}
-		
+		} 
 		if (playerCount == 0) {
 			gameStarted = false;
 			server.cancelGame(gameID);
 		}
-		updateplayerInfoInLobbyForClients(getJoinedPlayerInfo());
+		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
+	}
+	
+	public void removePlayerExecutor(String username) {
+	    ExecutorService executor = playerExecutors.remove(username);
+	    if (executor != null) {
+	        executor.shutdown(); // Attempt to stop processing submitted tasks
+	        try {
+	            if (!executor.awaitTermination(16, TimeUnit.MILLISECONDS)) {
+	                executor.shutdownNow(); // Force termination of remaining tasks
+	            }
+	        } catch (InterruptedException e) {
+	            executor.shutdownNow();
+	            Thread.currentThread().interrupt(); // Preserve interrupt status
+	        }
+	    }
 	}
 	
 	public void addPlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
@@ -164,7 +219,7 @@ public class GameLobby {
 		playerCount += 1;
 		playerConnections.put(usr.getUsername(), c);
 		playerInfo.put(usr.getUsername(), temp);
-		updateplayerInfoInLobbyForClients(getJoinedPlayerInfo());
+		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
 	
 	public void readyPlayer(PlayerReadyData r) {
@@ -181,61 +236,127 @@ public class GameLobby {
 			} else {
 				rq = new GenericRequest("CONFIRM_UNREADY");
 			}
-			try {
-				playerConnections.get(e.getKey()).sendToClient(rq);
-				updateplayerInfoInLobbyForClients(getJoinedPlayerInfo());
-			} catch (IOException CLIENT_WAS_NOT_READY) {
-				CLIENT_WAS_NOT_READY.printStackTrace();
-			}
+			updateClients(rq);
 		}
+		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
 	
-	public void updateplayerInfoInLobbyForClients(ArrayList<PlayerJoinLeaveData> a) {
+	public void updatePlayerInfoInLobbyForClients(ArrayList<PlayerJoinLeaveData> a) {
 		GenericRequest rq = new GenericRequest("LOBBY_PLAYER_INFO");
 		rq.setData(a);
 		updateClients(rq);
 	}
 	
-	public void updateClients(Object data) {
-		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
-			try {
-				playerConnections.get(e.getKey()).sendToClient(data);
-			} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
-				CLIENT_DOESNT_LIKE_YOU.printStackTrace();
-			}
-		}
+	public void updateClientsOnGameState() {
+		GenericRequest update = new GenericRequest("GAME_STATE_UPDATE"); // update clients maybe move
+		update.setData(players);
+        for (ConnectionToClient client : playerConnections.values()) {
+            try {
+                client.sendToClient(update);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Failed to update client.");
+            }
+        }
 	}
 	
+	private void broadcastPlayerActions(PlayerActionData data) {
+	    String username = data.getUsername();
+	    Player updatedPlayer = players.get(username);
+
+	    PlayerActionData updatedPlayerData = new PlayerActionData(gameID, username, data.getType(), data.getAction());
+	    for (ConnectionToClient client : playerConnections.values()) {
+	        try {
+	            client.sendToClient(updatedPlayerData);
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            server.logMessage("Could not update client " + client.getId());
+	        }
+	    }
+	}
+	
+	public void updateClients(Object data) {
+		 for (Entry<String, ConnectionToClient> entry : playerConnections.entrySet()) {
+		        String username = entry.getKey();
+		        ConnectionToClient client = entry.getValue();
+
+		        // Ensure there is an executor for each client
+		        playerExecutors.computeIfAbsent(username, k -> Executors.newSingleThreadExecutor()).submit(() -> {
+		            try {
+		                client.sendToClient(data);
+		                server.logMessage("send an update");
+		            } catch (IOException e) {
+		                e.printStackTrace(); // Consider more sophisticated error handling
+		                server.logMessage("Could not update client " + username);
+		            }
+		        });
+		    }
+//		for (ConnectionToClient c : playerConnections.values()) {
+//			synchronized(c) {
+//				try {
+//					c.sendToClient(data);
+//				} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
+//					CLIENT_DOESNT_LIKE_YOU.printStackTrace();
+//					server.logMessage("could not update client " + c.getId());
+//				}
+//			}
+//		}
+	}
+//	
+//	public void updateClients(Object data) {
+//	    for (ConnectionToClient c : playerConnections.values()) {
+//	        // Get or create a lock for the client
+//	        ReentrantLock lock = clientLocks.computeIfAbsent(c, k -> new ReentrantLock());
+//
+//	        lock.lock(); // Acquire the lock
+//	        try {
+//	            c.sendToClient(data);
+//	        } catch (IOException ex) {
+//	            ex.printStackTrace();
+//	            server.logMessage("could not update client " + c.getId());
+//	        } finally {
+//	            lock.unlock(); // Ensure the lock is always released
+//	        }
+//	    }
+//	}
+//	
 	public GameLobbyData generateGameListing() {
 		GameLobbyData tempInfo = new GameLobbyData(lobbyName, hostUsername, playerCount, playerCap, gameID);
 		return tempInfo;
 	}
 	
 	public void handlePlayerAction(PlayerActionData data) {
-		// TODO rectify actions sent by clients
+		String type = data.getType();
+		String username = data.getUsername();
+		PlayerActionData update = data;
+		server.logMessage("received update: " + type + " from " + username);
+		switch (type) {
+		case "MOVE":
+			
+			players.get(username).setVelocity(data.getAction());
+			//updateClients(update);
+			break;
+			
+		case "CANCEL_MOVE":
+			players.get(username).cancelVelocity(data.getAction());
+			//updateClients(update);
+			break;
+			// TODO add rest of actions (client)
+		}
+		//broadcastPlayerActions(data);
+		updateClients(data);
 	}
 	
 	public void run() {
-		Thread.currentThread();
-		// TODO yeah...
-		while (!Thread.interrupted() && gameStarted) {
-			long startTime = System.currentTimeMillis();
 			// check collision for all players
 			// check collision for rockets and stuff
 			// check block updates
 			// send info to clients
-			server.logMessage("test" + gameID);
-			long endTime = System.currentTimeMillis();
-			long delta = endTime - startTime;
-			long sleepTime = TARGET_DELTA - delta;
-			try {
-				Thread.sleep(sleepTime);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				gameStarted = false;
-				break;
-				
+			for (Player p : players.values()) {
+				// TODO re-enable collisions after we have added in the map 
+				//p.setCollision2(new PlayerCollision("HORIZONTAL", p.checkCollision(p.x + p.getXVelocity(), p.y)));
+				//p.setCollision2(new PlayerCollision("VERTICAL", p.checkCollision(p.x, p.y + p.getYVelocity())));
+				p.move();
 			}
-		}
 	}
 }

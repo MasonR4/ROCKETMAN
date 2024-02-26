@@ -3,11 +3,14 @@ package controller;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -21,29 +24,30 @@ import data.PlayerJoinLeaveData;
 import game.ClientUI;
 import game_utilities.Player;
 import menu_panels.GameScreen;
+import menu_utilities.GameDisplay;
 import server.Client;
 
-public class GameScreenController implements MouseListener, ActionListener {
+public class GameScreenController implements MouseListener, ActionListener, Runnable {
 	private volatile boolean running = false;
+	private Thread thread = new Thread(this);
 	
 	private Client client;
 	private String username;
 	//private ClientUI clientUI;
 	
 	private GameScreen screen;
-	private JPanel gamePanel;
+	private GameDisplay gamePanel;
 	private JPanel clientPanel;
 	
 	private final long TARGET_DELTA = 16;
 
 	private CardLayout cl;
 	
-	private LinkedHashMap<String, Player> players = new LinkedHashMap<String, Player>();
+	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
 	
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
 		clientPanel = p;
-		username = client.getUsername();
 		//clientUI = ui;
 		
 		cl = (CardLayout) clientPanel.getLayout();
@@ -54,7 +58,26 @@ public class GameScreenController implements MouseListener, ActionListener {
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("W"), "MOVE_UP");
 		gamePanel.getActionMap().put("MOVE_UP", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("w pressed");
+				players.get(username).setVelocity("UP");
+				PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "MOVE", "UP");
+				try {
+					client.sendToServer(playerAction);
+				} catch (IOException ACTION_DENIED) {
+					ACTION_DENIED.printStackTrace();
+				}
+			}
+		});
+		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "CANCEL_MOVE_UP");
+		gamePanel.getActionMap().put("CANCEL_MOVE_UP", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				players.get(username).cancelVelocity("UP");
+				PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "CANCEL_MOVE", "UP");
+				try {
+					client.sendToServer(playerAction);
+				} catch (IOException ACTION_DENIED) {
+					ACTION_DENIED.printStackTrace();
+				}
+				
 			}
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("A"), "MOVE_LEFT");
@@ -63,20 +86,21 @@ public class GameScreenController implements MouseListener, ActionListener {
 		
 	}
 	
-	public void addPlayers(LinkedHashMap<String, Player> newPlayers) {
-		for (Entry<String, Player> e : newPlayers.entrySet()) {
-			players.putAll(newPlayers);
-		}
+	public void addPlayers(ConcurrentHashMap<String, Player> newPlayers) {
+		players.putAll(newPlayers);
 	}
 	
 	public void startGame() {
+		username = client.getUsername();
+		screen.setUsername(username);
 		running = true;
+		thread.start();
 	}
 	
 	public void stopGame() {
-		System.out.println("STOPPED GAMED");
-		Thread.currentThread().interrupt();
 		running = false;
+		thread.interrupt();
+		//Thread.currentThread().interrupt();
 	}
 	
 	public boolean isStarted() {
@@ -84,26 +108,35 @@ public class GameScreenController implements MouseListener, ActionListener {
 	}
 	
 	public void handlePlayerAction(PlayerActionData data) {
-	
+		String type = data.getType();
+		String username = data.getUsername();
+		
+		switch (type) {
+		case "MOVE":
+			players.get(username).setVelocity(data.getAction());
+			break;
+			
+		case "CANCEL_MOVE":
+			players.get(username).cancelVelocity(data.getAction());
+			break;
+			// TODO add rest of actions (client)
+		}
+		System.out.println("Handled action: " + type + " " + data.getAction() + " from " + username);
 	}
 	
-	
+	@Override
 	public void run() {
-		Thread.currentThread();
-		while (!Thread.interrupted() && running) {
+		while (running && !Thread.currentThread().isInterrupted()) {
 			long startTime = System.currentTimeMillis();
 			// TODO game cycle similar to the one in game lobby but only for rendering objects locally
 
 			for (Player p : players.values()) {
 				// move player, collisions are checked server side
 				p.move();
-				SwingUtilities.invokeLater(() -> screen.setPlayers(players));
+				SwingUtilities.invokeLater(() -> gamePanel.setPlayers(players));
 			}
 			// for all blocks SwingUtilities.invokeLater(() -> gamePanel.paintBlocks());
-			System.out.println("sglkhsgf");
-			if (!client.isConnected()) {
-				System.out.println("bro it died again");
-			}
+			
 			
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;

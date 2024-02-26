@@ -61,7 +61,7 @@ public class LobbyScreenController implements ActionListener {
 			}
 			playerPanel.add(p);
 		}
-		SwingUtilities.invokeLater(() -> screen.updateLobbyInfo());
+		screen.updateLobbyInfo();
 		playerPanel.repaint();
 		playerPanel.revalidate();
 	}

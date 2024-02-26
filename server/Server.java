@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -27,12 +28,13 @@ public class Server extends AbstractServer {
 	private ServerMenuScreenController serverMenuController;
 	
 	private LinkedHashMap<Integer, GameLobby> games = new LinkedHashMap<Integer, GameLobby>(); 
-	private LinkedHashMap<Integer, Future<?>> runningGames = new LinkedHashMap<Integer, Future<?>>();
+	//private LinkedHashMap<Integer, Future<?>> runningGames = new LinkedHashMap<Integer, Future<?>>();
 	private int gameCount = 0;
 	
 	private final ExecutorService executor = Executors.newCachedThreadPool();
 	
 	private ArrayList<String> connectedPlayers = new ArrayList<String>();
+	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<>();
 	private int connectedPlayerCount = 0;
 	
 	public Server() {
@@ -104,7 +106,7 @@ public class Server extends AbstractServer {
 	}
 	
 	protected void serverStarted() {
-		logMessage("Server '" + serverName + "' started on port '" + this.getPort());
+		logMessage("[Server] Server '" + serverName + "' started on port '" + this.getPort());
 		serverStatus.setText("RUNNING");
 		serverStatus.setForeground(Color.GREEN);
 	}
@@ -116,29 +118,51 @@ public class Server extends AbstractServer {
 		connectedPlayerCount = 0;
 		connectedPlayers.clear();
 		// TODO save player data to database upon server stopping
-		logMessage("Server Stopped");
+		logMessage("[Server] Server Stopped");
 		serverStatus.setText("STOPPED");
 		serverStatus.setForeground(Color.RED);
 	}
 	
 	public void listeningException(Throwable exception) {
-		logMessage("Listening Exception Occurred: " + exception.getMessage());
-		logMessage("Restart Required");
+		logMessage("[Server] Listening Exception Occurred: " + exception.getMessage());
+		logMessage("[Server] Restart Required");
 	}
 	
 	public void cancelGame(int id) {
 		logMessage("[Info] Canceled Game " + id);
 		if (games.get(id).isStarted()) {
-			runningGames.get(id).cancel(true);
-			runningGames.remove(id);
+			//runningGames.get(id).cancel(true);
+			//runningGames.remove(id);
+			games.get(id).stopGame();
 		}
 		games.remove(id);
 		serverMenuController.addGameListings(getAllGames());
 	}
 	
+	public void stopServer() {
+		for (Integer i : games.keySet()) {
+			cancelGame(i);
+		}
+		try {
+			sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
+			close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public void logMessage(String msg) {
 		serverLog.append(msg + "\n");
 		serverLog.setCaretPosition(serverLog.getDocument().getLength());
+	}
+	
+	public void sendToPlayer(String usr, Object data) {
+		try {
+			playerConnections.get(usr).sendToClient(data);
+		} catch (IOException PLAYER_WAS_OBLITERATED) {
+			PLAYER_WAS_OBLITERATED.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -189,6 +213,7 @@ public class Server extends AbstractServer {
 					arg1.sendToClient(rq);
 					logMessage("[Client " + arg1.getId() + "] Sucessfully logged in as " + username);
 					connectedPlayers.add(username);
+					playerConnections.put(username, arg1);
 					connectedPlayerCount += 1;
 				} catch (IOException CLIENT_LIKELY_DEPARTED) {
 					CLIENT_LIKELY_DEPARTED.printStackTrace();
@@ -299,7 +324,13 @@ public class Server extends AbstractServer {
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
 			games.get(gid).startGame(info);
-			runningGames.put(gid, executor.submit(games.get(gid)::run));
+			//runningGames.put(gid, executor.submit(games.get(gid)::run));
+			
+		} else if (arg0 instanceof PlayerActionData) {
+			logMessage("received action from client " + arg1.getId());
+			PlayerActionData info = (PlayerActionData) arg0;
+			int gid = info.getGameID();
+			games.get(gid).handlePlayerAction(info);
 		}
 	}
 }
