@@ -48,13 +48,6 @@ public class GameLobby {
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
 	private ConcurrentHashMap<String, PlayerData> playerInfo = new ConcurrentHashMap<String, PlayerData>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
-	private final ConcurrentHashMap<String, ExecutorService> playerExecutors = new ConcurrentHashMap<String, ExecutorService>();
-	private final ConcurrentHashMap<ConnectionToClient, ReentrantLock> clientLocks = new ConcurrentHashMap<>();
-	
-	private ExecutorService gameExecutor = Executors.newSingleThreadExecutor();
-	private ScheduledExecutorService clientUpdateExecutor = Executors.newScheduledThreadPool(1);
-	
-	private Timer gameStateTimer;
 	
 	// TODO here is where we store stuff like player objects, the grid
 	// other game relevant stuff
@@ -133,36 +126,11 @@ public class GameLobby {
 		GenericRequest rq = new GenericRequest("GAME_STARTED");
 		rq.setData(players);
 		updateClients(rq);
-		//clientUpdateExecutor.scheduleAtFixedRate(this::updateClientsOnGameState, 0, TARGET_DELTA, TimeUnit.MILLISECONDS);
 		gameStarted = true;
 		
 		GenericRequest update = new GenericRequest("GAME_STATE_UPDATE"); // update clients maybe move
 		update.setData(players);
 		updateClients(update);
-		
-//		gameExecutor.submit(() -> {
-//            while (!Thread.currentThread().isInterrupted()) {
-//            	long startTime = System.currentTimeMillis();
-//    			
-//            	run();
-//            	updateClientsOnGameState();
-//            	
-//   			GenericRequest update = new GenericRequest("GAME_STATE_UPDATE"); // update clients maybe move
-//  			update.setData(players);
-//    			updateClients(update);
-//    			
-//    			
-//    			long endTime = System.currentTimeMillis();
-//    			long delta = endTime - startTime;
-//    			long sleepTime = TARGET_DELTA - delta;
-//                try {
-//                    Thread.sleep(sleepTime); 
-//                } catch (InterruptedException e) {
-//                    Thread.currentThread().interrupt();
-//                    System.out.println("Game logic execution interrupted.");
-//                }
-//            }
-//        });
 		
 	}
 	
@@ -170,17 +138,13 @@ public class GameLobby {
 		// TODO make this more elaborate 
 		// also may not need TBD
 		gameStarted = false;
-		Thread.currentThread().interrupt();
-		gameExecutor.shutdown();
-		clientUpdateExecutor.shutdown();
-		
+		Thread.currentThread().interrupt();		
 	}
 	
 	public void removePlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
 		playerCount -= 1;
 		playerInfo.remove(usr.getUsername());
 		playerConnections.remove(usr.getUsername());
-		removePlayerExecutor(usr.getUsername());
 		if (usr.getUsername().equals(hostUsername)) {
 			String[] usernames = playerInfo.keySet().toArray(new String[0]);
 			if (usernames.length > 0) {
@@ -192,21 +156,6 @@ public class GameLobby {
 			server.cancelGame(gameID);
 		}
 		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
-	}
-	
-	public void removePlayerExecutor(String username) {
-	    ExecutorService executor = playerExecutors.remove(username);
-	    if (executor != null) {
-	        executor.shutdown(); // Attempt to stop processing submitted tasks
-	        try {
-	            if (!executor.awaitTermination(16, TimeUnit.MILLISECONDS)) {
-	                executor.shutdownNow(); // Force termination of remaining tasks
-	            }
-	        } catch (InterruptedException e) {
-	            executor.shutdownNow();
-	            Thread.currentThread().interrupt(); // Preserve interrupt status
-	        }
-	    }
 	}
 	
 	public void addPlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
@@ -276,50 +225,18 @@ public class GameLobby {
 	}
 	
 	public void updateClients(Object data) {
-		 for (Entry<String, ConnectionToClient> entry : playerConnections.entrySet()) {
-		        String username = entry.getKey();
-		        ConnectionToClient client = entry.getValue();
-
-		        // Ensure there is an executor for each client
-		        playerExecutors.computeIfAbsent(username, k -> Executors.newSingleThreadExecutor()).submit(() -> {
-		            try {
-		                client.sendToClient(data);
-		                server.logMessage("send an update");
-		            } catch (IOException e) {
-		                e.printStackTrace(); // Consider more sophisticated error handling
-		                server.logMessage("Could not update client " + username);
-		            }
-		        });
-		    }
-//		for (ConnectionToClient c : playerConnections.values()) {
-//			synchronized(c) {
-//				try {
-//					c.sendToClient(data);
-//				} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
-//					CLIENT_DOESNT_LIKE_YOU.printStackTrace();
-//					server.logMessage("could not update client " + c.getId());
-//				}
-//			}
-//		}
+		for (ConnectionToClient c : playerConnections.values()) {
+		//	synchronized(c) {
+				try {
+					c.sendToClient(data);
+				} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
+					CLIENT_DOESNT_LIKE_YOU.printStackTrace();
+					server.logMessage("could not update client " + c.getId());
+				}
+			//}
+		}
 	}
-//	
-//	public void updateClients(Object data) {
-//	    for (ConnectionToClient c : playerConnections.values()) {
-//	        // Get or create a lock for the client
-//	        ReentrantLock lock = clientLocks.computeIfAbsent(c, k -> new ReentrantLock());
-//
-//	        lock.lock(); // Acquire the lock
-//	        try {
-//	            c.sendToClient(data);
-//	        } catch (IOException ex) {
-//	            ex.printStackTrace();
-//	            server.logMessage("could not update client " + c.getId());
-//	        } finally {
-//	            lock.unlock(); // Ensure the lock is always released
-//	        }
-//	    }
-//	}
-//	
+	
 	public GameLobbyData generateGameListing() {
 		GameLobbyData tempInfo = new GameLobbyData(lobbyName, hostUsername, playerCount, playerCap, gameID);
 		return tempInfo;
@@ -343,8 +260,8 @@ public class GameLobby {
 			break;
 			// TODO add rest of actions (client)
 		}
-		//broadcastPlayerActions(data);
-		updateClients(data);
+		broadcastPlayerActions(data);
+		//updateClients(data);
 	}
 	
 	public void run() {

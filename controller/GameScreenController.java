@@ -55,7 +55,7 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 		gamePanel = screen.getGamePanel();
 		
 		// KEY BINDING STUFF HAPPENS HERE
-		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("W"), "MOVE_UP");
+		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "MOVE_UP");
 		gamePanel.getActionMap().put("MOVE_UP", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				players.get(username).setVelocity("UP");

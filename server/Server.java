@@ -28,7 +28,7 @@ public class Server extends AbstractServer {
 	private ServerMenuScreenController serverMenuController;
 	
 	private LinkedHashMap<Integer, GameLobby> games = new LinkedHashMap<Integer, GameLobby>(); 
-	//private LinkedHashMap<Integer, Future<?>> runningGames = new LinkedHashMap<Integer, Future<?>>();
+	private LinkedHashMap<Integer, Future<?>> runningGames = new LinkedHashMap<Integer, Future<?>>();
 	private int gameCount = 0;
 	
 	private final ExecutorService executor = Executors.newCachedThreadPool();
@@ -324,7 +324,7 @@ public class Server extends AbstractServer {
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
 			games.get(gid).startGame(info);
-			//runningGames.put(gid, executor.submit(games.get(gid)::run));
+			runningGames.put(gid, executor.submit(games.get(gid)::run));
 			
 		} else if (arg0 instanceof PlayerActionData) {
 			logMessage("received action from client " + arg1.getId());

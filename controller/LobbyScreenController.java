@@ -80,11 +80,13 @@ public class LobbyScreenController implements ActionListener {
 	}
 	
 	public void leaveGameLobby() {
-		SwingUtilities.invokeLater(() -> cl.show(clientPanel, "FIND_GAME"));
+		//SwingUtilities.invokeLater(() -> cl.show(clientPanel, "FIND_GAME"));
+		cl.show(clientPanel, "FIND_GAME");
 	}
 	
 	public void startGame() {
-		SwingUtilities.invokeLater(() -> cl.show(clientPanel, "GAME"));
+		//SwingUtilities.invokeLater(() -> cl.show(clientPanel, "GAME"));
+		cl.show(clientPanel, "GAME");
 	}
 	
 	@Override
