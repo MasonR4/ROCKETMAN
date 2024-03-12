@@ -128,9 +128,9 @@ public class GameLobby {
 		updateClients(rq);
 		gameStarted = true;
 		
-		GenericRequest update = new GenericRequest("GAME_STATE_UPDATE"); // update clients maybe move
-		update.setData(players);
-		updateClients(update);
+//		GenericRequest update = new GenericRequest("GAME_STATE_UPDATE"); // update clients maybe move
+//		update.setData(players);
+//		updateClients(update);
 		
 	}
 	
