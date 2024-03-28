@@ -58,12 +58,15 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "MOVE_UP");
 		gamePanel.getActionMap().put("MOVE_UP", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				players.get(username).setVelocity("UP");
-				PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "MOVE", "UP");
-				try {
-					client.sendToServer(playerAction);
-				} catch (IOException ACTION_DENIED) {
-					ACTION_DENIED.printStackTrace();
+				if (players.get(username).getVelocity("UP") == 0) {
+					players.get(username).setVelocity("UP");
+					PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "MOVE", "UP");
+					try {
+						client.sendToServer(playerAction);
+						System.out.println("going up");
+					} catch (IOException ACTION_DENIED) {
+						ACTION_DENIED.printStackTrace();
+					}
 				}
 			}
 		});
@@ -74,6 +77,7 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 				PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "CANCEL_MOVE", "UP");
 				try {
 					client.sendToServer(playerAction);
+					System.out.println("stopped going up");
 				} catch (IOException ACTION_DENIED) {
 					ACTION_DENIED.printStackTrace();
 				}

@@ -112,9 +112,6 @@ public class Server extends AbstractServer {
 	}
 	
 	protected void serverStopped() {
-		for (Entry<Integer, GameLobby> e :  games.entrySet()) {
-			cancelGame(e.getKey());
-		}
 		connectedPlayerCount = 0;
 		connectedPlayers.clear();
 		// TODO save player data to database upon server stopping
@@ -131,8 +128,6 @@ public class Server extends AbstractServer {
 	public void cancelGame(int id) {
 		logMessage("[Info] Canceled Game " + id);
 		if (games.get(id).isStarted()) {
-			//runningGames.get(id).cancel(true);
-			//runningGames.remove(id);
 			games.get(id).stopGame();
 		}
 		games.remove(id);
@@ -324,13 +319,13 @@ public class Server extends AbstractServer {
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
 			games.get(gid).startGame(info);
-			runningGames.put(gid, executor.submit(games.get(gid)::run));
-			
+			//runningGames.put(gid, executor.submit(games.get(gid)::run));
 		} else if (arg0 instanceof PlayerActionData) {
-			logMessage("received action from client " + arg1.getId());
-			PlayerActionData info = (PlayerActionData) arg0;
-			int gid = info.getGameID();
-			games.get(gid).handlePlayerAction(info);
+			PlayerActionData a = (PlayerActionData) arg0;
+			int gid = a.getGameID();
+			this.logMessage("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID());
+			System.out.println("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID());
+			games.get(gid).addEvent(a);
 		}
-	}
+	} 
 }

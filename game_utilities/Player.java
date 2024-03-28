@@ -44,6 +44,10 @@ public class Player extends Rectangle implements Serializable {
 		velocities.put(dir, speed);
 	}
 	
+	public int getVelocity(String dir) {
+		return velocities.get(dir);
+	}
+	
 	public void cancelVelocity(String dir) {
 		velocities.put(dir, 0);
 	}

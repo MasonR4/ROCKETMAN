@@ -30,7 +30,7 @@ import game_utilities.PlayerCollision;
 import ocsf.server.ConnectionToClient;
 import server.Server;
 
-public class GameLobby {
+public class GameLobby implements Runnable {
 	private final long TARGET_DELTA = 16;
 	
 	private Server server;
@@ -48,7 +48,7 @@ public class GameLobby {
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
 	private ConcurrentHashMap<String, PlayerData> playerInfo = new ConcurrentHashMap<String, PlayerData>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
-	
+	private ArrayList<PlayerActionData> events = new ArrayList<>();
 	// TODO here is where we store stuff like player objects, the grid
 	// other game relevant stuff
 	private int playerLives;
@@ -113,7 +113,7 @@ public class GameLobby {
 		// - load map and sent it to all clients
 		// - add in player game object representations
 		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
-			Player newPlayer = new Player(20, random.nextInt(10, 900), random.nextInt(10, 900));
+			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
 			newPlayer.setUsername(e.getKey());
 			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
 			players.put(e.getKey(), newPlayer);
@@ -123,13 +123,13 @@ public class GameLobby {
 		//mapName = info.getMap();
 		// map = server.getMap(mapName);
 		
-		GenericRequest rq = new GenericRequest("GAME_STARTED");
-		rq.setData(players);
-		updateClients(rq);
+		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
+		rq1.setData(players);
+		updateClients(rq1);
 		gameStarted = true;
 		
 		run();
-		
+		//new Thread(this).start();
 //		GenericRequest update = new GenericRequest("GAME_STATE_UPDATE"); // update clients maybe move
 //		update.setData(players);
 //		updateClients(update);
@@ -140,7 +140,7 @@ public class GameLobby {
 		// TODO make this more elaborate 
 		// also may not need TBD
 		gameStarted = false;
-		Thread.currentThread().interrupt();		
+		//Thread.currentThread().interrupt();		
 	}
 	
 	public void removePlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
@@ -198,34 +198,6 @@ public class GameLobby {
 		updateClients(rq);
 	}
 	
-	public void updateClientsOnGameState() {
-		GenericRequest update = new GenericRequest("GAME_STATE_UPDATE"); // update clients maybe move
-		update.setData(players);
-        for (ConnectionToClient client : playerConnections.values()) {
-            try {
-                client.sendToClient(update);
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("Failed to update client.");
-            }
-        }
-	}
-	
-	private void broadcastPlayerActions(PlayerActionData data) {
-	    String username = data.getUsername();
-	    Player updatedPlayer = players.get(username);
-
-	    PlayerActionData updatedPlayerData = new PlayerActionData(gameID, username, data.getType(), data.getAction());
-	    for (ConnectionToClient client : playerConnections.values()) {
-	        try {
-	            client.sendToClient(updatedPlayerData);
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	            server.logMessage("Could not update client " + client.getId());
-	        }
-	    }
-	}
-	
 	public void updateClients(Object data) {
 		for (ConnectionToClient c : playerConnections.values()) {
 		//	synchronized(c) {
@@ -244,26 +216,20 @@ public class GameLobby {
 		return tempInfo;
 	}
 	
-	public void handlePlayerAction(PlayerActionData data) {
-		String type = data.getType();
-		String username = data.getUsername();
-		PlayerActionData update = data;
-		server.logMessage("received update: " + type + " from " + username);
+	public void handlePlayerAction(PlayerActionData a) {
+		String usr = a.getUsername();
+		String type = a.getType();
 		switch (type) {
 		case "MOVE":
-			
-			players.get(username).setVelocity(data.getAction());
-			//updateClients(update);
+			players.get(usr).setVelocity(a.getAction());
 			break;
-			
 		case "CANCEL_MOVE":
-			players.get(username).cancelVelocity(data.getAction());
-			//updateClients(update);
-			break;
-			// TODO add rest of actions (client)
+			players.get(usr).cancelVelocity(a.getAction());
 		}
-		broadcastPlayerActions(data);
-		//updateClients(data);
+	}
+	
+	public void addEvent(PlayerActionData a) {
+		events.add(a);
 	}
 	
 	public void run() {
@@ -271,11 +237,36 @@ public class GameLobby {
 			// check collision for rockets and stuff
 			// check block updates
 			// send info to clients
+		while (gameStarted) {
+			
+			long startTime = System.currentTimeMillis();
+			
 			for (Player p : players.values()) {
 				// TODO re-enable collisions after we have added in the map 
 				//p.setCollision2(new PlayerCollision("HORIZONTAL", p.checkCollision(p.x + p.getXVelocity(), p.y)));
 				//p.setCollision2(new PlayerCollision("VERTICAL", p.checkCollision(p.x, p.y + p.getYVelocity())));
 				p.move();
 			}
+			
+			if (!events.isEmpty()) {
+				for (PlayerActionData a : events) {
+					handlePlayerAction(a);
+				}
+				GenericRequest rq = new GenericRequest("GAME_STATE_UPDATE");
+				rq.setData(players);
+				updateClients(rq);
+			}
+			
+			long endTime = System.currentTimeMillis();
+			long delta = endTime - startTime;
+			long sleepTime = TARGET_DELTA - delta;
+			try {
+				Thread.sleep(sleepTime);
+			} catch (InterruptedException DEAD) {
+				Thread.currentThread().interrupt();
+				gameStarted = false;
+			}
+			
+		}
 	}
 }
