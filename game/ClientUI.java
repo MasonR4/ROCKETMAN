@@ -6,7 +6,6 @@ import data.GenericRequest;
 import data.PlayerJoinLeaveData;
 import menu_panels.*;
 import menu_panels.SplashScreen;
-import menu_utilities.TextFieldFilters;
 import server.Client;
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -22,6 +20,7 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 
 public class ClientUI extends JFrame {
+	private static final long serialVersionUID = 1L;
 
 	// hurr durr
 	private Client client;
@@ -39,6 +38,7 @@ public class ClientUI extends JFrame {
 	private MainMenuScreenController mainMenuScreenController;
 	private FindGameScreenController findGameScreenController;
 	private LobbyScreenController lobbyScreenController;
+	private GameScreenController gameScreenController;
 
 	// menus
 	private ServerConnectionScreen serverConnectionScreen;
@@ -48,6 +48,7 @@ public class ClientUI extends JFrame {
 	private MainMenuScreen mainMenuScreen;
 	private FindGameScreen findGameScreen;
 	private LobbyScreen lobbyScreen;
+	private GameScreen gameScreen;
 
 	// layout
 	private JPanel containerPanel;
@@ -91,8 +92,6 @@ public class ClientUI extends JFrame {
 			configData.put("last_user", "");
 		}
 
-		// i stole this from someone else's project but i think it would be doing
-		// everyone a disservice if we didnt have this
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -108,6 +107,7 @@ public class ClientUI extends JFrame {
 		mainMenuScreen = new MainMenuScreen();
 		findGameScreen = new FindGameScreen();
 		lobbyScreen = new LobbyScreen();
+		gameScreen = new GameScreen();
 
 		// ADD THEM
 		containerPanel.add(serverConnectionScreen, "SERVER_CONNECTION");
@@ -117,6 +117,7 @@ public class ClientUI extends JFrame {
 		containerPanel.add(mainMenuScreen, "MAIN");
 		containerPanel.add(findGameScreen, "FIND_GAME");
 		containerPanel.add(lobbyScreen, "LOBBY");
+		containerPanel.add(gameScreen, "GAME");
 
 		// WE ARE DECLARING A NUMBER OF CONTROLLERS
 		serverConnectionScreenController = new ServerConnectionScreenController(client, containerPanel, this);
@@ -126,7 +127,8 @@ public class ClientUI extends JFrame {
 		mainMenuScreenController = new MainMenuScreenController(client, containerPanel, this);
 		findGameScreenController = new FindGameScreenController(client, containerPanel, this);
 		lobbyScreenController = new LobbyScreenController(client, containerPanel, this);
-
+		gameScreenController = new GameScreenController(client, containerPanel, this);
+		
 		// ANNOYING EXTRA STEP
 		serverConnectionScreen.setController(serverConnectionScreenController);
 		splashScreen.setController(splashScreenController);
@@ -135,6 +137,7 @@ public class ClientUI extends JFrame {
 		mainMenuScreen.setController(mainMenuScreenController);
 		findGameScreen.setController(findGameScreenController);
 		lobbyScreen.setController(lobbyScreenController);
+		gameScreen.setController(gameScreenController); 
 
 		// ANNOYING EXTRA EXTRA STEP
 		client.setSplashController(splashScreenController);
@@ -144,6 +147,7 @@ public class ClientUI extends JFrame {
 		client.setMainMenuController(mainMenuScreenController);
 		client.setServerConnectionController(serverConnectionScreenController);
 		client.setLobbyController(lobbyScreenController);
+		client.setGameController(gameScreenController);
 
 		// pass a few default values
 		serverConnectionScreen.setDefaultConnectionInfo(configData.get("default_server"), configData.get("default_port"));
@@ -157,7 +161,7 @@ public class ClientUI extends JFrame {
 		// lol?
 		serverConnectionScreenController.actionPerformed(new ActionEvent(this, 0, "BYPASS_CONNECTION_AND_ATTEMPT_LOGIN"));
 
-		//CL.show(containerPanel, "LOBBY"); // TODO FOR DEBUGGING REMOVE LATER
+		//CL.show(containerPanel, "GAME"); // TODO FOR DEBUGGING REMOVE LATER
 	}
 
 	public void updateConfigData(String key, String value) {
@@ -166,10 +170,16 @@ public class ClientUI extends JFrame {
 	
 	public void disconnectProcedure() {
 		try {
-			PlayerJoinLeaveData leaveData = new PlayerJoinLeaveData(client.getUsername());
-			leaveData.setGameID(client.getGameID());
-			leaveData.setJoining(false);
-			client.sendToServer(leaveData);
+			if (gameScreenController.isStarted()) {
+				//gameScreenController.stopGame();
+				client.cancelGame();
+			}
+			if (client.getGameID() != -1) {
+				PlayerJoinLeaveData leaveData = new PlayerJoinLeaveData(client.getUsername());
+				leaveData.setGameID(client.getGameID());
+				leaveData.setJoining(false);
+				client.sendToServer(leaveData);
+			}
 			GenericRequest rq = new GenericRequest("CLIENT_DISCONNECTING");
 			rq.setData(client.getUsername());
 			client.sendToServer(rq);
@@ -181,7 +191,7 @@ public class ClientUI extends JFrame {
 	
 	public void closingProcedure() {
 		if (client.isConnected()) {
-			disconnectProcedure();
+			disconnectProcedure(); // TODO why did i make 4 different disconnect methods please send help
 		}
 		try {
 			FileWriter writer = new FileWriter(config, false);

@@ -3,17 +3,28 @@ package server;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import javax.swing.SwingUtilities;
 
 import controller.CreateAccountScreenController;
 import controller.FindGameScreenController;
+import controller.GameScreenController;
 import controller.LobbyScreenController;
 import controller.LoginScreenController;
 import controller.MainMenuScreenController;
 import controller.ServerConnectionScreenController;
 import controller.SplashScreenController;
 import data.GenericRequest;
+import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
+import game_utilities.Player;
 import data.GameLobbyData;
 import ocsf.client.AbstractClient;
 
@@ -23,6 +34,8 @@ public class Client extends AbstractClient {
 	private String serverName;
 		
 	private int gameID = -1;
+	private Future<?> currentGame;
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	
 	// controllers for each menu
 	// possible that we won't need all of them in the client class
@@ -30,19 +43,24 @@ public class Client extends AbstractClient {
 	private FindGameScreenController findGameController;
 	private LoginScreenController loginController;
 	private LobbyScreenController lobbyController;
+	private GameScreenController gameController;
 	
 	private MainMenuScreenController mainMenuController;
 	private ServerConnectionScreenController serverConnectionController;
 	private SplashScreenController splashController;
 	
+	//private ExecutorService executor = Executors.newCachedThreadPool();
+	
 	public Client() {
 		super("localhost", 8300);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void handleMessageFromServer(Object arg0) {
 		if (arg0 instanceof GenericRequest) {
 			String action = ((GenericRequest) arg0).getMsg();
+			System.out.println("recieved from server: " + action);
 			switch(action) {
 			case "GAMES_INFO":
 				findGameController.addGameListings((ArrayList<GameLobbyData>) ((GenericRequest) arg0).getData());
@@ -99,16 +117,23 @@ public class Client extends AbstractClient {
 				lobbyController.leaveGameLobby();
 				break;
 				
+			case "GAME_STARTED":
+				lobbyController.startGame();
+				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData());
+				gameController.startGame();
+				//currentGame = executor.submit(gameController::run);
+				break;
+				
+			case "GAME_STATE_UPDATE":
+				System.out.println("GAME UPDATE RECIEVED");
+				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData());
+				break;
+				
 			case "FORCE_DISCONNECT":
-				serverConnectionController.connectionTerminated();
+				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
 				break;
 			case "CONFIRM_DISCONNECT_AND_EXIT":
-				serverConnectionController.connectionTerminated();
-				try {
-					closeConnection();
-				} catch (IOException YOU_CANT_LEAVE) {
-					YOU_CANT_LEAVE.printStackTrace();
-				}
+				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
 				break;
 			} 
 		} else if (arg0 instanceof GameLobbyData) {
@@ -122,7 +147,16 @@ public class Client extends AbstractClient {
 			// for when a player joins lobby client is currently connected to
 		} else if (arg0 instanceof PlayerData) {
 			// for when client request player statistics from the server
-		} 		
+		} else if (arg0 instanceof PlayerActionData) {
+			PlayerActionData info = (PlayerActionData) arg0;
+			System.out.println("received player action from server: " + info.getType() + " " + info.getAction() + " from: " + info.getUsername());
+			gameController.handlePlayerAction(info);
+		}
+	}
+	
+	public void cancelGame() {
+		//currentGame.cancel(true);
+		gameController.stopGame();
 	}
 	
 	public void setCreateAccountController(CreateAccountScreenController c) {
@@ -151,6 +185,10 @@ public class Client extends AbstractClient {
 	
 	public void setLobbyController(LobbyScreenController c) {
 		lobbyController = c;
+	}
+	
+	public void setGameController(GameScreenController c) {
+		gameController = c;
 	}
 
 	public String getUsername() {

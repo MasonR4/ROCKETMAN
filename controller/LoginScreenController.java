@@ -1,14 +1,10 @@
 package controller;
 
 import java.awt.CardLayout;
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-
-import javax.swing.JButton;
 import javax.swing.JPanel;
-
 import data.LoginData;
 import game.ClientUI;
 import menu_panels.LoginScreen;
