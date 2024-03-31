@@ -84,9 +84,93 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 				
 			}
 		});
-		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("A"), "MOVE_LEFT");
-		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("S"), "MOVE_DOWN");
-		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("D"), "MOVE_RIGHT");
+		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "MOVE_LEFT");
+		gamePanel.getActionMap().put("MOVE_LEFT", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (players.get(username).getVelocity("LEFT") == 0) {
+					players.get(username).setVelocity("LEFT");
+					PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "MOVE", "LEFT");
+					try {
+						client.sendToServer(playerAction);
+						System.out.println("going LEFT");
+					} catch (IOException ACTION_DENIED) {
+						ACTION_DENIED.printStackTrace();
+					}
+				}
+			}
+		});
+		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "CANCEL_MOVE_LEFT");
+		gamePanel.getActionMap().put("CANCEL_MOVE_LEFT", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				players.get(username).cancelVelocity("LEFT");
+				PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "CANCEL_MOVE", "LEFT");
+				try {
+					client.sendToServer(playerAction);
+					System.out.println("stopped going LEFT");
+				} catch (IOException ACTION_DENIED) {
+					ACTION_DENIED.printStackTrace();
+				}
+				
+			}
+		});
+		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "MOVE_DOWN");
+		gamePanel.getActionMap().put("MOVE_DOWN", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (players.get(username).getVelocity("DOWN") == 0) {
+					players.get(username).setVelocity("DOWN");
+					PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "MOVE", "DOWN");
+					try {
+						client.sendToServer(playerAction);
+						System.out.println("going DOWN");
+					} catch (IOException ACTION_DENIED) {
+						ACTION_DENIED.printStackTrace();
+					}
+				}
+			}
+		});
+		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, true), "CANCEL_MOVE_DOWN");
+		gamePanel.getActionMap().put("CANCEL_MOVE_DOWN", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				players.get(username).cancelVelocity("DOWN");
+				PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "CANCEL_MOVE", "DOWN");
+				try {
+					client.sendToServer(playerAction);
+					System.out.println("stopped going DOWN");
+				} catch (IOException ACTION_DENIED) {
+					ACTION_DENIED.printStackTrace();
+				}
+				
+			}
+		});
+		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "MOVE_RIGHT");
+		gamePanel.getActionMap().put("MOVE_RIGHT", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (players.get(username).getVelocity("RIGHT") == 0) {
+					players.get(username).setVelocity("RIGHT");
+					PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "MOVE", "RIGHT");
+					try {
+						client.sendToServer(playerAction);
+						System.out.println("going RIGHT");
+					} catch (IOException ACTION_DENIED) {
+						ACTION_DENIED.printStackTrace();
+					}
+				}
+			}
+		});
+		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "CANCEL_MOVE_RIGHT");
+		gamePanel.getActionMap().put("CANCEL_MOVE_RIGHT", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				players.get(username).cancelVelocity("RIGHT");
+				PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "CANCEL_MOVE", "RIGHT");
+				try {
+					client.sendToServer(playerAction);
+					System.out.println("stopped going RIGHT");
+				} catch (IOException ACTION_DENIED) {
+					ACTION_DENIED.printStackTrace();
+				}
+				
+			}
+		});
 		
 	}
 	

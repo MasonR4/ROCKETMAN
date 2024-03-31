@@ -61,7 +61,7 @@ public class Player extends Rectangle implements Serializable {
 	}
 	
 	public void move() {
-		if (!collisions.get("HORIZONTAL")) {x += (velocities.get("LEFT") - velocities.get("RIGHT"));}
+		if (!collisions.get("HORIZONTAL")) {x += (velocities.get("RIGHT") - velocities.get("LEFT"));}
 		if (!collisions.get("VERTICAL")) {y += (velocities.get("DOWN") - velocities.get("UP"));}
 		//rocket.move();
 	}
@@ -84,7 +84,7 @@ public class Player extends Rectangle implements Serializable {
 	}
 	
 	public int getXVelocity() {
-		return velocities.get("LEFT") - velocities.get("RIGHT");
+		return velocities.get("RIGHT") - velocities.get("LEFT");
 	}
 	
 	public int getYVelocity() {
