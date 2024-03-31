@@ -98,7 +98,8 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 		username = client.getUsername();
 		screen.setUsername(username);
 		running = true;
-		thread.start();
+		//run();
+		//thread.start();
 	}
 	
 	public void stopGame() {
