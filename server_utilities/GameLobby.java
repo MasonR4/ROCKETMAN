@@ -228,7 +228,7 @@ public class GameLobby implements Runnable {
 		}
 	}
 	
-	public void addEvent(PlayerActionData a) {
+	public synchronized void addEvent(PlayerActionData a) {
 		events.add(a);
 	}
 	
@@ -273,12 +273,13 @@ public class GameLobby implements Runnable {
 			if (!events.isEmpty()) {
 				for (PlayerActionData a : events) {
 					handlePlayerAction(a);
+					updateClients(a);
 					//events.remove(a);
 				}
 				events.clear();
-				GenericRequest rq = new GenericRequest("GAME_STATE_UPDATE");
-				rq.setData(players);
-				updateClients(rq);
+//				GenericRequest rq = new GenericRequest("GAME_STATE_UPDATE");
+//				rq.setData(players);
+//				updateClients(rq);
 			}
 			
 			long endTime = System.currentTimeMillis();

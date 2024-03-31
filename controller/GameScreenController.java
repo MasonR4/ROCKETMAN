@@ -29,7 +29,7 @@ import server.Client;
 
 public class GameScreenController implements MouseListener, ActionListener, Runnable {
 	private volatile boolean running = false;
-	private Thread thread = new Thread(this);
+	//private Thread thread = new Thread(this);
 	
 	private Client client;
 	private String username;
@@ -104,7 +104,7 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 	
 	public void stopGame() {
 		running = false;
-		thread.interrupt();
+		Thread.currentThread().interrupt();
 		//Thread.currentThread().interrupt();
 	}
 	
