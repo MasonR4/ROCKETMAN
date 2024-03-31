@@ -130,14 +130,16 @@ public class Server extends AbstractServer {
 		if (games.get(id).isStarted()) {
 			games.get(id).stopGame();
 		}
-		games.remove(id);
-		serverMenuController.addGameListings(getAllGames());
+		//games.remove(id);
+		
 	}
 	
 	public void stopServer() {
 		for (Integer i : games.keySet()) {
 			cancelGame(i);
 		}
+		games.clear();
+		serverMenuController.addGameListings(getAllGames());
 		try {
 			sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
 			close();
@@ -318,7 +320,8 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof StartGameData) {
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
-			games.get(gid).startGame(info);
+			//games.get(gid).startGame(info);
+			executor.execute(games.get(gid));
 			//runningGames.put(gid, executor.submit(games.get(gid)::run));
 		} else if (arg0 instanceof PlayerActionData) {
 			PlayerActionData a = (PlayerActionData) arg0;

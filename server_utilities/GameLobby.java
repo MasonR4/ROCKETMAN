@@ -123,12 +123,12 @@ public class GameLobby implements Runnable {
 		//mapName = info.getMap();
 		// map = server.getMap(mapName);
 		
-		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
-		rq1.setData(players);
-		updateClients(rq1);
-		gameStarted = true;
+//		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
+//		rq1.setData(players);
+//		updateClients(rq1);
+//		gameStarted = true;
 		
-		run();
+		//run();
 		//new Thread(this).start();
 //		GenericRequest update = new GenericRequest("GAME_STATE_UPDATE"); // update clients maybe move
 //		update.setData(players);
@@ -140,7 +140,7 @@ public class GameLobby implements Runnable {
 		// TODO make this more elaborate 
 		// also may not need TBD
 		gameStarted = false;
-		//Thread.currentThread().interrupt();		
+		Thread.currentThread().interrupt();		
 	}
 	
 	public void removePlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
@@ -200,14 +200,14 @@ public class GameLobby implements Runnable {
 	
 	public void updateClients(Object data) {
 		for (ConnectionToClient c : playerConnections.values()) {
-		//	synchronized(c) {
+			synchronized(c) {
 				try {
 					c.sendToClient(data);
 				} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
 					CLIENT_DOESNT_LIKE_YOU.printStackTrace();
 					server.logMessage("could not update client " + c.getId());
 				}
-			//}
+			}
 		}
 	}
 	
@@ -237,6 +237,12 @@ public class GameLobby implements Runnable {
 			// check collision for rockets and stuff
 			// check block updates
 			// send info to clients
+		
+		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
+		rq1.setData(players);
+		updateClients(rq1);
+		gameStarted = true;
+		
 		while (gameStarted) {
 			
 			long startTime = System.currentTimeMillis();

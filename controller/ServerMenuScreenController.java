@@ -78,16 +78,9 @@ public class ServerMenuScreenController implements ActionListener {
 			break;
 			
 		case "Stop":
-			// TODO !! save database !!		
-			try {
-				server.sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
-				server.close();
-				screen.enableQuitButton(true);
-			} catch (IOException bruh) {
-				bruh.printStackTrace();
-				log.append("couldnt disconnect clients\n");
-			}
-			
+			server.sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
+			server.stopServer();
+			screen.enableQuitButton(true);
 			break;
 			
 		case "Quit":
