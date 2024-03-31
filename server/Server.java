@@ -138,6 +138,7 @@ public class Server extends AbstractServer {
 		for (Integer i : games.keySet()) {
 			cancelGame(i);
 		}
+		//games.clear();
 		try {
 			sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
 			close();
@@ -164,6 +165,7 @@ public class Server extends AbstractServer {
 	protected void handleMessageFromClient(Object arg0, ConnectionToClient arg1) {
 		if (arg0 instanceof GenericRequest) {
 			String action = ((GenericRequest) arg0).getMsg();
+			System.out.println("server: received generic request: " + action); // DEBUG
 			GenericRequest rq;
 			switch (action) { 			// PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
 			case "REQUEST_GAMES_INFO":
@@ -196,6 +198,7 @@ public class Server extends AbstractServer {
 			}
 			
 		} else if (arg0 instanceof LoginData) {
+			System.out.println("server: received logindata"); // DEBUG
 			String username = ((LoginData) arg0).getUsername();
 			String password = ((LoginData) arg0).getPassword();
 			
@@ -255,6 +258,7 @@ public class Server extends AbstractServer {
 			// and sends PlayerData back
 			
 		} else if (arg0 instanceof GameLobbyData) {
+			System.out.println("server: received gamelobbydata"); // DEBUG
 			GameLobbyData info = (GameLobbyData) arg0;
 			try {
 				GameLobby newGame = new GameLobby(info.getName(), info.getHostName(), info.getMaxPlayers(), gameCount, this);
@@ -276,6 +280,7 @@ public class Server extends AbstractServer {
 			game.readyPlayer(info);
 			
 		} else if (arg0 instanceof PlayerJoinLeaveData) {
+			System.out.println("server: received received player join/leave data"); // DEBUG
 			PlayerJoinLeaveData info = (PlayerJoinLeaveData) arg0;
 			int gameID = info.getGameID();
 			String username = info.getUsername();
@@ -316,9 +321,13 @@ public class Server extends AbstractServer {
 				}
 			}
 		} else if (arg0 instanceof StartGameData) {
+			System.out.println("server: received received start game"); // DEBUG
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
 			games.get(gid).startGame(info);
+			System.out.println("start game called"); // DEBUG
+			executor.execute(games.get(gid));
+			System.out.println("submitted to executor"); // DEBUG
 			//runningGames.put(gid, executor.submit(games.get(gid)::run));
 		} else if (arg0 instanceof PlayerActionData) {
 			PlayerActionData a = (PlayerActionData) arg0;
@@ -326,6 +335,7 @@ public class Server extends AbstractServer {
 			this.logMessage("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID());
 			System.out.println("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID());
 			games.get(gid).addEvent(a);
+			//games.get(gid).handlePlayerAction(a);
 		}
 	} 
 }

@@ -121,6 +121,7 @@ public class Client extends AbstractClient {
 				lobbyController.startGame();
 				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData());
 				gameController.startGame();
+				executor.execute(gameController);
 				//currentGame = executor.submit(gameController::run);
 				break;
 				
