@@ -48,7 +48,6 @@ public class GameLobby implements Runnable {
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
 	private ConcurrentHashMap<String, PlayerData> playerInfo = new ConcurrentHashMap<String, PlayerData>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
-	private ArrayList<PlayerActionData> events = new ArrayList<>();
 	// TODO here is where we store stuff like player objects, the grid
 	// other game relevant stuff
 	private int playerLives;
@@ -112,28 +111,18 @@ public class GameLobby implements Runnable {
 		// this function needs to do a number of things:
 		// - load map and sent it to all clients
 		// - add in player game object representations
-//		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
-//			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
-//			newPlayer.setUsername(e.getKey());
-//			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
-//			players.put(e.getKey(), newPlayer);
-//		}
+		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
+			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
+			newPlayer.setUsername(e.getKey());
+			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
+			players.put(e.getKey(), newPlayer);
+		}
 		
 		//playerLives = info.getPlayerLives();
 		//mapName = info.getMap();
-		// map = server.getMap(mapName);
+		//map = server.getMap(mapName);
 		
-//		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
-//		rq1.setData(players);
-//		updateClients(rq1);
-		gameStarted = true;
-		
-		//run();
-		//new Thread(this).start();
-//		GenericRequest update = new GenericRequest("GAME_STATE_UPDATE"); // update clients maybe move
-//		update.setData(players);
-//		updateClients(update);
-		
+		gameStarted = true;		
 	}
 	
 	public void stopGame() {
@@ -226,10 +215,7 @@ public class GameLobby implements Runnable {
 		case "CANCEL_MOVE":
 			players.get(usr).cancelVelocity(a.getAction());
 		}
-	}
-	
-	public synchronized void addEvent(PlayerActionData a) {
-		events.add(a);
+		updateClients(a);
 	}
 	
 	public void run() {
@@ -246,14 +232,6 @@ public class GameLobby implements Runnable {
 				
 			}
 		}
-		// puts player objects into lobby and on screen and whatever
-		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
-			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
-			newPlayer.setUsername(e.getKey());
-			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
-			players.put(e.getKey(), newPlayer);
-		}
-		System.out.println("gamelobby: game started");
 		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
 		rq1.setData(players);
 		updateClients(rq1);
@@ -268,18 +246,6 @@ public class GameLobby implements Runnable {
 				//p.setCollision2(new PlayerCollision("HORIZONTAL", p.checkCollision(p.x + p.getXVelocity(), p.y)));
 				//p.setCollision2(new PlayerCollision("VERTICAL", p.checkCollision(p.x, p.y + p.getYVelocity())));
 				p.move();
-			}
-			
-			if (!events.isEmpty()) {
-				for (PlayerActionData a : events) {
-					handlePlayerAction(a);
-					updateClients(a);
-					//events.remove(a);
-				}
-				events.clear();
-//				GenericRequest rq = new GenericRequest("GAME_STATE_UPDATE");
-//				rq.setData(players);
-//				updateClients(rq);
 			}
 			
 			long endTime = System.currentTimeMillis();

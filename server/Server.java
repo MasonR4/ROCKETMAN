@@ -28,7 +28,7 @@ public class Server extends AbstractServer {
 	private ServerMenuScreenController serverMenuController;
 	
 	private LinkedHashMap<Integer, GameLobby> games = new LinkedHashMap<Integer, GameLobby>(); 
-	private LinkedHashMap<Integer, Future<?>> runningGames = new LinkedHashMap<Integer, Future<?>>();
+	//private LinkedHashMap<Integer, Future<?>> runningGames = new LinkedHashMap<Integer, Future<?>>();
 	private int gameCount = 0;
 	
 	private final ExecutorService executor = Executors.newCachedThreadPool();
@@ -321,21 +321,17 @@ public class Server extends AbstractServer {
 				}
 			}
 		} else if (arg0 instanceof StartGameData) {
-			System.out.println("server: received received start game"); // DEBUG
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
 			games.get(gid).startGame(info);
-			System.out.println("start game called"); // DEBUG
 			executor.execute(games.get(gid));
-			System.out.println("submitted to executor"); // DEBUG
-			//runningGames.put(gid, executor.submit(games.get(gid)::run));
 		} else if (arg0 instanceof PlayerActionData) {
 			PlayerActionData a = (PlayerActionData) arg0;
 			int gid = a.getGameID();
 			this.logMessage("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID());
 			System.out.println("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID());
-			games.get(gid).addEvent(a);
-			//games.get(gid).handlePlayerAction(a);
+			//games.get(gid).addEvent(a);
+			games.get(gid).handlePlayerAction(a);
 		}
 	} 
 }
