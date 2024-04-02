@@ -37,7 +37,6 @@ public class Player extends Rectangle implements Serializable {
 	public void draw(Graphics g) {
 		g.setColor(color);
 		g.fillRect(x, y, size, size);
-		//rocket.draw(g);
 	}
 	
 	public void setVelocity(String dir) {
@@ -63,7 +62,6 @@ public class Player extends Rectangle implements Serializable {
 	public void move() {
 		if (!collisions.get("HORIZONTAL")) {x += (velocities.get("RIGHT") - velocities.get("LEFT"));}
 		if (!collisions.get("VERTICAL")) {y += (velocities.get("DOWN") - velocities.get("UP"));}
-		//rocket.move();
 	}
 	
 	public boolean checkCollision(int newX, int newY) {
