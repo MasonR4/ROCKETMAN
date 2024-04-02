@@ -27,8 +27,7 @@ public class Server extends AbstractServer {
 	
 	private ServerMenuScreenController serverMenuController;
 	
-	private LinkedHashMap<Integer, GameLobby> games = new LinkedHashMap<Integer, GameLobby>(); 
-	//private LinkedHashMap<Integer, Future<?>> runningGames = new LinkedHashMap<Integer, Future<?>>();
+	private LinkedHashMap<Integer, GameLobby> games = new LinkedHashMap<Integer, GameLobby>();
 	private int gameCount = 0;
 	
 	private final ExecutorService executor = Executors.newCachedThreadPool();
@@ -36,6 +35,8 @@ public class Server extends AbstractServer {
 	private ArrayList<String> connectedPlayers = new ArrayList<String>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<>();
 	private int connectedPlayerCount = 0;
+	
+	private Database database;
 	
 	public Server() {
 		super(8300);
@@ -51,6 +52,14 @@ public class Server extends AbstractServer {
 	
 	public void setServerMenuController(ServerMenuScreenController c) {
 		serverMenuController = c;
+	}
+	
+	public Database getDatabase() {
+		return database;
+	}
+
+	public void setDatabase(Database database) {
+		this.database = database;
 	}
 	
 	protected void clientConnected(ConnectionToClient client) {
@@ -165,7 +174,7 @@ public class Server extends AbstractServer {
 	protected void handleMessageFromClient(Object arg0, ConnectionToClient arg1) {
 		if (arg0 instanceof GenericRequest) {
 			String action = ((GenericRequest) arg0).getMsg();
-			System.out.println("server: received generic request: " + action); // DEBUG
+			System.out.println("server: received generic request: " + action); // DEBUG remove later
 			GenericRequest rq;
 			switch (action) { 			// PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
 			case "REQUEST_GAMES_INFO":
@@ -198,7 +207,7 @@ public class Server extends AbstractServer {
 			}
 			
 		} else if (arg0 instanceof LoginData) {
-			System.out.println("server: received logindata"); // DEBUG
+			System.out.println("server: received logindata"); // TODO DEBUG remove later
 			String username = ((LoginData) arg0).getUsername();
 			String password = ((LoginData) arg0).getPassword();
 			
@@ -328,9 +337,7 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof PlayerActionData) {
 			PlayerActionData a = (PlayerActionData) arg0;
 			int gid = a.getGameID();
-			this.logMessage("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID());
-			System.out.println("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID());
-			//games.get(gid).addEvent(a);
+			System.out.println("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID()); // DEBUG
 			games.get(gid).handlePlayerAction(a);
 		}
 	} 

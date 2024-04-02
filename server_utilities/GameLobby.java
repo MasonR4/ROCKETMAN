@@ -232,6 +232,7 @@ public class GameLobby implements Runnable {
 				
 			}
 		}
+		
 		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
 		rq1.setData(players);
 		updateClients(rq1);
