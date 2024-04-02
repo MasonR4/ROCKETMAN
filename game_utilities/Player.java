@@ -30,8 +30,10 @@ public class Player extends Rectangle implements Serializable {
 	    velocities.put("RIGHT", 0);
 	    velocities.put("LEFT", 0);
 	    
-	    collisions.put("HORIZONTAL", false);
-	    collisions.put("VERTICAL", false);
+	    collisions.put("DOWN", false);
+	    collisions.put("UP", false);
+	    collisions.put("RIGHT", false);
+	    collisions.put("LEFT", false);
 	}
 
 	public void draw(Graphics g) {
@@ -60,8 +62,13 @@ public class Player extends Rectangle implements Serializable {
 	}
 	
 	public void move() {
-		if (!collisions.get("HORIZONTAL")) {x += (velocities.get("RIGHT") - velocities.get("LEFT"));}
-		if (!collisions.get("VERTICAL")) {y += (velocities.get("DOWN") - velocities.get("UP"));}
+		if (!collisions.get("DOWN")) {y += velocities.get("DOWN");}
+		if (!collisions.get("UP")) {y -= velocities.get("UP");}
+		if (!collisions.get("RIGHT")) {x += velocities.get("RIGHT");}
+		if (!collisions.get("LEFT")) {x -= velocities.get("LEFT");}
+		
+		//if (!collisions.get("HORIZONTAL")) {x += (velocities.get("RIGHT") - velocities.get("LEFT"));}
+		//if (!collisions.get("VERTICAL")) {y += (velocities.get("DOWN") - velocities.get("UP"));}
 	}
 	
 	public boolean checkCollision(int newX, int newY) {

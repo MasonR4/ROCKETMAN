@@ -11,14 +11,16 @@ public class Missile extends Rectangle {
 	private int yVelocity;
 	private int damage;
 	
+	private String owner;
 	private double direction = 0.0;
 	
 	private final int MISSILE_SIZE = 8;
 	
-	public Missile(int x, int y, int dmg) {
+	public Missile(int x, int y, int dmg, String s) {
 		this.x = x;
 		this.y = x;
 		damage = dmg;
+		owner = s;
 		this.height = MISSILE_SIZE * 2;
 		this.width = MISSILE_SIZE;
 	}
