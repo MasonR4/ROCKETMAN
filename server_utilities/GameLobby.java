@@ -3,21 +3,11 @@ package server_utilities;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
-
-import javax.swing.SwingUtilities;
-
 import data.GameLobbyData;
 import data.GenericRequest;
 import data.PlayerActionData;
@@ -26,7 +16,6 @@ import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
 import data.StartGameData;
 import game_utilities.Player;
-import game_utilities.PlayerCollision;
 import ocsf.server.ConnectionToClient;
 import server.Server;
 

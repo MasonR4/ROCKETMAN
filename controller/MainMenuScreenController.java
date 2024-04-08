@@ -4,12 +4,10 @@ import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-
 import javax.swing.JPanel;
-
 import data.GenericRequest;
 import game.ClientUI;
-import menu_panels.MainMenuScreen;
+//import menu_panels.MainMenuScreen;
 import server.Client;
 
 public class MainMenuScreenController implements ActionListener {
@@ -18,7 +16,7 @@ public class MainMenuScreenController implements ActionListener {
 	private ClientUI clientUI;
 	
 	private JPanel clientPanel;
-	private MainMenuScreen mainScreen;
+	//private MainMenuScreen mainScreen;
 	
 	private CardLayout cl;
 	
@@ -28,7 +26,7 @@ public class MainMenuScreenController implements ActionListener {
 		clientUI = ui;
 		
 		cl = (CardLayout) clientPanel.getLayout();
-		mainScreen = (MainMenuScreen) clientPanel.getComponent(4); 
+		//mainScreen = (MainMenuScreen) clientPanel.getComponent(4); 
 	}
 	
 	@Override

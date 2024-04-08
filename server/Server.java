@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -108,7 +107,6 @@ public class Server extends AbstractServer {
 	public ArrayList<GameLobbyData> getAllGames() {
 		ArrayList<GameLobbyData> gameList = new ArrayList<GameLobbyData>();
 		for (Entry<Integer, GameLobby> e : games.entrySet()) {
-			GameLobby g = e.getValue();
 			gameList.add(e.getValue().generateGameListing());
 		}
 		return gameList;
