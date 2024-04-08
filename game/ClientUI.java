@@ -22,7 +22,6 @@ import java.util.Scanner;
 public class ClientUI extends JFrame {
 	private static final long serialVersionUID = 1L;
 
-	// hurr durr
 	private Client client;
 
 	// read some stuff from the config

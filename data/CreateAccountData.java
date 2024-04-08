@@ -18,10 +18,6 @@ public class CreateAccountData implements Serializable {
 	}
 	
 	public String getPassword() {
-		String pwd = "";
-		for (char c : password) {
-			pwd += c;
-		}
-		return pwd;
+		return new String(password);
 	}
 }

@@ -7,13 +7,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-
 import data.GameLobbyData;
 import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
 import data.StartGameData;
 import game.ClientUI;
-import game_utilities.Player;
 import menu_panels.LobbyScreen;
 import menu_utilities.PlayerListingPanel;
 import server.Client;

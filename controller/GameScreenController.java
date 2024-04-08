@@ -8,20 +8,15 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-
 import data.PlayerActionData;
-import data.PlayerJoinLeaveData;
 import game.ClientUI;
+import game_utilities.Missile;
 import game_utilities.Player;
 import menu_panels.GameScreen;
 import menu_utilities.GameDisplay;
@@ -43,7 +38,10 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 
 	private CardLayout cl;
 	
+	//private final ExecutorService executor = Executors.newCachedThreadPool();	
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
+	private ArrayList<Missile> rockets = new ArrayList<>();
+	// TODO add block array
 	
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
@@ -182,14 +180,11 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 		username = client.getUsername();
 		screen.setUsername(username);
 		running = true;
-		//run();
-		//thread.start();
 	}
 	
 	public void stopGame() {
 		running = false;
 		Thread.currentThread().interrupt();
-		//Thread.currentThread().interrupt();
 	}
 	
 	public boolean isStarted() {
@@ -210,7 +205,7 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 			break;
 			// TODO add rest of actions (client)
 		}
-		System.out.println("Handled action: " + type + " " + data.getAction() + " from " + username);
+		System.out.println("Handled action: " + type + " " + data.getAction() + " from " + username); // DEBUG remove later
 	}
 	
 	@Override
@@ -224,6 +219,7 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 				p.move();
 				SwingUtilities.invokeLater(() -> gamePanel.setPlayers(players));
 			}
+			
 			// for all blocks SwingUtilities.invokeLater(() -> gamePanel.paintBlocks());
 			
 			
