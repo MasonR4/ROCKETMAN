@@ -29,6 +29,8 @@ public class Server extends AbstractServer {
 	private LinkedHashMap<Integer, GameLobby> games = new LinkedHashMap<Integer, GameLobby>();
 	private int gameCount = 0;
 	
+
+	private Database serverDatabase = new Database();
 	private final ExecutorService executor = Executors.newCachedThreadPool();
 	
 	private ArrayList<String> connectedPlayers = new ArrayList<String>();
@@ -40,6 +42,7 @@ public class Server extends AbstractServer {
 	public Server() {
 		super(8300);
 	}
+	
 	
 	public void setLog(JTextArea log) {
 		serverLog = log;
@@ -53,14 +56,13 @@ public class Server extends AbstractServer {
 		serverMenuController = c;
 	}
 	
+	public void setDatabase(Database database) {
+		serverDatabase = database;
+	}
+
 	public Database getDatabase() {
 		return database;
 	}
-
-	public void setDatabase(Database database) {
-		this.database = database;
-	}
-	
 	protected void clientConnected(ConnectionToClient client) {
 		try {
 			GenericRequest rq = new GenericRequest("SERVER_INFO");
@@ -205,60 +207,64 @@ public class Server extends AbstractServer {
 			}
 			
 		} else if (arg0 instanceof LoginData) {
-			System.out.println("server: received logindata"); // TODO DEBUG remove later
-			String username = ((LoginData) arg0).getUsername();
-			String password = ((LoginData) arg0).getPassword();
-			
-			// TODO database login check here (currently you just press the button and it lets you in)
-			// if (validLogin) login!
-			if (!connectedPlayers.contains(username)) {
-				try {
-					GenericRequest rq = new GenericRequest("LOGIN_CONFIRMED");
-					rq.setData(username);
-					arg1.sendToClient(rq);
-					logMessage("[Client " + arg1.getId() + "] Sucessfully logged in as " + username);
-					connectedPlayers.add(username);
-					playerConnections.put(username, arg1);
-					connectedPlayerCount += 1;
-				} catch (IOException CLIENT_LIKELY_DEPARTED) {
-					CLIENT_LIKELY_DEPARTED.printStackTrace();
-					logMessage("[Client " + arg1.getId() + "] Login Failed");
-				}
-			} else {
-				GenericRequest rq = new GenericRequest("INVALID_LOGIN");
-				rq.setData("User is logged in elsewhere"); // cant show this to client yet
-				try {
-					arg1.sendToClient(rq);
-					logMessage("[Client " + arg1.getId() + "] Denied duplicate login as " + username);
-				} catch (IOException CLIENT_MAY_BE_AN_IMPOSTOR) {
-					CLIENT_MAY_BE_AN_IMPOSTOR.printStackTrace();
-					logMessage("[Client " + arg1.getId() + "] Denied duplicate login as " + username + " but failed to notify client (HOW)");
-				}
-			}
-			// else sendToClient(INVALID_LOGIN INFO) -- wrap in generic request
-			// query dataBase and whatever
-			
+	        LoginData loginData = (LoginData) arg0;
+	        String username = loginData.getUsername();
+	        String password = loginData.getPassword();
+	        
+	        // Check if username is already connected
+	        //if (!connectedPlayers.contains(username)) {
+	            if (serverDatabase.verifyAccount(username, password)) {
+	                try {
+	                    GenericRequest rq = new GenericRequest("LOGIN_CONFIRMED");
+	                    rq.setData(username);
+	                    arg1.sendToClient(rq);
+	                    serverLog.append("[Client " + arg1.getId() + "] Successfully logged in as " + username + "\n");
+	                    connectedPlayers.add(username);
+	                    connectedPlayerCount += 1;
+	                } catch (IOException e) {
+	                    e.printStackTrace();
+	                    serverLog.append("[Client " + arg1.getId() + "] Login Failed\n");
+	                }
+	            } else {
+	                try {
+	                    GenericRequest rq = new GenericRequest("INVALID_LOGIN");
+	                    rq.setData("Incorrect username or password");
+	                    arg1.sendToClient(rq);
+	                    serverLog.append("[Client " + arg1.getId() + "] Failed login attempt\n");
+	                } catch (IOException e) {
+	                    e.printStackTrace();
+	                }
+	            }
+	        //}
 			
 			
 		} else if (arg0 instanceof CreateAccountData) {
-			String username = ((CreateAccountData) arg0).getUsername();
-			String password = ((CreateAccountData) arg0).getPassword();
-			
-			// TODO here is where it should submit the new account to the database
-			// and if successful the code below runs
-			
-			try {
-				GenericRequest rq = new GenericRequest("ACCOUNT_CREATED");
-				rq.setData((String) username);
-				arg1.sendToClient(rq);
-				logMessage("[Client " + arg1.getId() + "] Created account '" + username + "' and logged in successfully");
-				connectedPlayers.add(username);
-				connectedPlayerCount += 1;
-			} catch (IOException CLIENT_POSSIBLY_DECEASED) {
-				CLIENT_POSSIBLY_DECEASED.printStackTrace();
-				logMessage("[Client " + arg1.getId() + "] Error creating account");
-			}
-			
+	        CreateAccountData createAccountData = (CreateAccountData) arg0;
+	        String username = createAccountData.getUsername();
+	        String password = createAccountData.getPassword();
+	        
+	        if (serverDatabase.createNewAccount(username, password)) {
+	            try {
+	                GenericRequest rq = new GenericRequest("ACCOUNT_CREATED");
+	                rq.setData(username);
+	                arg1.sendToClient(rq);
+	                serverLog.append("[Client " + arg1.getId() + "] Created account '" + username + "' successfully \n");
+	                connectedPlayers.add(username);
+	                connectedPlayerCount += 1;
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	                serverLog.append("[Client " + arg1.getId() + "] Error creating account\n");
+	            }
+	        } else {
+	            try {
+	                GenericRequest rq = new GenericRequest("ACCOUNT_CREATION_FAILED");
+	                rq.setData("Username already exists");
+	                arg1.sendToClient(rq);
+	                serverLog.append("[Client " + arg1.getId() + "] Failed to create account '" + username + "'\n");
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	            }
+	        }
 		} else if (arg0 instanceof PlayerData) {
 			// TODO query database for playerdata
 			// may change this to a genericRequest that receives only username from the client
