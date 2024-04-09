@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import data.GenericRequest;
 import menu_panels.SplashScreen;
 import server.Client;
 

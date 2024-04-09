@@ -5,6 +5,7 @@ import java.io.Serializable;
 // or not even use unique class for data and just pass long array or hash-map of all data we need
 // i just wanted a small class to use for small things like login success or server closed
 public class GenericRequest implements Serializable {
+	private static final long serialVersionUID = 1L;
 	
 	private String msg;
 	private Object data;

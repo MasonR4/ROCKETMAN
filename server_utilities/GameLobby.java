@@ -1,21 +1,26 @@
 package server_utilities;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import data.GameLobbyData;
 import data.GenericRequest;
+import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
 import data.StartGameData;
+import game_utilities.Player;
 import ocsf.server.ConnectionToClient;
 import server.Server;
 
-public class GameLobby {
+public class GameLobby implements Runnable {
+	private final long TARGET_DELTA = 16;
 	
 	private Server server;
 	private boolean gameStarted = false;
@@ -27,9 +32,11 @@ public class GameLobby {
 	private int playerCap;
 	private int gameID;
 	
-	private LinkedHashMap<String, PlayerData> players = new LinkedHashMap<String, PlayerData>();
-	private LinkedHashMap<String, ConnectionToClient> playerConnections = new LinkedHashMap<String, ConnectionToClient>();
+	private Random random = new Random();
 	
+	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
+	private ConcurrentHashMap<String, PlayerData> playerInfo = new ConcurrentHashMap<String, PlayerData>();
+	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
 	// TODO here is where we store stuff like player objects, the grid
 	// other game relevant stuff
 	private int playerLives;
@@ -60,20 +67,20 @@ public class GameLobby {
 	}
 	
 	public ArrayList<String> getPlayerUsernames() {
-		List<String> temp = players.keySet().stream().collect(Collectors.toList());
+		List<String> temp = playerInfo.keySet().stream().collect(Collectors.toList());
 		return new ArrayList<>(temp);
 	}
 	
-	public ArrayList<PlayerJoinLeaveData> getJoinedPlayers() {
-		ArrayList<PlayerJoinLeaveData> joinedPlayers = new ArrayList<PlayerJoinLeaveData>();
-		for (Entry<String, PlayerData> e : players.entrySet()) {
+	public ArrayList<PlayerJoinLeaveData> getJoinedPlayerInfo() {
+		ArrayList<PlayerJoinLeaveData> joinedplayerInfo = new ArrayList<PlayerJoinLeaveData>();
+		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
 			PlayerJoinLeaveData player = new PlayerJoinLeaveData(e.getKey());
 			player.setReady(e.getValue().isReady());
 			player.setHost(hostUsername.equals(e.getKey()));
 			player.setGameID(gameID);
-			joinedPlayers.add(player);
+			joinedplayerInfo.add(player);
 		}
-		return joinedPlayers;
+		return joinedplayerInfo;
 	}
 	
 	public boolean isFull() {
@@ -90,32 +97,45 @@ public class GameLobby {
 	
 	public void startGame(StartGameData info) {
 		// TODO start the game
-		playerLives = info.getPlayerLives();
-		mapName = info.getMap();
+		// this function needs to do a number of things:
+		// - load map and sent it to all clients
+		// - add in player game object representations
+		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
+			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
+			newPlayer.setUsername(e.getKey());
+			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
+			players.put(e.getKey(), newPlayer);
+		}
 		
-		// map = server.getMap(mapName);
+		//playerLives = info.getPlayerLives();
+		//mapName = info.getMap();
+		//map = server.getMap(mapName);
+		
+		gameStarted = true;		
+	}
+	
+	public void stopGame() {
+		// TODO make this more elaborate 
+		// also may not need TBD
+		gameStarted = false;
+		Thread.currentThread().interrupt();		
 	}
 	
 	public void removePlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
 		playerCount -= 1;
-		ConnectionToClient conn = players.get(usr.getUsername()).getConnection();
+		playerInfo.remove(usr.getUsername());
+		playerConnections.remove(usr.getUsername());
 		if (usr.getUsername().equals(hostUsername)) {
-			players.remove(usr.getUsername());
-			playerConnections.remove(usr.getUsername());
-			
-			String[] usernames = players.keySet().toArray(new String[0]);
+			String[] usernames = playerInfo.keySet().toArray(new String[0]);
 			if (usernames.length > 0) {
 				hostUsername = usernames[0];
 			}			
-		} else {
-			players.remove(usr.getUsername());
-			playerConnections.remove(usr.getUsername());
-		}
-		
+		} 
 		if (playerCount == 0) {
+			gameStarted = false;
 			server.cancelGame(gameID);
 		}
-		updatePlayersInLobbyForClients(getJoinedPlayers());
+		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
 	
 	public void addPlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
@@ -127,46 +147,44 @@ public class GameLobby {
 		}
 		playerCount += 1;
 		playerConnections.put(usr.getUsername(), c);
-		players.put(usr.getUsername(), temp);
-		updatePlayersInLobbyForClients(getJoinedPlayers());
+		playerInfo.put(usr.getUsername(), temp);
+		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
 	
 	public void readyPlayer(PlayerReadyData r) {
 		String name = r.getUsername();
-		players.get(name).setReady(r.isReady());
+		playerInfo.get(name).setReady(r.isReady());
 		setReadyClients();
 	}
 	
 	public void setReadyClients() {
 		GenericRequest rq;
-		for (Entry<String, PlayerData> e : players.entrySet()) {
+		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
 			if (e.getValue().isReady()) {
 				rq = new GenericRequest("CONFIRM_READY");
 			} else {
 				rq = new GenericRequest("CONFIRM_UNREADY");
 			}
-			try {
-				playerConnections.get(e.getKey()).sendToClient(rq);
-				updatePlayersInLobbyForClients(getJoinedPlayers());
-			} catch (IOException CLIENT_WAS_NOT_READY) {
-				CLIENT_WAS_NOT_READY.printStackTrace();
-			}
+			updateClients(rq);
 		}
+		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
 	
-	public void updatePlayersInLobbyForClients(ArrayList<PlayerJoinLeaveData> a) {
+	public void updatePlayerInfoInLobbyForClients(ArrayList<PlayerJoinLeaveData> a) {
 		GenericRequest rq = new GenericRequest("LOBBY_PLAYER_INFO");
 		rq.setData(a);
 		updateClients(rq);
 	}
 	
 	public void updateClients(Object data) {
-		for (Entry<String, PlayerData> e : players.entrySet()) {
-			try {
-				playerConnections.get(e.getKey()).sendToClient(data);
-				server.logMessage("sent player data to clients");
-			} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
-				CLIENT_DOESNT_LIKE_YOU.printStackTrace();
+		for (ConnectionToClient c : playerConnections.values()) {
+			synchronized(c) {
+				try {
+					c.sendToClient(data);
+				} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
+					CLIENT_DOESNT_LIKE_YOU.printStackTrace();
+					server.logMessage("could not update client " + c.getId());
+				}
 			}
 		}
 	}
@@ -175,6 +193,61 @@ public class GameLobby {
 		GameLobbyData tempInfo = new GameLobbyData(lobbyName, hostUsername, playerCount, playerCap, gameID);
 		return tempInfo;
 	}
-
-
+	
+	public void handlePlayerAction(PlayerActionData a) {
+		String usr = a.getUsername();
+		String type = a.getType();
+		switch (type) {
+		case "MOVE":
+			players.get(usr).setVelocity(a.getAction());
+			break;
+		case "CANCEL_MOVE":
+			players.get(usr).cancelVelocity(a.getAction());
+		}
+		updateClients(a);
+	}
+	
+	public void run() {
+			// check collision for all players
+			// check collision for rockets and stuff
+			// check block updates
+			// send info to clients
+		
+		while (!gameStarted) {
+			try {
+				Thread.currentThread();
+				Thread.sleep(100);
+			} catch (InterruptedException ie) {
+				
+			}
+		}
+		
+		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
+		rq1.setData(players);
+		updateClients(rq1);
+		gameStarted = true;
+		
+		while (gameStarted) {
+			
+			long startTime = System.currentTimeMillis();
+			
+			for (Player p : players.values()) {
+				// TODO re-enable collisions after we have added in the map 
+				//p.setCollision2(new PlayerCollision("HORIZONTAL", p.checkCollision(p.x + p.getXVelocity(), p.y)));
+				//p.setCollision2(new PlayerCollision("VERTICAL", p.checkCollision(p.x, p.y + p.getYVelocity())));
+				p.move();
+			}
+			
+			long endTime = System.currentTimeMillis();
+			long delta = endTime - startTime;
+			long sleepTime = TARGET_DELTA - delta;
+			try {
+				Thread.sleep(sleepTime);
+			} catch (InterruptedException DEAD) {
+				Thread.currentThread().interrupt();
+				gameStarted = false;
+			}
+			
+		}
+	}
 }

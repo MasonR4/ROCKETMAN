@@ -5,17 +5,14 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionListener;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
-
 import menu_utilities.EightBitButton;
 import menu_utilities.EightBitLabel;
-import menu_utilities.PlayerListingPanel;
 
 public class LobbyScreen extends JPanel {
 	
@@ -92,6 +89,7 @@ public class LobbyScreen extends JPanel {
 	}
 	
 	public void enableHostControls() {
+		startGameButton.addActionListener(controller);
 		add(startGameButton);
 	}
 	

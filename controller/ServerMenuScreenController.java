@@ -1,11 +1,9 @@
 package controller;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import data.GameLobbyData;
@@ -23,7 +21,7 @@ public class ServerMenuScreenController implements ActionListener {
 	private ServerMenuScreen screen;
 	
 	private JTextArea log;
-	private JLabel status;
+	//private JLabel status;
 	
 	private JPanel gamesPanel;
 	
@@ -33,7 +31,7 @@ public class ServerMenuScreenController implements ActionListener {
 		serverUI = ui;
 		
 		log = screen.getServerLog();
-		status = screen.getServerStatusLabel();
+		//status = screen.getServerStatusLabel();
 		gamesPanel = screen.getGamesPanel();
 	}	
 	
@@ -79,16 +77,9 @@ public class ServerMenuScreenController implements ActionListener {
 			break;
 			
 		case "Stop":
-			// TODO stop server and tell clients to disconnect (?)
-		
-			try {
-				server.sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
-				server.close();
-				screen.enableQuitButton(true);
-			} catch (IOException bruh) {
-				
-			}
-			
+			server.sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
+			server.stopServer();
+			screen.enableQuitButton(true);
 			break;
 			
 		case "Quit":
@@ -126,21 +117,19 @@ public class ServerMenuScreenController implements ActionListener {
 				break;
 				
 			case "/stop":
-				try {
-					server.close();
-					screen.enableQuitButton(true);
-				} catch (IOException bruh) {
-					
-				}
+				server.stopServer();
+				screen.enableQuitButton(true);
 				break;
 			
 			case "/list_connections":
+				log.append("Connected Clients:\n");
 				for (Thread c : server.getClientConnections()) {
 					log.append(c.getName() + "\n");
 				}
 				break;
 				
 			case "/list_players":
+				log.append("Connected Players:\n");
 				for (String s : server.getConnectedPlayers()) {
 					log.append(s + "\n");
 				}

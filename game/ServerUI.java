@@ -17,9 +17,7 @@ import server.Server;
 import server.Database;
 
 public class ServerUI extends JFrame {
-	
-	// important (or not)
-	private Database database;
+
 	private Server server;
 	
 	private File config;
@@ -41,6 +39,7 @@ public class ServerUI extends JFrame {
 		setLocationRelativeTo(null);
 		
 		server = new Server();
+		server.setDatabase(new Database());
 		mainPanel = new ServerMenuScreen();
 		controller = new ServerMenuScreenController(server, mainPanel, this);
         mainPanel.setController(controller);
