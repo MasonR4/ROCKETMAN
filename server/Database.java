@@ -29,7 +29,7 @@ public class Database {
 
 	// Method for verifying a username and password.
 	public boolean verifyAccount(String username, String password) {
-		String query = "SELECT * FROM gameData WHERE username = ? AND password = ?";
+		String query = "SELECT * FROM userData WHERE username = ? AND password = ?";
 		try (PreparedStatement ps = conn.prepareStatement(query)) {
 			ps.setString(1, username);
 			ps.setString(2, password);
@@ -49,7 +49,7 @@ public class Database {
 		}
 
 		// If the account does not exist, create a new one
-		String insertDML = "INSERT INTO gameData(username, password) VALUES (?, ?)";
+		String insertDML = "INSERT INTO userData(username, password) VALUES (?, ?)";
 		try (PreparedStatement ps = conn.prepareStatement(insertDML)) {
 			ps.setString(1, username);
 			ps.setString(2, password);
