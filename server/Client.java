@@ -120,7 +120,10 @@ public class Client extends AbstractClient {
 				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData());
 				gameController.startGame();
 				executor.execute(gameController);
-				//currentGame = executor.submit(gameController::run);
+				break;
+				
+			case "MAP_INFO":
+				gameController.addMap((int[][]) ((GenericRequest) arg0).getData());
 				break;
 				
 			case "GAME_STATE_UPDATE":

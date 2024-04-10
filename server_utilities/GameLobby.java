@@ -15,6 +15,8 @@ import data.PlayerData;
 import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
 import data.StartGameData;
+import game_utilities.Block;
+import game_utilities.Missile;
 import game_utilities.Player;
 import ocsf.server.ConnectionToClient;
 import server.Server;
@@ -39,12 +41,35 @@ public class GameLobby implements Runnable {
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
 	// TODO here is where we store stuff like player objects, the grid
 	// other game relevant stuff
-	private int playerLives;
-	private String mapName;
+	//private int playerLives;
+	//private String mapName;
 	
-	// private GameGrid map;
+	private ArrayList<Missile> rockets = new ArrayList<>();
 	
-	// also all of the game logic that needs to be handled server side goes in here too
+	int[][] map = {
+			  // 1-2-3-4-5-6-7-8-9-0-1-2-3-4-5-6-7-8-9-0-1
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 1
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 2
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 3
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 4
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 5
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 6
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 7
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 8
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 9 
+				{0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 10
+				{0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 11
+				{0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 12
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 13
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 14
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 15
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 16
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 17
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 18
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 19
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 20
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 21
+		};
 	
 	public GameLobby(String n, String hn, int mp, int gid, Server s) {
 		lobbyName = n;
@@ -111,14 +136,14 @@ public class GameLobby implements Runnable {
 		//mapName = info.getMap();
 		//map = server.getMap(mapName);
 		
-		
+		GenericRequest mapInfo = new GenericRequest("MAP_INFO");
+		mapInfo.setData(map);
+		updateClients(mapInfo);
 		
 		gameStarted = true;		
 	}
 	
 	public void stopGame() {
-		// TODO make this more elaborate 
-		// also may not need TBD
 		gameStarted = false;
 		Thread.currentThread().interrupt();		
 	}

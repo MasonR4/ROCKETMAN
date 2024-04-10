@@ -43,7 +43,7 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
 	private ArrayList<Missile> rockets = new ArrayList<>();
 	
-	private Block[][] map = null;
+	private int[][] map = null;
 	
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
@@ -176,6 +176,10 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 	
 	public void addPlayers(ConcurrentHashMap<String, Player> newPlayers) {
 		players.putAll(newPlayers);
+	}
+	
+	public void addMap(int[][] m) {
+		map = m;
 	}
 	
 	public void startGame() {
