@@ -212,7 +212,7 @@ public class Server extends AbstractServer {
 	        String password = loginData.getPassword();
 	        
 	        // Check if username is already connected
-	        //if (!connectedPlayers.contains(username)) {
+	        if (!connectedPlayers.contains(username)) {
 	            if (serverDatabase.verifyAccount(username, password)) {
 	                try {
 	                    GenericRequest rq = new GenericRequest("LOGIN_CONFIRMED");
@@ -235,7 +235,7 @@ public class Server extends AbstractServer {
 	                    e.printStackTrace();
 	                }
 	            }
-	        //}
+	        }
 			
 			
 		} else if (arg0 instanceof CreateAccountData) {

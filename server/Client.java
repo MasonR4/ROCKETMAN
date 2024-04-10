@@ -3,15 +3,11 @@ package server;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import javax.swing.SwingUtilities;
-
 import controller.CreateAccountScreenController;
 import controller.FindGameScreenController;
 import controller.GameScreenController;
@@ -34,7 +30,6 @@ public class Client extends AbstractClient {
 	private String serverName;
 		
 	private int gameID = -1;
-	private Future<?> currentGame;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	
 	// controllers for each menu
@@ -75,7 +70,11 @@ public class Client extends AbstractClient {
 				createAccountController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
 				break;
-			
+				
+			case "ACCOUNT_CREATION_FAILED":
+				createAccountController.setError((String) ((GenericRequest) arg0).getData());
+				break;
+				
 			case "LOGIN_CONFIRMED":
 				username = (String) ((GenericRequest) arg0).getData();
 				loginController.actionPerformed(new ActionEvent(0, 0, action));
@@ -156,7 +155,6 @@ public class Client extends AbstractClient {
 	}
 	
 	public void cancelGame() {
-		//currentGame.cancel(true);
 		gameController.stopGame();
 	}
 	

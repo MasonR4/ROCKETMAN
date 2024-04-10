@@ -31,6 +31,10 @@ public class CreateAccountScreenController implements ActionListener {
 		screen = (CreateAccountScreen) clientPanel.getComponent(3);
 	}
 	
+	public void setError(String msg) {
+		screen.setError(msg);
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
