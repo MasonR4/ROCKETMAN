@@ -16,6 +16,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import data.PlayerActionData;
 import game.ClientUI;
+import game_utilities.Block;
 import game_utilities.Missile;
 import game_utilities.Player;
 import menu_panels.GameScreen;
@@ -41,7 +42,8 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 	//private final ExecutorService executor = Executors.newCachedThreadPool();	
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
 	private ArrayList<Missile> rockets = new ArrayList<>();
-	// TODO add block array
+	
+	private Block[][] map = null;
 	
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
