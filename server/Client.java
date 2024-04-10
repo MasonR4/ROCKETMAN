@@ -19,6 +19,7 @@ import data.GenericRequest;
 import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
+import game_utilities.Block;
 import game_utilities.Player;
 import data.GameLobbyData;
 import ocsf.client.AbstractClient;
@@ -123,12 +124,12 @@ public class Client extends AbstractClient {
 				break;
 				
 			case "MAP_INFO":
-				gameController.addMap((int[][]) ((GenericRequest) arg0).getData());
+				gameController.addMap((ConcurrentHashMap<Integer, Block>) ((GenericRequest) arg0).getData());
 				break;
 				
 			case "GAME_STATE_UPDATE":
 				System.out.println("GAME UPDATE RECIEVED");
-				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData());
+				// TODO fix to directly update player positions received from server
 				break;
 				
 			case "FORCE_DISCONNECT":

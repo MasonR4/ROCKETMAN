@@ -41,14 +41,14 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 	
 	//private final ExecutorService executor = Executors.newCachedThreadPool();	
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
-	private ArrayList<Missile> rockets = new ArrayList<>();
 	
-	private int[][] map = null;
+	private ArrayList<Missile> rockets = new ArrayList<>();
+	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();	
+	
 	
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
 		clientPanel = p;
-		//clientUI = ui;
 		
 		cl = (CardLayout) clientPanel.getLayout();
 		screen = (GameScreen) clientPanel.getComponent(7);
@@ -178,8 +178,8 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 		players.putAll(newPlayers);
 	}
 	
-	public void addMap(int[][] m) {
-		map = m;
+	public void addMap(ConcurrentHashMap<Integer, Block> m) {
+		blocks.putAll(m);
 	}
 	
 	public void startGame() {
@@ -221,12 +221,11 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 			// TODO game cycle similar to the one in game lobby but only for rendering objects locally
 
 			for (Player p : players.values()) {
-				// move player, collisions are checked server side
-				p.move();
+				//p.move();
 				SwingUtilities.invokeLater(() -> gamePanel.setPlayers(players));
 			}
 			
-			// for all blocks SwingUtilities.invokeLater(() -> gamePanel.paintBlocks());
+			
 			
 			
 			long endTime = System.currentTimeMillis();

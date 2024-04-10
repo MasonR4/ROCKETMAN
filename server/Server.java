@@ -13,9 +13,11 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import controller.ServerMenuScreenController;
 import data.*;
+import game_utilities.Block;
 import ocsf.server.AbstractServer;
 import ocsf.server.ConnectionToClient;
 import server_utilities.GameLobby;
+import server_utilities.MapCreator;
 
 public class Server extends AbstractServer {
 	
@@ -33,6 +35,8 @@ public class Server extends AbstractServer {
 	private Database serverDatabase = new Database();
 	private final ExecutorService executor = Executors.newCachedThreadPool();
 	
+	private static final MapCreator maps = new MapCreator();
+	
 	private ArrayList<String> connectedPlayers = new ArrayList<String>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<>();
 	private int connectedPlayerCount = 0;
@@ -43,6 +47,9 @@ public class Server extends AbstractServer {
 		super(8300);
 	}
 	
+	public ConcurrentHashMap<Integer, Block> loadMap(String m) {
+		return maps.getMap(m);
+	}
 	
 	public void setLog(JTextArea log) {
 		serverLog = log;

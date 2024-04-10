@@ -39,37 +39,9 @@ public class GameLobby implements Runnable {
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
 	private ConcurrentHashMap<String, PlayerData> playerInfo = new ConcurrentHashMap<String, PlayerData>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
-	// TODO here is where we store stuff like player objects, the grid
-	// other game relevant stuff
-	//private int playerLives;
-	//private String mapName;
 	
 	private ArrayList<Missile> rockets = new ArrayList<>();
-	
-	int[][] map = {
-			  // 1-2-3-4-5-6-7-8-9-0-1-2-3-4-5-6-7-8-9-0-1
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 1
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 2
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 3
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 4
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 5
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 6
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 7
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 8
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 9 
-				{0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 10
-				{0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 11
-				{0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 12
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 13
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 14
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 15
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 16
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 17
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 18
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 19
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 20
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 21
-		};
+	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
 	public GameLobby(String n, String hn, int mp, int gid, Server s) {
 		lobbyName = n;
@@ -121,10 +93,6 @@ public class GameLobby implements Runnable {
 	}
 	
 	public void startGame(StartGameData info) {
-		// TODO start the game
-		// this function needs to do a number of things:
-		// - load map and sent it to all clients
-		// - add in player game object representations
 		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
 			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
 			newPlayer.setUsername(e.getKey());
@@ -132,12 +100,10 @@ public class GameLobby implements Runnable {
 			players.put(e.getKey(), newPlayer);
 		}
 		
-		//playerLives = info.getPlayerLives();
-		//mapName = info.getMap();
-		//map = server.getMap(mapName);
+		blocks.putAll(server.loadMap(info.getMap()));
 		
 		GenericRequest mapInfo = new GenericRequest("MAP_INFO");
-		mapInfo.setData(map);
+		mapInfo.setData(blocks);
 		updateClients(mapInfo);
 		
 		gameStarted = true;		
@@ -231,7 +197,7 @@ public class GameLobby implements Runnable {
 		case "CANCEL_MOVE":
 			players.get(usr).cancelVelocity(a.getAction());
 		}
-		updateClients(a);
+		//updateClients(a);
 	}
 	
 	public void run() {

@@ -1,21 +1,24 @@
 package server_utilities;
 
+import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
+import game_utilities.AirBlock;
 import game_utilities.Block;
+import game_utilities.BreakableBlock;
 
-public class Map implements Serializable {
+public class MapCreator implements Serializable {
 	
 	private LinkedHashMap<String, int[][]> maps = new LinkedHashMap<>();
-	private ArrayList<Block> gameGrid = new ArrayList<>();
 	
 	private int GRID_SIZE = 21;
 	private int BLOCK_SIZE = 35;
 	
-	public Map () {
-		maps.put("defualt", new int[][] {
+	public MapCreator() {
+		maps.put("default", new int[][] {
 				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -40,17 +43,36 @@ public class Map implements Serializable {
 		});
 	}
 	
-	public void setMap(String m) {
+	public ConcurrentHashMap<Integer, Block> getMap(String m) {
+		ConcurrentHashMap<Integer, Block> map = new ConcurrentHashMap<>();
 		if (maps.keySet().contains(m)) {
 			int[][] blocks = maps.get(m);
 			for (int i = 0; i < GRID_SIZE; i++) {
 				for (int o = 0; o < GRID_SIZE; o++) {
-					int xPos = o * BLOCK_SIZE;
-					int yPos = i * BLOCK_SIZE;
+					int xPos = i * BLOCK_SIZE;
+					int yPos = o * BLOCK_SIZE;
+					Block block = null;
+					switch (blocks[i][o]) {
+					case 1:
+						block = new BreakableBlock(xPos, yPos, i, o);
+						block.setBounds(new Rectangle(BLOCK_SIZE, BLOCK_SIZE));
+						block.setxPos(xPos);
+						block.setyPos(yPos);
+						map.put((i * GRID_SIZE) + o, block);
+						break;
+						
+					default:
+						block = new AirBlock(xPos, yPos, i, o);
+						block.setBounds(new Rectangle(BLOCK_SIZE, BLOCK_SIZE));
+						block.setxPos(xPos);
+						block.setyPos(yPos);
+						map.put((i * GRID_SIZE) + o, block);	
+						break;
+					}
 				}
 			}
 		}
+		return map;
 	}
-	
 }
 
