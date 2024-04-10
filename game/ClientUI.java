@@ -45,6 +45,7 @@ public class ClientUI extends JFrame {
 	private LoginScreen loginScreen;
 	private CreateAccountScreen createAccountScreen;
 	private MainMenuScreen mainMenuScreen;
+	private ProfileScreen profileScreen;
 	private FindGameScreen findGameScreen;
 	private LobbyScreen lobbyScreen;
 	private GameScreen gameScreen;
@@ -107,7 +108,8 @@ public class ClientUI extends JFrame {
 		findGameScreen = new FindGameScreen();
 		lobbyScreen = new LobbyScreen();
 		gameScreen = new GameScreen();
-
+		profileScreen = new ProfileScreen();
+		
 		// ADD THEM
 		containerPanel.add(serverConnectionScreen, "SERVER_CONNECTION");
 		containerPanel.add(splashScreen, "SPLASH");
@@ -117,6 +119,7 @@ public class ClientUI extends JFrame {
 		containerPanel.add(findGameScreen, "FIND_GAME");
 		containerPanel.add(lobbyScreen, "LOBBY");
 		containerPanel.add(gameScreen, "GAME");
+		containerPanel.add(profileScreen, "PROFILE");
 
 		// WE ARE DECLARING A NUMBER OF CONTROLLERS
 		serverConnectionScreenController = new ServerConnectionScreenController(client, containerPanel, this);
