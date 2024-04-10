@@ -19,6 +19,7 @@ import data.GenericRequest;
 import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
+import data.PlayerPositionsData;
 import game_utilities.Block;
 import game_utilities.Player;
 import data.GameLobbyData;
@@ -154,6 +155,9 @@ public class Client extends AbstractClient {
 			PlayerActionData info = (PlayerActionData) arg0;
 			System.out.println("received player action from server: " + info.getType() + " " + info.getAction() + " from: " + info.getUsername());
 			gameController.handlePlayerAction(info);
+		} else if (arg0 instanceof PlayerPositionsData) {
+			PlayerPositionsData posInfo = (PlayerPositionsData) arg0;
+			gameController.updatePlayerPositions(posInfo.getPlayerPositions());
 		}
 	}
 	

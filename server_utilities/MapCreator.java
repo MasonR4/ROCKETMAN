@@ -45,30 +45,28 @@ public class MapCreator implements Serializable {
 	
 	public ConcurrentHashMap<Integer, Block> getMap(String m) {
 		ConcurrentHashMap<Integer, Block> map = new ConcurrentHashMap<>();
-		if (maps.keySet().contains(m)) {
-			int[][] blocks = maps.get(m);
-			for (int i = 0; i < GRID_SIZE; i++) {
-				for (int o = 0; o < GRID_SIZE; o++) {
-					int xPos = i * BLOCK_SIZE;
-					int yPos = o * BLOCK_SIZE;
-					Block block = null;
-					switch (blocks[i][o]) {
-					case 1:
-						block = new BreakableBlock(xPos, yPos, i, o);
-						block.setBounds(new Rectangle(BLOCK_SIZE, BLOCK_SIZE));
-						block.setxPos(xPos);
-						block.setyPos(yPos);
-						map.put((i * GRID_SIZE) + o, block);
-						break;
-						
-					default:
-						block = new AirBlock(xPos, yPos, i, o);
-						block.setBounds(new Rectangle(BLOCK_SIZE, BLOCK_SIZE));
-						block.setxPos(xPos);
-						block.setyPos(yPos);
-						map.put((i * GRID_SIZE) + o, block);	
-						break;
-					}
+		int[][] blocks = maps.get(m);
+		for (int i = 0; i < GRID_SIZE; i++) {
+			for (int o = 0; o < GRID_SIZE; o++) {
+				int xPos = o * BLOCK_SIZE;
+				int yPos = i * BLOCK_SIZE;
+				Block block = null;
+				switch (blocks[i][o]) {
+				case 1:
+					block = new BreakableBlock(xPos, yPos, i, o);
+					block.setBounds(new Rectangle(BLOCK_SIZE, BLOCK_SIZE));
+					block.x = xPos;
+					block.y = yPos;
+					map.put((i * GRID_SIZE) + o, block);
+					break;
+					
+//				default:
+//					block = new AirBlock(xPos, yPos, i, o);
+//					block.setBounds(new Rectangle(BLOCK_SIZE, BLOCK_SIZE));
+//					block.setxPos(xPos);
+//					block.setyPos(yPos);
+//					map.put((i * GRID_SIZE) + o, block);	
+//					break;
 				}
 			}
 		}

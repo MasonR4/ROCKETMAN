@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
+import game_utilities.AirBlock;
 import game_utilities.Block;
 import game_utilities.Missile;
 import game_utilities.Player;
@@ -34,7 +35,6 @@ public class GameDisplay extends JPanel {
 	
 	public void setBlocks(ConcurrentHashMap<Integer, Block> m) {
 		blocks = m;
-		repaint();
 	}
 	
 	public void setPlayers(ConcurrentHashMap<String, Player> players2) {

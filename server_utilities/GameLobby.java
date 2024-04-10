@@ -13,6 +13,7 @@ import data.GenericRequest;
 import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
+import data.PlayerPositionsData;
 import data.PlayerReadyData;
 import data.StartGameData;
 import game_utilities.Block;
@@ -197,7 +198,6 @@ public class GameLobby implements Runnable {
 		case "CANCEL_MOVE":
 			players.get(usr).cancelVelocity(a.getAction());
 		}
-		//updateClients(a);
 	}
 	
 	public void run() {
@@ -221,21 +221,27 @@ public class GameLobby implements Runnable {
 		gameStarted = true;
 		
 		while (gameStarted) {
-			
 			long startTime = System.currentTimeMillis();
+			
+			PlayerPositionsData ppd = new PlayerPositionsData();
 			
 			for (Player p : players.values()) {
 				// TODO re-enable collisions after we have added in the map 
 				//p.setCollision2(new PlayerCollision("HORIZONTAL", p.checkCollision(p.x + p.getXVelocity(), p.y)));
 				//p.setCollision2(new PlayerCollision("VERTICAL", p.checkCollision(p.x, p.y + p.getYVelocity())));
 				p.move();
+				ppd.addPlayerPos(p.getUsername(), p.x, p.y);
 			}
+			
+			updateClients(ppd);
 			
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
 			long sleepTime = TARGET_DELTA - delta;
+			System.out.println(sleepTime);
 			try {
 				Thread.sleep(sleepTime);
+				
 			} catch (InterruptedException DEAD) {
 				Thread.currentThread().interrupt();
 				gameStarted = false;
