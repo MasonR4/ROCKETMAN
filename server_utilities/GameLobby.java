@@ -111,6 +111,8 @@ public class GameLobby implements Runnable {
 		//mapName = info.getMap();
 		//map = server.getMap(mapName);
 		
+		
+		
 		gameStarted = true;		
 	}
 	
