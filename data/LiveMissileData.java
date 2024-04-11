@@ -2,17 +2,18 @@ package data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import game_utilities.Missile;
 
 public class LiveMissileData implements Serializable {
-	private ArrayList<Missile> rockets = new ArrayList<>();
+	private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
 	
-	public LiveMissileData(ArrayList<Missile> r) {
+	public LiveMissileData(CopyOnWriteArrayList<Missile> r) {
 		rockets = r;
 	}
 	
-	public ArrayList<Missile> getMissileData() {
+	public CopyOnWriteArrayList<Missile> getMissileData() {
 		return rockets;
 	}
 }

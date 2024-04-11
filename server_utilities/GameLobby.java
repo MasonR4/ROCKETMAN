@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import data.GameLobbyData;
 import data.GenericRequest;
@@ -44,7 +45,7 @@ public class GameLobby implements Runnable {
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
 	
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
-	private ArrayList<Missile> rockets = new ArrayList<>();
+	private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
 	public GameLobby(String n, String hn, int mp, int gid, Server s) {
@@ -259,7 +260,7 @@ public class GameLobby implements Runnable {
 					m.move();
 					// TODO check missile collision and also change to send positional data instead of actual missile objects?
 				}
-				//updateClients(new LiveMissileData(rockets));
+				updateClients(new LiveMissileData(rockets));
 			}
 
 			
