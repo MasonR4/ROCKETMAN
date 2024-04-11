@@ -34,6 +34,7 @@ public class Client extends AbstractClient {
 		
 	private int gameID = -1;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	private Database database;
 	
 	// controllers for each menu
 	// possible that we won't need all of them in the client class
@@ -51,6 +52,7 @@ public class Client extends AbstractClient {
 	
 	public Client() {
 		super("localhost", 8300);
+		database = new Database();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -221,4 +223,7 @@ public class Client extends AbstractClient {
 	protected void connectionClosed() {
 		System.out.println("connection terminated");
 	}
+	public Database getDatabase() {
+        return database;
+    }
  }

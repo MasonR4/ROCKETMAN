@@ -109,7 +109,7 @@ public class ClientUI extends JFrame {
 		findGameScreen = new FindGameScreen();
 		lobbyScreen = new LobbyScreen();
 		gameScreen = new GameScreen();
-		profileScreen = new ProfileScreen();
+		profileScreen = new ProfileScreen(client.getDatabase());
 		
 		// ADD THEM
 		containerPanel.add(serverConnectionScreen, "SERVER_CONNECTION");
@@ -131,7 +131,7 @@ public class ClientUI extends JFrame {
 		findGameScreenController = new FindGameScreenController(client, containerPanel, this);
 		lobbyScreenController = new LobbyScreenController(client, containerPanel, this);
 		gameScreenController = new GameScreenController(client, containerPanel, this);
-		profileScreenController = new ProfileScreenController(client, containerPanel, this);
+		profileScreenController = new ProfileScreenController(client, containerPanel, this, client.getDatabase());
 		
 		// ANNOYING EXTRA STEP
 		serverConnectionScreen.setController(serverConnectionScreenController);
