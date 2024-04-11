@@ -194,7 +194,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		}
 	}
 	
-	public void updateMissileData(ArrayList<Missile> r) {
+	public synchronized void updateMissileData(ArrayList<Missile> r) {
 		rockets.clear();
 		for (Missile m : r) {
 			rockets.add(m);

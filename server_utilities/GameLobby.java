@@ -136,7 +136,7 @@ public class GameLobby implements Runnable {
 		} 
 		if (playerCount == 0) {
 			gameStarted = false;
-			server.cancelGame(gameID);
+			server.cancelGame(gameID, true);
 		}
 		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}

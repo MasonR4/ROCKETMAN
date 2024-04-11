@@ -28,7 +28,7 @@ public class Server extends AbstractServer {
 	
 	private ServerMenuScreenController serverMenuController;
 	
-	private LinkedHashMap<Integer, GameLobby> games = new LinkedHashMap<Integer, GameLobby>();
+	private ConcurrentHashMap<Integer, GameLobby> games = new ConcurrentHashMap<>();
 	private int gameCount = 0;
 	
 
@@ -141,19 +141,22 @@ public class Server extends AbstractServer {
 		logMessage("[Server] Restart Required");
 	}
 	
-	public void cancelGame(int id) {
+	public void cancelGame(int id, boolean remove) {
 		logMessage("[Info] Canceled Game " + id);
 		if (games.get(id).isStarted()) {
 			games.get(id).stopGame();
 		}
-		games.remove(id);
+		if (remove) { 
+			games.remove(id);
+		}
 		serverMenuController.addGameListings(getAllGames());
 	}
 	
 	public void stopServer() {
 		for (Integer i : games.keySet()) {
-			cancelGame(i);
+			cancelGame(i, false);
 		}
+		games.clear();
 		try {
 			sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
 			close();

@@ -176,7 +176,6 @@ public class ClientUI extends JFrame {
 	public void disconnectProcedure() {
 		try {
 			if (gameScreenController.isStarted()) {
-				//gameScreenController.stopGame();
 				client.cancelGame();
 			}
 			if (client.getGameID() != -1) {

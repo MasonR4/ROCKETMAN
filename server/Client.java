@@ -156,6 +156,7 @@ public class Client extends AbstractClient {
 	
 	public void cancelGame() {
 		gameController.stopGame();
+		gameID = -1;
 	}
 	
 	public void setCreateAccountController(CreateAccountScreenController c) {

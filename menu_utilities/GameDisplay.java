@@ -32,19 +32,19 @@ public class GameDisplay extends JPanel {
 		setBorder(BorderFactory.createEtchedBorder());
 	}
 	
-	public void setBlocks(ConcurrentHashMap<Integer, Block> m) {
+	public synchronized void setBlocks(ConcurrentHashMap<Integer, Block> m) {
 		blocks = m;
 	}
 	
-	public void setPlayers(ConcurrentHashMap<String, PlayerObject> players2) {
+	public synchronized void setPlayers(ConcurrentHashMap<String, PlayerObject> players2) {
 		players = players2;
 	}
 	
-	public void setLaunchers(ConcurrentHashMap<String, RocketLauncher> r) {
+	public synchronized void setLaunchers(ConcurrentHashMap<String, RocketLauncher> r) {
 		launchers = r;
 	}
 	
-	public void setRockets(ArrayList<Missile> r) {
+	public synchronized void setRockets(ArrayList<Missile> r) {
 		rockets = r;
 	}
 	
