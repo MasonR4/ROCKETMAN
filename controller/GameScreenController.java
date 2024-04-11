@@ -199,17 +199,13 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		for (Missile m : r) {
 			rockets.add(m);
 		}
-		//gamePanel.setRockets(rockets);
 	}
 	
 	@Override
 	public void run() {
 		while (running && !Thread.currentThread().isInterrupted()) {
 			long startTime = System.currentTimeMillis();			
-			
 			gamePanel.repaint();
-			
-			
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
 			long sleepTime = TARGET_DELTA - delta;

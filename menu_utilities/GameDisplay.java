@@ -63,7 +63,6 @@ public class GameDisplay extends JPanel {
 			l.draw(g);
 		}
 		for (Missile m : rockets) {
-			//m.move();
 			m.draw(g);
 		}
 	}

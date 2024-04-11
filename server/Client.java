@@ -46,8 +46,6 @@ public class Client extends AbstractClient {
 	private ServerConnectionScreenController serverConnectionController;
 	private SplashScreenController splashController;
 	
-	//private ExecutorService executor = Executors.newCachedThreadPool();
-	
 	public Client() {
 		super("localhost", 8300);
 	}
@@ -147,10 +145,6 @@ public class Client extends AbstractClient {
 			// for when a player joins lobby client is currently connected to
 		} else if (arg0 instanceof PlayerData) {
 			// for when client request player statistics from the server
-		} else if (arg0 instanceof PlayerActionData) {
-			PlayerActionData info = (PlayerActionData) arg0;
-			System.out.println("received player action from server: " + info.getType() + " " + info.getAction() + " from: " + info.getUsername());
-			//gameController.handlePlayerAction(info);
 		} else if (arg0 instanceof PlayerPositionsData) {
 			PlayerPositionsData posInfo = (PlayerPositionsData) arg0;
 			gameController.updatePlayerPositions(posInfo.getPlayerPositions());
