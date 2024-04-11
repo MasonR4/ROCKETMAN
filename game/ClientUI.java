@@ -189,7 +189,6 @@ public class ClientUI extends JFrame {
 				rq.setData(client.getUsername());
 				client.sendToServer(rq);
 			}
-			client.setGameID(-1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -197,7 +196,7 @@ public class ClientUI extends JFrame {
 	
 	public void closingProcedure() {
 		if (client.isConnected()) {
-			disconnectProcedure(); // TODO why did i make 4 different disconnect methods please send help
+			disconnectProcedure();
 		}
 		try {
 			FileWriter writer = new FileWriter(config, false);
