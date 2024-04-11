@@ -66,18 +66,28 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "MOVE_UP");
 		gamePanel.getActionMap().put("MOVE_UP", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
+				if (players.get(username).getVelocity("UP") == 0) {
+					
+				
+				
 					PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "MOVE", "UP");
+					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					players.get(username).setVelocity("UP");
 					try {
 						client.sendToServer(playerAction);
 					} catch (IOException ACTION_DENIED) {
 						ACTION_DENIED.printStackTrace();
 					}
+					
+				}
 			}
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "CANCEL_MOVE_UP");
 		gamePanel.getActionMap().put("CANCEL_MOVE_UP", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "CANCEL_MOVE", "UP");
+				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+				players.get(username).cancelVelocity("UP");
 				try {
 					client.sendToServer(playerAction);
 				} catch (IOException ACTION_DENIED) {
@@ -89,18 +99,28 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "MOVE_LEFT");
 		gamePanel.getActionMap().put("MOVE_LEFT", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
+				if (players.get(username).getVelocity("LEFT") == 0) {
+					
+				
+				
 					PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "MOVE", "LEFT");
+					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					players.get(username).setVelocity("LEFT");
 					try {
 						client.sendToServer(playerAction);
 					} catch (IOException ACTION_DENIED) {
 						ACTION_DENIED.printStackTrace();
 					}
+					
+				}
 			}
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "CANCEL_MOVE_LEFT");
 		gamePanel.getActionMap().put("CANCEL_MOVE_LEFT", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "CANCEL_MOVE", "LEFT");
+				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+				players.get(username).cancelVelocity("LEFT");
 				try {
 					client.sendToServer(playerAction);
 				} catch (IOException ACTION_DENIED) {
@@ -111,11 +131,18 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "MOVE_DOWN");
 		gamePanel.getActionMap().put("MOVE_DOWN", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
+				if (players.get(username).getVelocity("DOWN") == 0) {
+					
+				
 				PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "MOVE", "DOWN");
+				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+				players.get(username).setVelocity("DOWN");
 				try {
 					client.sendToServer(playerAction);
 				} catch (IOException ACTION_DENIED) {						
 					ACTION_DENIED.printStackTrace();
+				}
+				
 				}
 			}
 		});
@@ -123,6 +150,8 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getActionMap().put("CANCEL_MOVE_DOWN", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "CANCEL_MOVE", "DOWN");
+				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+				players.get(username).cancelVelocity("DOWN");
 				try {
 					client.sendToServer(playerAction);
 				} catch (IOException ACTION_DENIED) {
@@ -133,11 +162,15 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "MOVE_RIGHT");
 		gamePanel.getActionMap().put("MOVE_RIGHT", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "MOVE", "RIGHT");
-				try {
-					client.sendToServer(playerAction);
-				} catch (IOException ACTION_DENIED) {
-					ACTION_DENIED.printStackTrace();
+				if (players.get(username).getVelocity("RIGHT") == 0) {
+					PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "MOVE", "RIGHT");
+					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					players.get(username).setVelocity("RIGHT");
+					try {
+						client.sendToServer(playerAction);
+					} catch (IOException ACTION_DENIED) {
+						ACTION_DENIED.printStackTrace();
+					}
 				}
 			}
 		});
@@ -145,6 +178,8 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getActionMap().put("CANCEL_MOVE_RIGHT", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				PlayerActionData playerAction = new PlayerActionData(client.getGameID(), username, "CANCEL_MOVE", "RIGHT");
+				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+				players.get(username).cancelVelocity("RIGHT");
 				try {
 					client.sendToServer(playerAction);
 				} catch (IOException ACTION_DENIED) {
@@ -203,10 +238,31 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		}
 	}
 	
+	public void handlePlayerAction(PlayerActionData a) {
+		String usr = a.getUsername();
+		String type = a.getType();
+		switch (type) {
+		case "MOVE":
+			players.get(usr).updatePosition(a.getX(), a.getY());
+			players.get(usr).setVelocity(a.getAction());
+			break;
+		case "CANCEL_MOVE":
+			players.get(usr).cancelVelocity(a.getAction());
+			players.get(usr).updatePosition(a.getX(), a.getY());
+			
+			break;
+		}
+	}
+	
 	@Override
 	public void run() {
 		while (running && !Thread.currentThread().isInterrupted()) {
-			long startTime = System.currentTimeMillis();			
+			long startTime = System.currentTimeMillis();
+			
+			for (PlayerObject p : players.values()) {
+				p.move();
+			}
+			
 			gamePanel.repaint();
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;

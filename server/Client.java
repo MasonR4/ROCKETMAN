@@ -151,6 +151,9 @@ public class Client extends AbstractClient {
 		} else if (arg0 instanceof LiveMissileData) {
 			LiveMissileData info = (LiveMissileData) arg0;
 			gameController.updateMissileData(info.getMissileData());
+		} else if (arg0 instanceof PlayerActionData) {
+			PlayerActionData action = (PlayerActionData) arg0;
+			gameController.handlePlayerAction(action);
 		}
 	}
 	

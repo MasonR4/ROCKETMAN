@@ -35,6 +35,11 @@ public class Player extends Rectangle implements Serializable {
 		g.fillRect(x, y, size, size);
 	}
 	
+	public void updatePosition(int nx, int ny) {
+		x = nx;
+		y = ny;
+	}
+	
 	public void setVelocity(String dir) {
 		velocities.put(dir, speed);
 	}

@@ -14,6 +14,7 @@ public class PlayerActionData implements Serializable {
 	private String action;
 	
 	private int mouseX, mouseY;
+	private int posX, posY;
 	
 	public PlayerActionData(int g, String s, String t, String a) {
 		gameID = g;
@@ -32,6 +33,19 @@ public class PlayerActionData implements Serializable {
 
 	public String getUsername() {
 		return username;
+	}
+	
+	public void setPosition(int x, int y) {
+		posX = x;
+		posY = y;
+	}
+	
+	public int getX() {
+		return posX;
+	}
+	
+	public int getY() {
+		return posY;
 	}
 	
 	public void setMousePos(int x, int y) {

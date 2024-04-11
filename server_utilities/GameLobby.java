@@ -202,10 +202,18 @@ public class GameLobby implements Runnable {
 		String type = a.getType();
 		switch (type) {
 		case "MOVE":
+			players.get(usr).updatePosition(a.getX(), a.getY());
 			players.get(usr).setVelocity(a.getAction());
+			
+			//a.setPosition((int) players.get(usr).getX(), (int) players.get(usr).getY());
+			updateClients(a);
 			break;
 		case "CANCEL_MOVE":
+			players.get(usr).updatePosition(a.getX(), a.getY());
 			players.get(usr).cancelVelocity(a.getAction());
+			
+			//a.setPosition((int) players.get(usr).getX(), (int) players.get(usr).getY());
+			updateClients(a);
 			break;
 		case "LAUNCHER_ROTATION":
 			// TODO fix rotation
@@ -218,12 +226,7 @@ public class GameLobby implements Runnable {
 		}
 	}
 	
-	public void run() {
-		// check collision for all players
-		// check collision for rockets and stuff
-		// check block updates
-		// send info to clients
-		
+	public void run() {		
 		while (!gameStarted) {
 			try {
 				Thread.currentThread();
@@ -249,14 +252,14 @@ public class GameLobby implements Runnable {
 				ppd.addPlayerPos(p.getUsername(), p.x, p.y);
 			}
 			
-			updateClients(ppd);
+			//updateClients(ppd);
 			
 			if (!rockets.isEmpty()) {
 				for (Missile m : rockets) {
 					m.move();
 					// TODO check missile collision and also change to send positional data instead of actual missile objects?
 				}
-				updateClients(new LiveMissileData(rockets));
+				//updateClients(new LiveMissileData(rockets));
 			}
 
 			
