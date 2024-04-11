@@ -184,9 +184,11 @@ public class ClientUI extends JFrame {
 				leaveData.setJoining(false);
 				client.sendToServer(leaveData);
 			}
-			GenericRequest rq = new GenericRequest("CLIENT_DISCONNECTING");
-			rq.setData(client.getUsername());
-			client.sendToServer(rq);
+			if(client.isConnected()) {
+				GenericRequest rq = new GenericRequest("CLIENT_DISCONNECTING");
+				rq.setData(client.getUsername());
+				client.sendToServer(rq);
+			}
 			client.setGameID(-1);
 		} catch (IOException e) {
 			e.printStackTrace();

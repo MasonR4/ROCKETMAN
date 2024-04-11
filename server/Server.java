@@ -142,11 +142,11 @@ public class Server extends AbstractServer {
 	}
 	
 	public void cancelGame(int id, boolean remove) {
-		logMessage("[Info] Canceled Game " + id);
 		if (games.get(id).isStarted()) {
 			games.get(id).stopGame();
 		}
 		if (remove) { 
+			logMessage("[Info] Canceled Game " + id);
 			games.remove(id);
 		}
 		serverMenuController.addGameListings(getAllGames());

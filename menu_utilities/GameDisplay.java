@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -19,7 +20,7 @@ import game_utilities.RocketLauncher;
 public class GameDisplay extends JPanel { 
 	private ConcurrentHashMap<String, PlayerObject> players = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
-	private ArrayList<Missile> rockets = new ArrayList<>();
+	private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
 	private static final long serialVersionUID = 1L;
@@ -32,19 +33,19 @@ public class GameDisplay extends JPanel {
 		setBorder(BorderFactory.createEtchedBorder());
 	}
 	
-	public synchronized void setBlocks(ConcurrentHashMap<Integer, Block> m) {
+	public void setBlocks(ConcurrentHashMap<Integer, Block> m) {
 		blocks = m;
 	}
 	
-	public synchronized void setPlayers(ConcurrentHashMap<String, PlayerObject> players2) {
+	public  void setPlayers(ConcurrentHashMap<String, PlayerObject> players2) {
 		players = players2;
 	}
 	
-	public synchronized void setLaunchers(ConcurrentHashMap<String, RocketLauncher> r) {
+	public void setLaunchers(ConcurrentHashMap<String, RocketLauncher> r) {
 		launchers = r;
 	}
 	
-	public synchronized void setRockets(ArrayList<Missile> r) {
+	public void setRockets(CopyOnWriteArrayList<Missile> r) {
 		rockets = r;
 	}
 	

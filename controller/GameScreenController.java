@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -46,7 +48,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	
 	private ConcurrentHashMap<String, PlayerObject> players = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
-	private ArrayList<Missile> rockets = new ArrayList<>();
+	private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();	
 	
 	private int mouseX, mouseY;
@@ -194,7 +196,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		}
 	}
 	
-	public synchronized void updateMissileData(ArrayList<Missile> r) {
+	public void updateMissileData(ArrayList<Missile> r) {
 		rockets.clear();
 		for (Missile m : r) {
 			rockets.add(m);
