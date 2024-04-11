@@ -95,6 +95,7 @@ public class GameLobby implements Runnable {
 	
 	public void startGame(StartGameData info) {
 		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
+			// TODO prevent players from spawning within blocks on the map
 			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
 			newPlayer.setUsername(e.getKey());
 			newPlayer.setBlocks(blocks);
@@ -205,10 +206,10 @@ public class GameLobby implements Runnable {
 	}
 	
 	public void run() {
-			// check collision for all players
-			// check collision for rockets and stuff
-			// check block updates
-			// send info to clients
+		// check collision for all players
+		// check collision for rockets and stuff
+		// check block updates
+		// send info to clients
 		
 		while (!gameStarted) {
 			try {

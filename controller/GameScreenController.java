@@ -24,6 +24,7 @@ import game_utilities.Block;
 import game_utilities.Missile;
 import game_utilities.Player;
 import game_utilities.PlayerObject;
+import game_utilities.RocketLauncher;
 import menu_panels.GameScreen;
 import menu_utilities.GameDisplay;
 import server.Client;
@@ -43,7 +44,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	private CardLayout cl;
 	
 	private ConcurrentHashMap<String, PlayerObject> players = new ConcurrentHashMap<>();
-	
+	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private ArrayList<Missile> rockets = new ArrayList<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();	
 	
@@ -153,11 +154,15 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	public void addPlayers(ConcurrentHashMap<String, Player> newPlayers) {
 		for (Player p : newPlayers.values()) {
 			PlayerObject tempPlayer = new PlayerObject(p.getBlockSize(), p.x, p.y);
+			RocketLauncher tempLauncher = new RocketLauncher((int) p.getCenterX(), (int) p.getCenterY(), 24, 6);
 			tempPlayer.setUsername(p.getUsername());
 			tempPlayer.setColor(p.getColor());
+			tempLauncher.setOwner(p.getUsername());
+			launchers.put(p.getUsername(), tempLauncher);
 			players.put(p.getUsername(), tempPlayer);			
 		}
 		gamePanel.setPlayers(players);
+		gamePanel.setLaunchers(launchers);
 	}
 	
 	public void addMap(ConcurrentHashMap<Integer, Block> m) {
@@ -183,6 +188,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	public void updatePlayerPositions(HashMap<String, int[]> positions) {
 		for (Entry<String, int[]> e : positions.entrySet()) {
 			players.get(e.getKey()).updatePosition(e.getValue()[0], e.getValue()[1]);
+			launchers.get(e.getKey()).moveLauncher((int) players.get(e.getKey()).getCenterX(), (int) players.get(e.getKey()).getCenterY(), 20);
 		}
 	}
 	
@@ -215,15 +221,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	public void mouseMoved(MouseEvent e) {
 		mouseX = e.getX();
 		mouseY = e.getY();
-//		if (running) {
-//			players.get(username).getLauncher().rotate(mouseX, mouseY);
-//			PlayerActionData r = new PlayerActionData(client.getGameID(), username, "LAUNCHER_ROTATION", Integer.toString(mouseX) + "," + Integer.toString(mouseY));
-//			try {
-//				client.sendToServer(r);
-//			} catch (IOException CannotRotateRocket) {
-//				
-//			}
-//		}
+		launchers.get(username).rotate(mouseX, mouseY);
 	}
 	
 	// required function graveyard...

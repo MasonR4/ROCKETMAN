@@ -8,7 +8,6 @@ public class PlayerObject extends Rectangle {
 	private static final long serialVersionUID = 5999865541601247731L;
 	private String username;
 	private int size;
-	private int speed;
 	private Color color;
 	
 	public PlayerObject(int size, int x, int y) {

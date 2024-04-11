@@ -10,10 +10,13 @@ public class RocketLauncher extends Rectangle {
 	private int height;
 	private int width;
 	
+	private String owner;
+	private double angle = 0.0;
+	
 	private int endX;
 	private int endY;
 	
-	private double angle = 0.0;
+	
 	
 	public RocketLauncher(int newX, int newY, int h, int w) {
 		x = newX;
@@ -21,36 +24,55 @@ public class RocketLauncher extends Rectangle {
 		width = w;
 		height = h;
 	}
-	
+	// TODO fix rocket rotation
 	public void draw(Graphics g) {
-		Graphics2D launcherGraphics = (Graphics2D) g.create();
-		
-		double rotCenter = y + (width / 2);
-		launcherGraphics.rotate(Math.toRadians(angle), x, rotCenter);
-		
-		double rotatedX = x + (height * Math.cos(Math.toRadians(angle)));
-		double rotatedY = rotCenter + (height * Math.sin(Math.toRadians(angle)));
-		
-		endX = (int) rotatedX;
-		endY = (int) rotatedY;
-		
-		launcherGraphics.setColor(Color.GRAY);
-		launcherGraphics.fillRect(x,  y, width, height);
-		launcherGraphics.dispose();
+	    Graphics2D rocketGraphics = (Graphics2D) g.create();
+
+	    double rotationCenterY = y + (width / 4);
+
+	    rocketGraphics.rotate(Math.toRadians(angle), x, rotationCenterY);
+	    
+	    double endXAfterRotation = x + (height * Math.cos(Math.toRadians(angle)));
+	    double endYAfterRotation = rotationCenterY + (height * Math.sin(Math.toRadians(angle)));
+
+	    endX = (int) endXAfterRotation;
+	    endY = (int) endYAfterRotation;
+	    
+	    rocketGraphics.setColor(Color.GRAY);
+	    rocketGraphics.fillRect(x, y, height, width);
+
+	    rocketGraphics.dispose();
 	}
-	
+		
 	public void rotate(int mouseX, int mouseY) {
-		double deltaX = mouseX = x;
-		double deltaY = mouseY - y;
-		angle = Math.toDegrees(Math.atan2(deltaY, deltaX));
+		double deltaX = mouseX - x;
+        double deltaY = mouseY - y;
+        
+        this.angle = Math.toDegrees(Math.atan2(deltaY, deltaX));
 	}
 	
 	public void moveLauncher(int nx, int ny, int size) {
-		x = nx;
-		y = ny - (size / 3);
+		x = (int) nx - (size / 6);
+		y = (int) ny - (size / 6);
 	}
 	
 	public double getAngle() {
 		return angle;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	public int getEndX() {
+		return endX;
+	}
+
+	public int getEndY() {
+		return endY;
 	}
 }

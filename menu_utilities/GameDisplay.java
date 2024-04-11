@@ -40,6 +40,10 @@ public class GameDisplay extends JPanel {
 		players = players2;
 	}
 	
+	public void setLaunchers(ConcurrentHashMap<String, RocketLauncher> r) {
+		launchers = r;
+	}
+	
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -50,6 +54,9 @@ public class GameDisplay extends JPanel {
 		for (Block b : blocks.values()) {
 			g.setColor(b.getColor());
 			g.fillRect(b.x, b.y, b.getBlockSize(), b.getBlockSize());
+		}
+		for (RocketLauncher l : launchers.values()) {
+			l.draw(g);
 		}
 	}
 }
