@@ -26,6 +26,7 @@ public class GameDisplay extends JPanel {
 	public GameDisplay() {
 		setSize(SIZE);
 		setLayout(null);
+		setDoubleBuffered(true);
 		setBorder(BorderFactory.createEtchedBorder());
 	}
 	
@@ -39,7 +40,6 @@ public class GameDisplay extends JPanel {
 	
 	public void setPlayers(ConcurrentHashMap<String, Player> players2) {
 		players = players2;
-		repaint();
 	}
 	
 	@Override

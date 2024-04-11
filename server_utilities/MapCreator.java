@@ -59,14 +59,6 @@ public class MapCreator implements Serializable {
 					block.y = yPos;
 					map.put((i * GRID_SIZE) + o, block);
 					break;
-					
-//				default:
-//					block = new AirBlock(xPos, yPos, i, o);
-//					block.setBounds(new Rectangle(BLOCK_SIZE, BLOCK_SIZE));
-//					block.setxPos(xPos);
-//					block.setyPos(yPos);
-//					map.put((i * GRID_SIZE) + o, block);	
-//					break;
 				}
 			}
 		}

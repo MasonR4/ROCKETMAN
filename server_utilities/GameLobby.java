@@ -97,6 +97,7 @@ public class GameLobby implements Runnable {
 		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
 			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
 			newPlayer.setUsername(e.getKey());
+			newPlayer.setBlocks(blocks);
 			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
 			players.put(e.getKey(), newPlayer);
 		}
@@ -198,6 +199,7 @@ public class GameLobby implements Runnable {
 		case "CANCEL_MOVE":
 			players.get(usr).cancelVelocity(a.getAction());
 		}
+		updateClients(a);
 	}
 	
 	public void run() {
@@ -226,9 +228,6 @@ public class GameLobby implements Runnable {
 			PlayerPositionsData ppd = new PlayerPositionsData();
 			
 			for (Player p : players.values()) {
-				// TODO re-enable collisions after we have added in the map 
-				//p.setCollision2(new PlayerCollision("HORIZONTAL", p.checkCollision(p.x + p.getXVelocity(), p.y)));
-				//p.setCollision2(new PlayerCollision("VERTICAL", p.checkCollision(p.x, p.y + p.getYVelocity())));
 				p.move();
 				ppd.addPlayerPos(p.getUsername(), p.x, p.y);
 			}
@@ -238,7 +237,7 @@ public class GameLobby implements Runnable {
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
 			long sleepTime = TARGET_DELTA - delta;
-			System.out.println(sleepTime);
+			//System.out.println(sleepTime);
 			try {
 				Thread.sleep(sleepTime);
 				

@@ -230,7 +230,7 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 			});
 			
 			// TODO set missiles
-			
+			gamePanel.repaint();
 			
 			
 			long endTime = System.currentTimeMillis();
