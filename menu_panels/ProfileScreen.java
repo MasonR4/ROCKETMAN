@@ -25,14 +25,14 @@ public class ProfileScreen extends JPanel {
 		setSize(DEFAULT_SIZE);
 		setLayout(null);
 		
-		title = new EightBitLabel("ROCKETMAN PROFILE", Font.BOLD, 222f);
-		title.setBounds(375, 45, 550, 150);
+		title = new EightBitLabel("ROCKETMAN PROFILE", Font.BOLD, 175f);
+		title.setBounds(95, 45, 1500, 150);
 		
 		backButton = new EightBitButton("Back");
-		backButton.setBounds(675, 500, 250, 50);
+		backButton.setBounds(675, 650, 250, 50);
 		
 		logoutButton = new EightBitButton("Logout");
-		logoutButton.setBounds(675, 575, 250, 50);
+		logoutButton.setBounds(675, 725, 250, 50);
 		
 		add(title);
 		add(backButton);
