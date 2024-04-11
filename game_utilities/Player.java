@@ -20,12 +20,10 @@ public class Player extends Rectangle implements Serializable {
 	private LinkedHashMap<String, Integer> velocities = new LinkedHashMap<String, Integer>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
-	private RocketLauncher rocketLauncher;
 	
 	public Player(int size, int x, int y) {
 		super(x, y, size, size);
 		this.size = size;
-		
 		velocities.put("DOWN", 0);
 	    velocities.put("UP", 0);
 	    velocities.put("RIGHT", 0);

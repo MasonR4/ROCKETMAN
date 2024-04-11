@@ -128,11 +128,6 @@ public class Client extends AbstractClient {
 				gameController.addMap((ConcurrentHashMap<Integer, Block>) ((GenericRequest) arg0).getData());
 				break;
 				
-			case "GAME_STATE_UPDATE":
-				System.out.println("GAME UPDATE RECIEVED");
-				// TODO fix to directly update player positions received from server
-				break;
-				
 			case "FORCE_DISCONNECT":
 				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
 				break;
@@ -154,7 +149,7 @@ public class Client extends AbstractClient {
 		} else if (arg0 instanceof PlayerActionData) {
 			PlayerActionData info = (PlayerActionData) arg0;
 			System.out.println("received player action from server: " + info.getType() + " " + info.getAction() + " from: " + info.getUsername());
-			gameController.handlePlayerAction(info);
+			//gameController.handlePlayerAction(info);
 		} else if (arg0 instanceof PlayerPositionsData) {
 			PlayerPositionsData posInfo = (PlayerPositionsData) arg0;
 			gameController.updatePlayerPositions(posInfo.getPlayerPositions());

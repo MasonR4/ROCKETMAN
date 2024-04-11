@@ -14,10 +14,11 @@ import game_utilities.Block;
 import game_utilities.Missile;
 import game_utilities.Player;
 import game_utilities.PlayerObject;
+import game_utilities.RocketLauncher;
 
 public class GameDisplay extends JPanel { 
 	private ConcurrentHashMap<String, PlayerObject> players = new ConcurrentHashMap<>();
-	
+	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private ArrayList<Missile> rockets = new ArrayList<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	

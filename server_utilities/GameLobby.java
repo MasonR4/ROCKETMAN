@@ -198,8 +198,10 @@ public class GameLobby implements Runnable {
 			break;
 		case "CANCEL_MOVE":
 			players.get(usr).cancelVelocity(a.getAction());
+			break;
+		case "LAUNCHER_ROTATION":
+			//players.get(usr).getLauncher().rotate(Integer.parseInt(a.getAction().split(",")[0]), Integer.parseInt(a.getAction().split(",")[1]));;
 		}
-		updateClients(a);
 	}
 	
 	public void run() {
@@ -237,7 +239,6 @@ public class GameLobby implements Runnable {
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
 			long sleepTime = TARGET_DELTA - delta;
-			//System.out.println(sleepTime);
 			try {
 				Thread.sleep(sleepTime);
 				

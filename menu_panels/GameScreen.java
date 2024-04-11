@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.LinkedHashMap;
 import javax.swing.BorderFactory;
 import javax.swing.JLayeredPane;
@@ -27,9 +29,10 @@ public class GameScreen extends JLayeredPane {
 	private static final long serialVersionUID = 1L;
 	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
 	
-	
-	
 	ActionListener controller;
+	
+	MouseListener mc;
+	MouseMotionListener mmc;
 	
 	public GameScreen() {
 		setSize(DEFAULT_SIZE);
@@ -51,13 +54,13 @@ public class GameScreen extends JLayeredPane {
 		return gamePanel;
 	}
 	
-	
 	public void setUsername(String msg) {
 		username.setText(msg);
 	}
-
 	
 	public void setController(ActionListener c) {
 		controller = c;
+		addMouseMotionListener((MouseMotionListener) c);
+		addMouseListener((MouseListener) c);
 	}
 }
