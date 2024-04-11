@@ -1,4 +1,4 @@
-DROP TABLE gameData; 
+DROP TABLE userData; 
 
 CREATE TABLE userData (
 username VARCHAR (30) NOT NULL, 
