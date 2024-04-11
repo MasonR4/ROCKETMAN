@@ -9,13 +9,15 @@ import javax.swing.JPanel;
 
 import data.GenericRequest;
 import game.ClientUI;
+import menu_panels.FindGameScreen;
+import menu_panels.ProfileScreen;
 import server.Client;
 
 public class ProfileScreenController implements ActionListener {
 
 	private Client client;
 	private ClientUI clientUI;
-	
+	private ProfileScreen screen;
 	private JPanel clientPanel;
 	
 	private CardLayout cl;
@@ -26,6 +28,7 @@ public class ProfileScreenController implements ActionListener {
 		clientUI = ui;
 		
 		cl = (CardLayout) clientPanel.getLayout();
+		screen = (ProfileScreen) clientPanel.getComponent(5);
 	}
 	
 	@Override
@@ -42,5 +45,9 @@ public class ProfileScreenController implements ActionListener {
 			break;
 		
 		}
+	}
+	
+	public void setScreenInfoLabels() {
+		screen.setInfoLabels(client.getUsername()); 
 	}
 }

@@ -13,6 +13,7 @@ import controller.GameScreenController;
 import controller.LobbyScreenController;
 import controller.LoginScreenController;
 import controller.MainMenuScreenController;
+import controller.ProfileScreenController;
 import controller.ServerConnectionScreenController;
 import controller.SplashScreenController;
 import data.GenericRequest;
@@ -45,6 +46,8 @@ public class Client extends AbstractClient {
 	private MainMenuScreenController mainMenuController;
 	private ServerConnectionScreenController serverConnectionController;
 	private SplashScreenController splashController;
+	private ProfileScreenController profileController;
+	//private ExecutorService executor = Executors.newCachedThreadPool();
 	
 	public Client() {
 		super("localhost", 8300);
@@ -69,6 +72,7 @@ public class Client extends AbstractClient {
 				username = (String) ((GenericRequest) arg0).getData();
 				createAccountController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
+				profileController.setScreenInfoLabels();
 				break;
 				
 			case "ACCOUNT_CREATION_FAILED":
@@ -79,6 +83,7 @@ public class Client extends AbstractClient {
 				username = (String) ((GenericRequest) arg0).getData();
 				loginController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
+				profileController.setScreenInfoLabels();
 				break;
 				
 			case "INVALID_LOGIN":
@@ -170,6 +175,9 @@ public class Client extends AbstractClient {
 		findGameController = c;
 	}
 	
+	public void setProfileScreenController(ProfileScreenController c) {
+		profileController = c;
+	}
 	public void setLoginController(LoginScreenController c) {
 		loginController = c;
 	}
