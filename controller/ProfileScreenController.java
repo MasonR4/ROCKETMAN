@@ -28,7 +28,7 @@ public class ProfileScreenController implements ActionListener {
 		clientUI = ui;
 		
 		cl = (CardLayout) clientPanel.getLayout();
-		screen = (ProfileScreen) clientPanel.getComponent(5);
+		screen = (ProfileScreen) clientPanel.getComponent(8);
 	}
 	
 	@Override

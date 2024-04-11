@@ -153,7 +153,8 @@ public class ClientUI extends JFrame {
 		client.setServerConnectionController(serverConnectionScreenController);
 		client.setLobbyController(lobbyScreenController);
 		client.setGameController(gameScreenController);
-
+		client.setProfileScreenController(profileScreenController);
+		
 		// pass a few default values
 		serverConnectionScreen.setDefaultConnectionInfo(configData.get("default_server"), configData.get("default_port"));
 		loginScreen.setDefaultUsername(configData.get("last_user"));

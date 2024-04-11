@@ -31,8 +31,8 @@ public class ProfileScreen extends JPanel {
 		setSize(DEFAULT_SIZE);
 		setLayout(null);
 		
-		title = new EightBitLabel("ROCKETMAN PROFILE", Font.BOLD, 222f);
-		title.setBounds(375, 45, 550, 150);
+		title = new EightBitLabel("ROCKETMAN PROFILE", Font.BOLD, 125f);
+		title.setBounds(150, 45, 1500, 150);
 		
 		info = new EightBitLabel("ROCKETER TAG: ", Font.PLAIN, 75f);
 		info.setBounds(450, 175, 800, 50);
