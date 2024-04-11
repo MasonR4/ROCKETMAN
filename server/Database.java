@@ -29,12 +29,13 @@ public class Database {
 
 	// Method for verifying a username and password.
 	public boolean verifyAccount(String username, String password) {
-		String query = "SELECT * FROM gameData WHERE username = ? AND password = ?";
+		String query = "SELECT username FROM userData WHERE username = ? AND password = AES_ENCRYPT(?, 'key')";
 		try (PreparedStatement ps = conn.prepareStatement(query)) {
 			ps.setString(1, username);
 			ps.setString(2, password);
-			ResultSet rs = ps.executeQuery();
-			return rs.next(); // return true if the account exists
+			try (ResultSet rs = ps.executeQuery()) {
+	            return rs.next(); // returns true if a record is found, meaning the login is successful
+	        }
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -43,23 +44,25 @@ public class Database {
 
 	// Method for creating a new account.
 	public boolean createNewAccount(String username, String password) {
-		// First, check if the account already exists to avoid duplicate entries
-		if (verifyAccount(username, password)) {
-			return false; // Account already exists
-		}
+	    // First, check if the account already exists to avoid duplicate entries
+	    if (verifyAccount(username, password)) {
+	        return false; // Account already exists
+	    }
 
-		// If the account does not exist, create a new one
-		String insertDML = "INSERT INTO gameData(username, password) VALUES (?, ?)";
-		try (PreparedStatement ps = conn.prepareStatement(insertDML)) {
-			ps.setString(1, username);
-			ps.setString(2, password);
-			int affectedRows = ps.executeUpdate();
-			return affectedRows > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
-		}
+	    // If the account does not exist, create a new one
+	    // Ensure the password is encrypted before being inserted
+	    String insertDML = "INSERT INTO userData(username, password) VALUES (?, AES_ENCRYPT(?, 'key'))";
+	    try (PreparedStatement ps = conn.prepareStatement(insertDML)) {
+	        ps.setString(1, username);
+	        ps.setString(2, password);
+	        int affectedRows = ps.executeUpdate();
+	        return affectedRows > 0;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
 	}
+
 
 	// Close the database connection when it's no longer needed
 	public void closeConnection() {

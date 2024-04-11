@@ -13,9 +13,11 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import controller.ServerMenuScreenController;
 import data.*;
+import game_utilities.Block;
 import ocsf.server.AbstractServer;
 import ocsf.server.ConnectionToClient;
 import server_utilities.GameLobby;
+import server_utilities.MapCreator;
 
 public class Server extends AbstractServer {
 	
@@ -33,6 +35,8 @@ public class Server extends AbstractServer {
 	private Database serverDatabase = new Database();
 	private final ExecutorService executor = Executors.newCachedThreadPool();
 	
+	private static final MapCreator maps = new MapCreator();
+	
 	private ArrayList<String> connectedPlayers = new ArrayList<String>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<>();
 	private int connectedPlayerCount = 0;
@@ -43,6 +47,9 @@ public class Server extends AbstractServer {
 		super(8300);
 	}
 	
+	public ConcurrentHashMap<Integer, Block> loadMap(String m) {
+		return maps.getMap(m);
+	}
 	
 	public void setLog(JTextArea log) {
 		serverLog = log;
@@ -212,7 +219,7 @@ public class Server extends AbstractServer {
 	        String password = loginData.getPassword();
 	        
 	        // Check if username is already connected
-	        //if (!connectedPlayers.contains(username)) {
+	        if (!connectedPlayers.contains(username)) {
 	            if (serverDatabase.verifyAccount(username, password)) {
 	                try {
 	                    GenericRequest rq = new GenericRequest("LOGIN_CONFIRMED");
@@ -235,7 +242,7 @@ public class Server extends AbstractServer {
 	                    e.printStackTrace();
 	                }
 	            }
-	        //}
+	        }
 			
 			
 		} else if (arg0 instanceof CreateAccountData) {

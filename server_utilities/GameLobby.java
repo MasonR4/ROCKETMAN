@@ -13,8 +13,11 @@ import data.GenericRequest;
 import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
+import data.PlayerPositionsData;
 import data.PlayerReadyData;
 import data.StartGameData;
+import game_utilities.Block;
+import game_utilities.Missile;
 import game_utilities.Player;
 import ocsf.server.ConnectionToClient;
 import server.Server;
@@ -37,14 +40,9 @@ public class GameLobby implements Runnable {
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
 	private ConcurrentHashMap<String, PlayerData> playerInfo = new ConcurrentHashMap<String, PlayerData>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
-	// TODO here is where we store stuff like player objects, the grid
-	// other game relevant stuff
-	private int playerLives;
-	private String mapName;
 	
-	// private GameGrid map;
-	
-	// also all of the game logic that needs to be handled server side goes in here too
+	private ArrayList<Missile> rockets = new ArrayList<>();
+	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
 	public GameLobby(String n, String hn, int mp, int gid, Server s) {
 		lobbyName = n;
@@ -96,27 +94,24 @@ public class GameLobby implements Runnable {
 	}
 	
 	public void startGame(StartGameData info) {
-		// TODO start the game
-		// this function needs to do a number of things:
-		// - load map and sent it to all clients
-		// - add in player game object representations
 		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
 			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
 			newPlayer.setUsername(e.getKey());
+			newPlayer.setBlocks(blocks);
 			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
 			players.put(e.getKey(), newPlayer);
 		}
 		
-		//playerLives = info.getPlayerLives();
-		//mapName = info.getMap();
-		//map = server.getMap(mapName);
+		blocks.putAll(server.loadMap(info.getMap()));
+		
+		GenericRequest mapInfo = new GenericRequest("MAP_INFO");
+		mapInfo.setData(blocks);
+		updateClients(mapInfo);
 		
 		gameStarted = true;		
 	}
 	
 	public void stopGame() {
-		// TODO make this more elaborate 
-		// also may not need TBD
 		gameStarted = false;
 		Thread.currentThread().interrupt();		
 	}
@@ -228,21 +223,24 @@ public class GameLobby implements Runnable {
 		gameStarted = true;
 		
 		while (gameStarted) {
-			
 			long startTime = System.currentTimeMillis();
 			
+			PlayerPositionsData ppd = new PlayerPositionsData();
+			
 			for (Player p : players.values()) {
-				// TODO re-enable collisions after we have added in the map 
-				//p.setCollision2(new PlayerCollision("HORIZONTAL", p.checkCollision(p.x + p.getXVelocity(), p.y)));
-				//p.setCollision2(new PlayerCollision("VERTICAL", p.checkCollision(p.x, p.y + p.getYVelocity())));
 				p.move();
+				ppd.addPlayerPos(p.getUsername(), p.x, p.y);
 			}
+			
+			updateClients(ppd);
 			
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
 			long sleepTime = TARGET_DELTA - delta;
+			//System.out.println(sleepTime);
 			try {
 				Thread.sleep(sleepTime);
+				
 			} catch (InterruptedException DEAD) {
 				Thread.currentThread().interrupt();
 				gameStarted = false;

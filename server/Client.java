@@ -3,15 +3,10 @@ package server;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import javax.swing.SwingUtilities;
-
 import controller.CreateAccountScreenController;
 import controller.FindGameScreenController;
 import controller.GameScreenController;
@@ -24,6 +19,8 @@ import data.GenericRequest;
 import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
+import data.PlayerPositionsData;
+import game_utilities.Block;
 import game_utilities.Player;
 import data.GameLobbyData;
 import ocsf.client.AbstractClient;
@@ -34,7 +31,6 @@ public class Client extends AbstractClient {
 	private String serverName;
 		
 	private int gameID = -1;
-	private Future<?> currentGame;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	
 	// controllers for each menu
@@ -75,7 +71,11 @@ public class Client extends AbstractClient {
 				createAccountController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
 				break;
-			
+				
+			case "ACCOUNT_CREATION_FAILED":
+				createAccountController.setError((String) ((GenericRequest) arg0).getData());
+				break;
+				
 			case "LOGIN_CONFIRMED":
 				username = (String) ((GenericRequest) arg0).getData();
 				loginController.actionPerformed(new ActionEvent(0, 0, action));
@@ -122,12 +122,15 @@ public class Client extends AbstractClient {
 				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData());
 				gameController.startGame();
 				executor.execute(gameController);
-				//currentGame = executor.submit(gameController::run);
+				break;
+				
+			case "MAP_INFO":
+				gameController.addMap((ConcurrentHashMap<Integer, Block>) ((GenericRequest) arg0).getData());
 				break;
 				
 			case "GAME_STATE_UPDATE":
 				System.out.println("GAME UPDATE RECIEVED");
-				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData());
+				// TODO fix to directly update player positions received from server
 				break;
 				
 			case "FORCE_DISCONNECT":
@@ -152,11 +155,13 @@ public class Client extends AbstractClient {
 			PlayerActionData info = (PlayerActionData) arg0;
 			System.out.println("received player action from server: " + info.getType() + " " + info.getAction() + " from: " + info.getUsername());
 			gameController.handlePlayerAction(info);
+		} else if (arg0 instanceof PlayerPositionsData) {
+			PlayerPositionsData posInfo = (PlayerPositionsData) arg0;
+			gameController.updatePlayerPositions(posInfo.getPlayerPositions());
 		}
 	}
 	
 	public void cancelGame() {
-		//currentGame.cancel(true);
 		gameController.stopGame();
 	}
 	

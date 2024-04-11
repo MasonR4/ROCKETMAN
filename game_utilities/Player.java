@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Player extends Rectangle implements Serializable {
 	private String username;
@@ -17,7 +18,7 @@ public class Player extends Rectangle implements Serializable {
 	private Color color;
 	
 	private LinkedHashMap<String, Integer> velocities = new LinkedHashMap<String, Integer>();
-	private LinkedHashMap<String, Boolean> collisions = new LinkedHashMap<String, Boolean>();
+	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
 	private RocketLauncher rocketLauncher;
 	
@@ -29,11 +30,6 @@ public class Player extends Rectangle implements Serializable {
 	    velocities.put("UP", 0);
 	    velocities.put("RIGHT", 0);
 	    velocities.put("LEFT", 0);
-	    
-	    collisions.put("DOWN", false);
-	    collisions.put("UP", false);
-	    collisions.put("RIGHT", false);
-	    collisions.put("LEFT", false);
 	}
 
 	public void draw(Graphics g) {
@@ -49,42 +45,29 @@ public class Player extends Rectangle implements Serializable {
 		return velocities.get(dir);
 	}
 	
+	public void setBlocks(ConcurrentHashMap<Integer, Block> b) {
+		blocks = b;
+	}
+	
 	public void cancelVelocity(String dir) {
 		velocities.put(dir, 0);
 	}
 	
-	public void setCollision(String dir, boolean col) {
-		collisions.put(dir, col);
-	}
-	
-	public void setCollision2(PlayerCollision c) {
-		collisions.put(c.getDirection(), c.isColliding());
-	}
-	
-	public void move() {
-		if (!collisions.get("DOWN")) {y += velocities.get("DOWN");}
-		if (!collisions.get("UP")) {y -= velocities.get("UP");}
-		if (!collisions.get("RIGHT")) {x += velocities.get("RIGHT");}
-		if (!collisions.get("LEFT")) {x -= velocities.get("LEFT");}
-		
-		//if (!collisions.get("HORIZONTAL")) {x += (velocities.get("RIGHT") - velocities.get("LEFT"));}
-		//if (!collisions.get("VERTICAL")) {y += (velocities.get("DOWN") - velocities.get("UP"));}
+	public void move() {		
+		int newX = x + (velocities.get("RIGHT") - velocities.get("LEFT"));
+		int newY = y + (velocities.get("DOWN") - velocities.get("UP"));
+		if (!checkCollision(newX, y)) {x = newX;}
+		if (!checkCollision(x, newY)) {y = newY;}
 	}
 	
 	public boolean checkCollision(int newX, int newY) {
 		Rectangle futureBounds = new Rectangle(newX, newY, size, size);
 		
-//		for (Block block : new ArrayList<Block>()) { // TODO after the map is added we have to enable this
-//			if (futureBounds.intersects(block.getBounds())) {
-//				return true;
-//			}
-//		}
-		if (futureBounds.x < 350 || futureBounds.x > 1250 - size) {
-        	return true;
-        }
-        if (futureBounds.y < 0 || futureBounds.y > 900 - size) {
-        	return true;
-        }
+		for (Block block : blocks.values()) { // TODO after the map is added we have to enable this
+			if (futureBounds.intersects(block.getBounds())) {return true;}
+		}
+		if (futureBounds.x < 0 || futureBounds.x > 900 - size) {return true;}
+        if (futureBounds.y < 0 || futureBounds.y > 900 - size) {return true;}
 		return false;
 	}
 	

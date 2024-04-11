@@ -45,11 +45,10 @@ public class MainMenuScreenController implements ActionListener {
 			break;
 			
 		case "Profile":
-			
+			cl.show(clientPanel, "PROFILE");
 			break;
 			
 		case "Options":
-			
 			break;
 			
 		case "Quit":

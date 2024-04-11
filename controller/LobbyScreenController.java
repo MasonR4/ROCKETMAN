@@ -78,12 +78,10 @@ public class LobbyScreenController implements ActionListener {
 	}
 	
 	public void leaveGameLobby() {
-		//SwingUtilities.invokeLater(() -> cl.show(clientPanel, "FIND_GAME"));
 		cl.show(clientPanel, "FIND_GAME");
 	}
 	
 	public void startGame() {
-		//SwingUtilities.invokeLater(() -> cl.show(clientPanel, "GAME"));
 		cl.show(clientPanel, "GAME");
 	}
 	
@@ -119,8 +117,8 @@ public class LobbyScreenController implements ActionListener {
 			
 		case "Start Game":
 			try {
-				StartGameData info = new StartGameData(client.getGameID());
-				// TODO set other game parameters before sending once they are implemented
+				StartGameData info = new StartGameData(client.getGameID());	
+				// TODO add more configurable options if we have time				
 				client.sendToServer(info);
 			} catch (IOException SERVER_DECLINED_TO_START_GAME) {
 				SERVER_DECLINED_TO_START_GAME.printStackTrace();

@@ -8,6 +8,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -16,6 +18,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import data.PlayerActionData;
 import game.ClientUI;
+import game_utilities.Block;
 import game_utilities.Missile;
 import game_utilities.Player;
 import menu_panels.GameScreen;
@@ -24,11 +27,9 @@ import server.Client;
 
 public class GameScreenController implements MouseListener, ActionListener, Runnable {
 	private volatile boolean running = false;
-	//private Thread thread = new Thread(this);
 	
 	private Client client;
 	private String username;
-	//private ClientUI clientUI;
 	
 	private GameScreen screen;
 	private GameDisplay gamePanel;
@@ -38,15 +39,15 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 
 	private CardLayout cl;
 	
-	//private final ExecutorService executor = Executors.newCachedThreadPool();	
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
+	
 	private ArrayList<Missile> rockets = new ArrayList<>();
-	// TODO add block array
+	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();	
+	
 	
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
 		clientPanel = p;
-		//clientUI = ui;
 		
 		cl = (CardLayout) clientPanel.getLayout();
 		screen = (GameScreen) clientPanel.getComponent(7);
@@ -176,6 +177,10 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 		players.putAll(newPlayers);
 	}
 	
+	public void addMap(ConcurrentHashMap<Integer, Block> m) {
+		blocks.putAll(m);
+	}
+	
 	public void startGame() {
 		username = client.getUsername();
 		screen.setUsername(username);
@@ -194,7 +199,7 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 	public void handlePlayerAction(PlayerActionData data) {
 		String type = data.getType();
 		String username = data.getUsername();
-		
+		// TODO change to update player attributes directly not set
 		switch (type) {
 		case "MOVE":
 			players.get(username).setVelocity(data.getAction());
@@ -203,24 +208,29 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 		case "CANCEL_MOVE":
 			players.get(username).cancelVelocity(data.getAction());
 			break;
-			// TODO add rest of actions (client)
 		}
 		System.out.println("Handled action: " + type + " " + data.getAction() + " from " + username); // DEBUG remove later
+	}
+	
+	public void updatePlayerPositions(HashMap<String, int[]> positions) {
+		for (Entry<String, int[]> e : positions.entrySet()) {
+			players.get(e.getKey()).x = e.getValue()[0];
+			players.get(e.getKey()).y = e.getValue()[1];
+		}
 	}
 	
 	@Override
 	public void run() {
 		while (running && !Thread.currentThread().isInterrupted()) {
 			long startTime = System.currentTimeMillis();
-			// TODO game cycle similar to the one in game lobby but only for rendering objects locally
-
-			for (Player p : players.values()) {
-				// move player, collisions are checked server side
-				p.move();
-				SwingUtilities.invokeLater(() -> gamePanel.setPlayers(players));
-			}
 			
-			// for all blocks SwingUtilities.invokeLater(() -> gamePanel.paintBlocks());
+			SwingUtilities.invokeLater(() -> {
+				gamePanel.setBlocks(blocks);
+				gamePanel.setPlayers(players);
+			});
+			
+			// TODO set missiles
+			gamePanel.repaint();
 			
 			
 			long endTime = System.currentTimeMillis();
@@ -238,7 +248,6 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		// TODO launchRocket towards mouse cursor position use pythagorean theorem to calculate trajectory
-		
 	}
 	
 	// required function graveyard...

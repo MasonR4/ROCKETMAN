@@ -9,7 +9,8 @@ public abstract class Block extends Rectangle implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private String type;
-	private static final Dimension BLOCK_SIZE = new Dimension(20, 20);
+	private static final int BLOCK_SIZE = 35;
+	private static final Dimension BLOCK_DIMENSION = new Dimension(BLOCK_SIZE, BLOCK_SIZE);
 	
 	private boolean collideable;
 	private boolean breakable;
@@ -22,6 +23,8 @@ public abstract class Block extends Rectangle implements Serializable {
 	private int row;
 	private int col;
 	
+	private int number;
+	
 	private Color color;
 	
 	// TODO add sprites 
@@ -32,7 +35,9 @@ public abstract class Block extends Rectangle implements Serializable {
 		yPos = y;
 		row = r;
 		col = c;
-		setSize(BLOCK_SIZE);
+		// SET TO THE POSITION THE BLOCK IN THE GRID IN NUMERICAL ORDER FROM LEFT TO RIGHT
+		number = (r * 21) + c; 
+		setSize(BLOCK_DIMENSION);
 	}
 
 	public String getType() {
@@ -87,7 +92,7 @@ public abstract class Block extends Rectangle implements Serializable {
 		return color;
 	}
 	
-	public Dimension getBlockSize() {
+	public int getBlockSize() {
 		return BLOCK_SIZE;
 	}
 	
@@ -109,5 +114,9 @@ public abstract class Block extends Rectangle implements Serializable {
 
 	public void setBreakable(boolean breakable) {
 		this.breakable = breakable;
+	}
+
+	public int getBlockNumber() {
+		return number;
 	}	
 }
