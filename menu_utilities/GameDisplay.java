@@ -44,6 +44,10 @@ public class GameDisplay extends JPanel {
 		launchers = r;
 	}
 	
+	public void setRockets(ArrayList<Missile> r) {
+		rockets = r;
+	}
+	
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -57,6 +61,10 @@ public class GameDisplay extends JPanel {
 		}
 		for (RocketLauncher l : launchers.values()) {
 			l.draw(g);
+		}
+		for (Missile m : rockets) {
+			//m.move();
+			m.draw(g);
 		}
 	}
 }

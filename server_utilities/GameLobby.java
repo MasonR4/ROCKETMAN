@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import data.GameLobbyData;
 import data.GenericRequest;
+import data.LiveMissileData;
 import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
@@ -19,6 +20,7 @@ import data.StartGameData;
 import game_utilities.Block;
 import game_utilities.Missile;
 import game_utilities.Player;
+import game_utilities.RocketLauncher;
 import ocsf.server.ConnectionToClient;
 import server.Server;
 
@@ -41,6 +43,7 @@ public class GameLobby implements Runnable {
 	private ConcurrentHashMap<String, PlayerData> playerInfo = new ConcurrentHashMap<String, PlayerData>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
 	
+	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private ArrayList<Missile> rockets = new ArrayList<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
@@ -97,9 +100,12 @@ public class GameLobby implements Runnable {
 		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
 			// TODO prevent players from spawning within blocks on the map
 			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
+			RocketLauncher newLauncher = new RocketLauncher((int) newPlayer.getCenterX(), (int) newPlayer.getCenterY(), 24, 6);
 			newPlayer.setUsername(e.getKey());
 			newPlayer.setBlocks(blocks);
 			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
+			newLauncher.setOwner(newPlayer.getUsername());
+			launchers.put(newPlayer.getUsername(), newLauncher);
 			players.put(e.getKey(), newPlayer);
 		}
 		
@@ -117,6 +123,7 @@ public class GameLobby implements Runnable {
 		Thread.currentThread().interrupt();		
 	}
 	
+	// TODO remove players from running games if they disconnect (low priority)
 	public void removePlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
 		playerCount -= 1;
 		playerInfo.remove(usr.getUsername());
@@ -201,7 +208,13 @@ public class GameLobby implements Runnable {
 			players.get(usr).cancelVelocity(a.getAction());
 			break;
 		case "LAUNCHER_ROTATION":
+			// TODO fix rotation
 			//players.get(usr).getLauncher().rotate(Integer.parseInt(a.getAction().split(",")[0]), Integer.parseInt(a.getAction().split(",")[1]));;
+			break;
+		case "ROCKET_FIRED":
+			Missile missile = new Missile((int) launchers.get(usr).getCenterX(), (int) launchers.get(usr).getCenterY(), usr);
+			missile.setDirection(a.getMouseX(), a.getMouseY());
+			rockets.add(missile);
 		}
 	}
 	
@@ -232,10 +245,21 @@ public class GameLobby implements Runnable {
 			
 			for (Player p : players.values()) {
 				p.move();
+				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), p.getBlockSize());
 				ppd.addPlayerPos(p.getUsername(), p.x, p.y);
 			}
 			
 			updateClients(ppd);
+			
+			if (!rockets.isEmpty()) {
+				for (Missile m : rockets) {
+					m.move();
+					// TODO check missile collision and also change to send positional data instead of actual missile objects?
+				}
+				updateClients(new LiveMissileData(rockets));
+			}
+
+			
 			
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;

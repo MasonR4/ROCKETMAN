@@ -154,12 +154,10 @@ public class Server extends AbstractServer {
 		for (Integer i : games.keySet()) {
 			cancelGame(i);
 		}
-		//games.clear();
 		try {
 			sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
 			close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

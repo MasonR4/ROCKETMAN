@@ -40,7 +40,8 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	private JPanel clientPanel;
 	
 	private final long TARGET_DELTA = 16;
-
+	private long reload_time = 0;
+	
 	private CardLayout cl;
 	
 	private ConcurrentHashMap<String, PlayerObject> players = new ConcurrentHashMap<>();
@@ -163,6 +164,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		}
 		gamePanel.setPlayers(players);
 		gamePanel.setLaunchers(launchers);
+		gamePanel.setRockets(rockets);
 	}
 	
 	public void addMap(ConcurrentHashMap<Integer, Block> m) {
@@ -192,6 +194,14 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		}
 	}
 	
+	public void updateMissileData(ArrayList<Missile> r) {
+		rockets.clear();
+		for (Missile m : r) {
+			rockets.add(m);
+		}
+		//gamePanel.setRockets(rockets);
+	}
+	
 	@Override
 	public void run() {
 		while (running && !Thread.currentThread().isInterrupted()) {
@@ -203,6 +213,8 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
 			long sleepTime = TARGET_DELTA - delta;
+			reload_time -= 50;
+			if (reload_time <= 0) {screen.setRandomLabel("ready");}
 			try {
 				Thread.sleep(sleepTime);
 			} catch (InterruptedException DEAD) {
@@ -214,7 +226,20 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		
+		if (reload_time <= 0) {
+			screen.setRandomLabel("reloading");
+			reload_time = 3000;
+			Missile missile = new Missile(launchers.get(username).getEndX(), launchers.get(username).getEndY(), username);
+			missile.setDirection(mouseX, mouseY);
+			rockets.add(missile);
+			PlayerActionData m = new PlayerActionData(client.getGameID(), username, "ROCKET_FIRED", "The missile knows where it is at all times. It knows this because it knows where it isn't. By subtracting where it is from where it isn't, or where it isn't from where it is (whichever is greater), it obtains a difference, or deviation. The guidance subsystem uses deviations to generate corrective commands to drive the missile from a position where it is to a position where it isn't, and arriving at a position where it wasn't, it now is. Consequently, the position where it is, is now the position that it wasn't, and it follows that the position that it was, is now the position that it isn't.\r\n" + "In the event that the position that it is in is not the position that it wasn't, the system has acquired a variation, the variation being the difference between where the missile is, and where it wasn't. If variation is considered to be a significant factor, it too may be corrected by the GEA. However, the missile must also know where it was.\r\n" + "The missile guidance computer scenario works as follows. Because a variation has modified some of the information the missile has obtained, it is not sure just where it is. However, it is sure where it isn't, within reason, and it knows where it was. It now subtracts where it should be from where it wasn't, or vice-versa, and by differentiating this from the algebraic sum of where it shouldn't be, and where it was, it is able to obtain the deviation and its variation, which is called error.");
+			m.setMousePos(mouseX, mouseY);
+			try {
+				client.sendToServer(m);
+			} catch (IOException theMissileDoesntKnowWhereItIs) {
+				theMissileDoesntKnowWhereItIs.printStackTrace();
+			}
+		}
 	}
 	
 	@Override
@@ -222,6 +247,8 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		mouseX = e.getX();
 		mouseY = e.getY();
 		launchers.get(username).rotate(mouseX, mouseY);
+		// TODO send mouse position to server so that rotations for every player can be replicated
+		// but do it in a way that doesn't spam the server bc mousemoved is triggered like 10000 times a second
 	}
 	
 	// required function graveyard...

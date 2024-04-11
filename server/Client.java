@@ -16,6 +16,7 @@ import controller.MainMenuScreenController;
 import controller.ServerConnectionScreenController;
 import controller.SplashScreenController;
 import data.GenericRequest;
+import data.LiveMissileData;
 import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
@@ -153,6 +154,9 @@ public class Client extends AbstractClient {
 		} else if (arg0 instanceof PlayerPositionsData) {
 			PlayerPositionsData posInfo = (PlayerPositionsData) arg0;
 			gameController.updatePlayerPositions(posInfo.getPlayerPositions());
+		} else if (arg0 instanceof LiveMissileData) {
+			LiveMissileData info = (LiveMissileData) arg0;
+			gameController.updateMissileData(info.getMissileData());
 		}
 	}
 	

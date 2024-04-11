@@ -22,6 +22,7 @@ public class GameScreen extends JLayeredPane {
 	private GameDisplay gamePanel;
 	
 	private EightBitLabel username;
+	private EightBitLabel randomLabel;
 	
 	private JTextArea log;
 	private JScrollPane logScrollPane;
@@ -41,6 +42,9 @@ public class GameScreen extends JLayeredPane {
 		username = new EightBitLabel("", Font.PLAIN, 25f);
 		username.setBounds(10, 200, 200, 50);
 		
+		randomLabel = new EightBitLabel("", Font.PLAIN, 25f);
+		randomLabel.setBounds(10, 220, 200, 50);
+		
 		gamePanel = new GameDisplay();
 		gamePanel.setLayout(null);
 		gamePanel.setBounds(340, 0, 900, 900);
@@ -48,6 +52,7 @@ public class GameScreen extends JLayeredPane {
 		
 		add(gamePanel, 1);
 		add(username);
+		add(randomLabel);
 	}
 	
 	public GameDisplay getGamePanel() {
@@ -56,6 +61,10 @@ public class GameScreen extends JLayeredPane {
 	
 	public void setUsername(String msg) {
 		username.setText(msg);
+	}
+	
+	public void setRandomLabel(String msg) {
+		randomLabel.setText(msg);
 	}
 	
 	public void setController(ActionListener c) {
