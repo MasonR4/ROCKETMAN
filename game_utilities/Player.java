@@ -63,7 +63,7 @@ public class Player extends Rectangle implements Serializable {
 	public boolean checkCollision(int newX, int newY) {
 		Rectangle futureBounds = new Rectangle(newX, newY, size, size);
 		
-		for (Block block : blocks.values()) { // TODO after the map is added we have to enable this
+		for (Block block : blocks.values()) {
 			if (futureBounds.intersects(block.getBounds())) {return true;}
 		}
 		if (futureBounds.x < 0 || futureBounds.x > 900 - size) {return true;}

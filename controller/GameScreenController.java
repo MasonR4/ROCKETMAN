@@ -21,6 +21,7 @@ import game.ClientUI;
 import game_utilities.Block;
 import game_utilities.Missile;
 import game_utilities.Player;
+import game_utilities.PlayerObject;
 import menu_panels.GameScreen;
 import menu_utilities.GameDisplay;
 import server.Client;
@@ -39,12 +40,13 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 
 	private CardLayout cl;
 	
-	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
+	private ConcurrentHashMap<String, PlayerObject> players = new ConcurrentHashMap<>();
 	
 	private ArrayList<Missile> rockets = new ArrayList<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();	
 	
 	
+	@SuppressWarnings("serial")
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
 		clientPanel = p;
@@ -174,7 +176,13 @@ public class GameScreenController implements MouseListener, ActionListener, Runn
 	}
 	
 	public void addPlayers(ConcurrentHashMap<String, Player> newPlayers) {
-		players.putAll(newPlayers);
+		//players.putAll(newPlayers);
+		for (Player p : newPlayers.values()) {
+			PlayerObject tempPlayer = new PlayerObject(p.getBlockSize(), p.x, p.y);
+			tempPlayer.setUsername(p.getUsername());
+			tempPlayer.setColor(p.getColor());
+			players.put(p.getUsername(), tempPlayer);			
+		}
 	}
 	
 	public void addMap(ConcurrentHashMap<Integer, Block> m) {

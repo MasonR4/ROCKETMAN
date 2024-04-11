@@ -1,4 +1,3 @@
 default_server: 127.0.0.1
 default_port: 8300
-last_user: Noble
-
+last_user: test
