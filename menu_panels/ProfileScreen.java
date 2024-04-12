@@ -68,14 +68,23 @@ public class ProfileScreen extends JPanel {
 		
 		wins = new EightBitLabel("", Font.BOLD, 50f);
 		wins.setBounds(80, 360, 300, 150);
-        losses = new EightBitLabel("", Font.BOLD, 50f);
-        losses.setBounds(275, 360, 300, 150);
-        elims = new EightBitLabel("", Font.BOLD, 50f);
-        elims.setBounds(500, 350, 300, 150);
-        rocketsFired = new EightBitLabel("", Font.BOLD, 50f);
-        rocketsFired.setBounds(800, 350, 300, 150);
-        powerups = new EightBitLabel("", Font.BOLD, 50f);
-        powerups.setBounds(1200, 350, 300, 150);
+    losses = new EightBitLabel("", Font.BOLD, 50f);
+    losses.setBounds(275, 360, 300, 150);
+    elims = new EightBitLabel("", Font.BOLD, 50f);
+    elims.setBounds(500, 350, 300, 150);
+    rocketsFired = new EightBitLabel("", Font.BOLD, 50f);
+    rocketsFired.setBounds(800, 350, 300, 150);
+    powerups = new EightBitLabel("", Font.BOLD, 50f);
+    powerups.setBounds(1200, 350, 300, 150);
+		title = new EightBitLabel("ROCKETMAN PROFILE", Font.BOLD, 175f);
+		title.setBounds(95, 45, 1500, 150);
+		
+		backButton = new EightBitButton("Back");
+		backButton.setBounds(675, 650, 250, 50);
+		
+		logoutButton = new EightBitButton("Logout");
+		logoutButton.setBounds(675, 725, 250, 50);
+
 		
 		add(title);
 		add(info);
@@ -108,12 +117,12 @@ public class ProfileScreen extends JPanel {
 		
 		wins.setText(""+statistics[0]);
 		
-        losses.setText("" + statistics[1]);
+    losses.setText("" + statistics[1]);
         
-        elims.setText("" + statistics[2]);
+    elims.setText("" + statistics[2]);
        
-        rocketsFired.setText("" + statistics[3]);
+    rocketsFired.setText("" + statistics[3]);
        
-        powerups.setText("" + statistics[5]);
+    powerups.setText("" + statistics[5]);
 	}
 }
