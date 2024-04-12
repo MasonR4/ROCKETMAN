@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -13,11 +14,13 @@ import game_utilities.AirBlock;
 import game_utilities.Block;
 import game_utilities.Missile;
 import game_utilities.Player;
+import game_utilities.PlayerObject;
+import game_utilities.RocketLauncher;
 
 public class GameDisplay extends JPanel { 
-	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
-	
-	private ArrayList<Missile> rockets = new ArrayList<>();
+	private ConcurrentHashMap<String, PlayerObject> players = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
+	private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
 	private static final long serialVersionUID = 1L;
@@ -30,28 +33,38 @@ public class GameDisplay extends JPanel {
 		setBorder(BorderFactory.createEtchedBorder());
 	}
 	
-	public void setPlayerState(String usr, Player p) {
-		players.put(usr, p);
-	}
-	
 	public void setBlocks(ConcurrentHashMap<Integer, Block> m) {
 		blocks = m;
 	}
 	
-	public void setPlayers(ConcurrentHashMap<String, Player> players2) {
+	public  void setPlayers(ConcurrentHashMap<String, PlayerObject> players2) {
 		players = players2;
+	}
+	
+	public void setLaunchers(ConcurrentHashMap<String, RocketLauncher> r) {
+		launchers = r;
+	}
+	
+	public void setRockets(CopyOnWriteArrayList<Missile> r) {
+		rockets = r;
 	}
 	
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		for (Player p : players.values()) {
+		for (PlayerObject p : players.values()) {
 			g.setColor(p.getColor());
 			g.fillRect(p.x, p.y, 20, 20);
 		}
 		for (Block b : blocks.values()) {
 			g.setColor(b.getColor());
 			g.fillRect(b.x, b.y, b.getBlockSize(), b.getBlockSize());
+		}
+		for (RocketLauncher l : launchers.values()) {
+			l.draw(g);
+		}
+		for (Missile m : rockets) {
+			m.draw(g);
 		}
 	}
 }

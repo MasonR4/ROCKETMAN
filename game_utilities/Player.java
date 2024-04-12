@@ -20,12 +20,10 @@ public class Player extends Rectangle implements Serializable {
 	private LinkedHashMap<String, Integer> velocities = new LinkedHashMap<String, Integer>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
-	private RocketLauncher rocketLauncher;
 	
 	public Player(int size, int x, int y) {
 		super(x, y, size, size);
 		this.size = size;
-		
 		velocities.put("DOWN", 0);
 	    velocities.put("UP", 0);
 	    velocities.put("RIGHT", 0);
@@ -35,6 +33,11 @@ public class Player extends Rectangle implements Serializable {
 	public void draw(Graphics g) {
 		g.setColor(color);
 		g.fillRect(x, y, size, size);
+	}
+	
+	public void updatePosition(int nx, int ny) {
+		x = nx;
+		y = ny;
 	}
 	
 	public void setVelocity(String dir) {
@@ -63,7 +66,7 @@ public class Player extends Rectangle implements Serializable {
 	public boolean checkCollision(int newX, int newY) {
 		Rectangle futureBounds = new Rectangle(newX, newY, size, size);
 		
-		for (Block block : blocks.values()) { // TODO after the map is added we have to enable this
+		for (Block block : blocks.values()) {
 			if (futureBounds.intersects(block.getBounds())) {return true;}
 		}
 		if (futureBounds.x < 0 || futureBounds.x > 900 - size) {return true;}

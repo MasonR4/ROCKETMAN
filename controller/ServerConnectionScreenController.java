@@ -50,11 +50,6 @@ public class ServerConnectionScreenController implements ActionListener {
 	
 	public void connectionTerminated() {
 		clientUI.disconnectProcedure();
-//		try {
-//			client.closeConnection();
-//		} catch (IOException YOU_CANT_LEAVE) {
-//			YOU_CANT_LEAVE.printStackTrace();
-//		}
 		cl.show(clientPanel, "SERVER_CONNECTION");
 		screenPanel.setError("Server Closed");
 	}

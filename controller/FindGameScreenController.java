@@ -37,7 +37,6 @@ public class FindGameScreenController implements ActionListener {
 		screen = (FindGameScreen) clientPanel.getComponent(5);
 		newGameScreen = screen.getGameCreationPanel();
 		gamesPanel = screen.getGamesPanel();
-		
 	}
 	
 	public void addGameListings(ArrayList<GameLobbyData> games) {

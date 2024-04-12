@@ -74,4 +74,28 @@ public class Database {
 			e.printStackTrace();
 		}
 	}
+	
+	public int[] getStatistics(String username) {
+        int[] statistics = new int[6]; // Array to store statistics
+
+        String query = "SELECT * FROM statistics WHERE username = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // Retrieve statistics from the result set
+                    statistics[0] = rs.getInt("wins");
+                    statistics[1] = rs.getInt("losses");
+                    statistics[2] = rs.getInt("eliminations");
+                    statistics[3] = rs.getInt("rocketsFired");
+                    statistics[4] = rs.getInt("blocksDestroyed");
+                    statistics[5] = rs.getInt("powerupsCollected");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return statistics;
+    }
+	
 }

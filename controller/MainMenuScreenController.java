@@ -46,6 +46,7 @@ public class MainMenuScreenController implements ActionListener {
 			
 		case "Profile":
 			cl.show(clientPanel, "PROFILE");
+			// client.sendToServer(requestPlayerData(username));
 			break;
 			
 		case "Options":

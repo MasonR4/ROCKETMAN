@@ -13,9 +13,11 @@ import controller.GameScreenController;
 import controller.LobbyScreenController;
 import controller.LoginScreenController;
 import controller.MainMenuScreenController;
+import controller.ProfileScreenController;
 import controller.ServerConnectionScreenController;
 import controller.SplashScreenController;
 import data.GenericRequest;
+import data.LiveMissileData;
 import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
@@ -32,6 +34,7 @@ public class Client extends AbstractClient {
 		
 	private int gameID = -1;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	private Database database;
 	
 	// controllers for each menu
 	// possible that we won't need all of them in the client class
@@ -44,11 +47,12 @@ public class Client extends AbstractClient {
 	private MainMenuScreenController mainMenuController;
 	private ServerConnectionScreenController serverConnectionController;
 	private SplashScreenController splashController;
-	
+	private ProfileScreenController profileController;
 	//private ExecutorService executor = Executors.newCachedThreadPool();
 	
 	public Client() {
 		super("localhost", 8300);
+		database = new Database();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -70,6 +74,7 @@ public class Client extends AbstractClient {
 				username = (String) ((GenericRequest) arg0).getData();
 				createAccountController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
+				profileController.setScreenInfoLabels();
 				break;
 				
 			case "ACCOUNT_CREATION_FAILED":
@@ -80,6 +85,7 @@ public class Client extends AbstractClient {
 				username = (String) ((GenericRequest) arg0).getData();
 				loginController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
+				profileController.setScreenInfoLabels();
 				break;
 				
 			case "INVALID_LOGIN":
@@ -128,11 +134,6 @@ public class Client extends AbstractClient {
 				gameController.addMap((ConcurrentHashMap<Integer, Block>) ((GenericRequest) arg0).getData());
 				break;
 				
-			case "GAME_STATE_UPDATE":
-				System.out.println("GAME UPDATE RECIEVED");
-				// TODO fix to directly update player positions received from server
-				break;
-				
 			case "FORCE_DISCONNECT":
 				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
 				break;
@@ -151,18 +152,21 @@ public class Client extends AbstractClient {
 			// for when a player joins lobby client is currently connected to
 		} else if (arg0 instanceof PlayerData) {
 			// for when client request player statistics from the server
-		} else if (arg0 instanceof PlayerActionData) {
-			PlayerActionData info = (PlayerActionData) arg0;
-			System.out.println("received player action from server: " + info.getType() + " " + info.getAction() + " from: " + info.getUsername());
-			gameController.handlePlayerAction(info);
 		} else if (arg0 instanceof PlayerPositionsData) {
 			PlayerPositionsData posInfo = (PlayerPositionsData) arg0;
 			gameController.updatePlayerPositions(posInfo.getPlayerPositions());
+		} else if (arg0 instanceof LiveMissileData) {
+			LiveMissileData info = (LiveMissileData) arg0;
+			gameController.updateMissileData(info.getMissileData());
+		} else if (arg0 instanceof PlayerActionData) {
+			PlayerActionData action = (PlayerActionData) arg0;
+			gameController.handlePlayerAction(action);
 		}
 	}
 	
 	public void cancelGame() {
 		gameController.stopGame();
+		gameID = -1;
 	}
 	
 	public void setCreateAccountController(CreateAccountScreenController c) {
@@ -173,6 +177,9 @@ public class Client extends AbstractClient {
 		findGameController = c;
 	}
 	
+	public void setProfileScreenController(ProfileScreenController c) {
+		profileController = c;
+	}
 	public void setLoginController(LoginScreenController c) {
 		loginController = c;
 	}
@@ -216,4 +223,7 @@ public class Client extends AbstractClient {
 	protected void connectionClosed() {
 		System.out.println("connection terminated");
 	}
+	public Database getDatabase() {
+        return database;
+    }
  }

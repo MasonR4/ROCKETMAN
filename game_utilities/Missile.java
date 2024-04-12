@@ -6,49 +6,56 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 public class Missile extends Rectangle {
-	
-	private int xVelocity;
-	private int yVelocity;
-	private int damage;
+	private double xVelocity = 0;
+	private double yVelocity = 0;
+	private int dmg;
+	private int MISSILE_SIZE = 8;
+	private int speed = 12;
 	
 	private String owner;
-	private double direction = 0.0;
 	
-	private final int MISSILE_SIZE = 8;
-	
-	public Missile(int x, int y, int dmg, String s) {
-		this.x = x;
-		this.y = x;
-		damage = dmg;
+	public Missile(int nx, int ny, String s) {
+		x = nx;
+		y = ny;
+		dmg = 10;
 		owner = s;
-		this.height = MISSILE_SIZE * 2;
-		this.width = MISSILE_SIZE;
+		height = MISSILE_SIZE;
+		width = MISSILE_SIZE;
 	}
 	
 	public void draw(Graphics g) {
-		Graphics2D missileGraphics = (Graphics2D) g.create(); // adding rotation purely for visual
-		
-		double rotationCenter = y + (width /2);
-		missileGraphics.rotate(Math.toRadians(direction), x, rotationCenter);
-		
-		double endXAfterRotation = x + (height * Math.cos(Math.toRadians(direction)));
-		double endYAfterRotation = rotationCenter + (height * Math.sin(Math.toRadians(direction)));
-		
-		missileGraphics.setColor(Color.GRAY);
-		missileGraphics.fillRect(x, y, width, MISSILE_SIZE * 2);
-		missileGraphics.dispose();	
+		g.setColor(Color.RED);
+		g.fillRect(x, y, MISSILE_SIZE, MISSILE_SIZE);
 	}
 	
 	public void move() {
-		this.x += xVelocity;
-		this.y += yVelocity;
+		x += (double)xVelocity;
+		y += (double)yVelocity;
 	}
 	
-	public void rotate(int x, int y) {
-		double deltaX = x - this.x;
-		double deltaY = y - this.y;
+	public void setXVelocity(double xVel) {
+		xVelocity = xVel;
+	}
+	
+	public void setYVelocity(double yVel) {
+		yVelocity = yVel;
+	}
+	
+	public void setDirection(int mouseX, int mouseY) {
+		int xDistance = mouseX - x;
+		int yDistance = mouseY - y;
 		
-		this.direction = Math.toDegrees(Math.atan2(deltaY, deltaX));
+		double length = Math.sqrt(xDistance * xDistance + yDistance * yDistance);
+		
+		double normalizedDx = xDistance / length;
+        double normalizedDy = yDistance / length;   
+        
+        setXVelocity((normalizedDx * speed));
+        setYVelocity((normalizedDy * speed));
+        //System.out.println(xVelocity + " " + yVelocity);
 	}
-	
+
+	public String getOwner() {
+		return owner;
+	}
 }
