@@ -26,7 +26,7 @@ public class FindGameScreenController implements ActionListener {
 	private FindGameScreen screen;
 	private GameCreationPanel newGameScreen;
 	
-	private static final int MAX_PLAYERS = 16;
+	private static final int MAX_PLAYERS = 8;
 	private static final int MIN_PLAYERS = 2;
 	
 	private CardLayout cl;

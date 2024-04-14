@@ -56,10 +56,6 @@ public class GameLobby implements Runnable {
 	private ConcurrentLinkedQueue<GameEvent> outboundEventQueue = new ConcurrentLinkedQueue<>();
 	
 	private final ReentrantLock lock = new ReentrantLock();
-	//private final ReentrantLock playerLock = new ReentrantLock();
-	//private final ReentrantLock rocketsLock = new ReentrantLock();
-	
-	//private final ReentrantLock outboundEventQueueLock = new ReentrantLock();
 	
 	public GameLobby(String n, String hn, int mp, int gid, Server s) { 
 		lobbyName = n;
@@ -112,18 +108,33 @@ public class GameLobby implements Runnable {
 	
 	public void startGame(StartGameData info) {
 		blocks.putAll(server.loadMap(info.getMap()));
+		ArrayList<SpawnBlock> spawns = new ArrayList<>();
+		for (Block s : blocks.values()) {
+			if (s instanceof SpawnBlock) {
+				spawns.add((SpawnBlock) s);
+			}
+		}
 		for (Entry<String, PlayerStatistics> e : playerInfo.entrySet()) {
 			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
 			RocketLauncher newLauncher = new RocketLauncher((int) newPlayer.getCenterX(), (int) newPlayer.getCenterY(), 24, 6);
 			newPlayer.setUsername(e.getKey());
 			newPlayer.setBlocks(blocks);
 			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
-			for (Block s : blocks.values()) {
-				if (s instanceof SpawnBlock && !((SpawnBlock) s).isOccupied()) {
-					newPlayer.updatePosition((int) s.getCenterX(), (int) s.getCenterY());
-					break;
+			
+			boolean spawned = false;
+			while (!spawned) {
+				int chosenSpawn = random.nextInt(spawns.size());
+				if (spawns.get(chosenSpawn).isOccupied()) {
+					spawned = false;
+				} else {
+					newPlayer.updatePosition((int) spawns.get(chosenSpawn).getCenterX(), (int) spawns.get(chosenSpawn).getCenterY());
+					spawns.get(chosenSpawn).setOccupied(true);
+					spawned = true;
 				}
 			}
+
+
+			
 			newLauncher.setOwner(newPlayer.getUsername());
 			launchers.put(newPlayer.getUsername(), newLauncher);
 			players.put(e.getKey(), newPlayer);

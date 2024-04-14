@@ -246,9 +246,17 @@ public class Server extends AbstractServer {
 	                    e.printStackTrace();
 	                }
 	            }
+	        } else {
+	        	try {
+                    GenericRequest rq = new GenericRequest("INVALID_LOGIN");
+                    rq.setData("Incorrect username or password");
+                    arg1.sendToClient(rq);
+                    serverLog.append("[Client " + arg1.getId() + "] Failed login attempt\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 	        }
-			
-			
+	        
 		} else if (arg0 instanceof CreateAccountData) {
 	        CreateAccountData createAccountData = (CreateAccountData) arg0;
 	        String username = createAccountData.getUsername();
@@ -309,7 +317,6 @@ public class Server extends AbstractServer {
 			}
 			
 		} else if (arg0 instanceof PlayerJoinLeaveData) {
-			System.out.println("server: received received player join/leave data"); // DEBUG
 			PlayerJoinLeaveData info = (PlayerJoinLeaveData) arg0;
 			int gameID = info.getGameID();
 			String username = info.getUsername();
@@ -367,7 +374,6 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof PlayerAction) {
 			PlayerAction a = (PlayerAction) arg0;
 			int gid = a.getGameID();
-			//System.out.println("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID()); // DEBUG
 			games.get(gid).handlePlayerAction(a);
 		}
 	} 
