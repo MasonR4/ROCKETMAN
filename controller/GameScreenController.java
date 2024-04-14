@@ -25,6 +25,7 @@ import game_utilities.Player;
 import game_utilities.PlayerActionPriorityComparator;
 import game_utilities.RocketLauncher;
 import menu_panels.GameScreen;
+import menu_utilities.EightBitLabel;
 import menu_utilities.GameDisplay;
 import server.Client;
 
@@ -219,6 +220,10 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			case "PLAYER_HIT":
 				System.out.println("player was hit: " + t.getValue());
 				screen.addLogMessage(t.getValue() + " WAS EXPLODED", players.get(t.getValue()).getColor());
+				break;
+			case "LOG_MESSAGE":
+				EightBitLabel msg = (EightBitLabel) t.getValue();
+				screen.addLogMessage(msg);
 				break;
 			}
 		}

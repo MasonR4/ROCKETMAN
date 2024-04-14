@@ -92,6 +92,12 @@ public class GameScreen extends JLayeredPane {
 		repaint();
 	}
 	
+	public void addLogMessage(EightBitLabel msg) {
+		logPanel.add(msg);
+		logPanel.repaint();
+		repaint();
+	}
+	
 	public void setController(ActionListener c) {
 		controller = c;
 		addMouseMotionListener((MouseMotionListener) c);

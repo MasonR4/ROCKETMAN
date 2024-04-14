@@ -76,7 +76,7 @@ public class Missile extends Rectangle {
 				return p.getUsername();
 			}
 		}
-		return null;
+		return "";
 	}
 	
 	public void setXVelocity(double xVel) {

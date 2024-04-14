@@ -1,6 +1,7 @@
 package server_utilities;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ import game_utilities.Missile;
 import game_utilities.Player;
 import game_utilities.RocketLauncher;
 import game_utilities.SpawnBlock;
+import menu_utilities.EightBitLabel;
 import ocsf.server.ConnectionToClient;
 import server.Server;
 
@@ -271,15 +273,18 @@ public class GameLobby implements Runnable {
 					if (!e.getValue().isExploded()) {
 						int col = e.getValue().checkCollision();
 						String hit = e.getValue().checkPlayerCollision();
-						if (col != 0 || hit != null) {
+						if (col != 0 || !hit.isBlank()) {
 							GameEvent g = new GameEvent();
 							g.addEvent("MISSILE_EXPLODES", e.getKey());
 							System.out.println("BOOOM exploded missile " + e.getKey());
 							if (col != -1) {
 								g.addEvent("BLOCK_DESTROYED", col);
 								blocks.remove(col);
-							} else if (hit != null) {
+							} else if (!hit.isBlank()) {
+								System.out.println("PLAYER HIT BRUIH");
 								g.addEvent("PLAYER_HIT", hit);
+								EightBitLabel msg = new EightBitLabel(e.getValue().getOwner() + " exploded " + hit, Font.PLAIN, 25f);
+								g.addEvent("LOG_MESSAGE", msg);
 								players.get(hit).die(e.getValue().getOwner());
 							}
 							rockets.remove(e.getKey());
