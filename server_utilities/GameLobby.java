@@ -7,21 +7,23 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+import controller.GameEvent;
 import data.GameLobbyData;
 import data.GenericRequest;
-import data.LiveMissileData;
-import data.PlayerActionData;
-import data.PlayerData;
+import data.PlayerAction;
+import data.PlayerStatistics;
 import data.PlayerJoinLeaveData;
-import data.PlayerPositionsData;
 import data.PlayerReadyData;
 import data.StartGameData;
 import game_utilities.Block;
 import game_utilities.Missile;
 import game_utilities.Player;
 import game_utilities.RocketLauncher;
+import game_utilities.SpawnBlock;
 import ocsf.server.ConnectionToClient;
 import server.Server;
 
@@ -40,15 +42,23 @@ public class GameLobby implements Runnable {
 	
 	private Random random = new Random();
 	
+	private int missileCounter = 0;
+	
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
-	private ConcurrentHashMap<String, PlayerData> playerInfo = new ConcurrentHashMap<String, PlayerData>();
+	private ConcurrentHashMap<String, PlayerStatistics> playerInfo = new ConcurrentHashMap<String, PlayerStatistics>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
 	
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
-	private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
+	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
-	public GameLobby(String n, String hn, int mp, int gid, Server s) {
+	// these might be useful might not be 
+	private ConcurrentLinkedQueue<PlayerAction> inboundEventQueue = new ConcurrentLinkedQueue<>();
+	private ConcurrentLinkedQueue<GameEvent> outboundEventQueue = new ConcurrentLinkedQueue<>();
+	
+	private final ReentrantLock lock = new ReentrantLock();
+	
+	public GameLobby(String n, String hn, int mp, int gid, Server s) { 
 		lobbyName = n;
 		hostUsername = hn;
 		gameID = gid;
@@ -75,7 +85,7 @@ public class GameLobby implements Runnable {
 	
 	public ArrayList<PlayerJoinLeaveData> getJoinedPlayerInfo() {
 		ArrayList<PlayerJoinLeaveData> joinedplayerInfo = new ArrayList<PlayerJoinLeaveData>();
-		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
+		for (Entry<String, PlayerStatistics> e : playerInfo.entrySet()) {
 			PlayerJoinLeaveData player = new PlayerJoinLeaveData(e.getKey());
 			player.setReady(e.getValue().isReady());
 			player.setHost(hostUsername.equals(e.getKey()));
@@ -98,24 +108,34 @@ public class GameLobby implements Runnable {
 	}
 	
 	public void startGame(StartGameData info) {
-		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
-			// TODO prevent players from spawning within blocks on the map
+		blocks.putAll(server.loadMap(info.getMap()));
+		CopyOnWriteArrayList<SpawnBlock> spawns = new CopyOnWriteArrayList<>();
+		for (Block s : blocks.values()) {
+			if (s instanceof SpawnBlock) {
+				spawns.add((SpawnBlock) s);
+			}
+		}
+		for (Entry<String, PlayerStatistics> e : playerInfo.entrySet()) {
 			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
 			RocketLauncher newLauncher = new RocketLauncher((int) newPlayer.getCenterX(), (int) newPlayer.getCenterY(), 24, 6);
 			newPlayer.setUsername(e.getKey());
 			newPlayer.setBlocks(blocks);
 			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
+			boolean spawned = false;
+			while (!spawned) {
+				int chosenSpawn = random.nextInt(spawns.size());
+				if (spawns.get(chosenSpawn).isOccupied()) {
+					spawned = false;
+				} else {
+					newPlayer.updatePosition((int) spawns.get(chosenSpawn).getCenterX(), (int) spawns.get(chosenSpawn).getCenterY());
+					spawns.get(chosenSpawn).setOccupied(true);
+					spawned = true;
+				}
+			}
 			newLauncher.setOwner(newPlayer.getUsername());
 			launchers.put(newPlayer.getUsername(), newLauncher);
 			players.put(e.getKey(), newPlayer);
 		}
-		
-		blocks.putAll(server.loadMap(info.getMap()));
-		
-		GenericRequest mapInfo = new GenericRequest("MAP_INFO");
-		mapInfo.setData(blocks);
-		updateClients(mapInfo);
-		
 		gameStarted = true;		
 	}
 	
@@ -135,7 +155,7 @@ public class GameLobby implements Runnable {
 				hostUsername = usernames[0];
 			}			
 		} 
-		if (playerCount == 0) {
+		if (playerCount <= 0) {
 			gameStarted = false;
 			server.cancelGame(gameID, true);
 		}
@@ -143,7 +163,7 @@ public class GameLobby implements Runnable {
 	}
 	
 	public void addPlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
-		PlayerData temp = new PlayerData();
+		PlayerStatistics temp = new PlayerStatistics();
 		temp.setUsername(usr.getUsername());
 		if (playerCount == 0) {
 			hostUsername = usr.getUsername();
@@ -158,20 +178,17 @@ public class GameLobby implements Runnable {
 	public void readyPlayer(PlayerReadyData r) {
 		String name = r.getUsername();
 		playerInfo.get(name).setReady(r.isReady());
-		setReadyClients();
+		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
 	
-	public void setReadyClients() {
-		GenericRequest rq;
-		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
-			if (e.getValue().isReady()) {
-				rq = new GenericRequest("CONFIRM_READY");
-			} else {
-				rq = new GenericRequest("CONFIRM_UNREADY");
+	public boolean playersReady() {
+		boolean playersReady = true;
+		for (PlayerStatistics p : playerInfo.values()) {
+			if (!p.isReady()) {
+				playersReady = false;
 			}
-			updateClients(rq);
 		}
-		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
+		return playersReady;
 	}
 	
 	public void updatePlayerInfoInLobbyForClients(ArrayList<PlayerJoinLeaveData> a) {
@@ -180,16 +197,14 @@ public class GameLobby implements Runnable {
 		updateClients(rq);
 	}
 	
-	public void updateClients(Object data) {
+	public synchronized void updateClients(Object data) {
 		for (ConnectionToClient c : playerConnections.values()) {
-			synchronized(c) {
 				try {
 					c.sendToClient(data);
 				} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
 					CLIENT_DOESNT_LIKE_YOU.printStackTrace();
 					server.logMessage("could not update client " + c.getId());
 				}
-			}
 		}
 	}
 	
@@ -198,33 +213,34 @@ public class GameLobby implements Runnable {
 		return tempInfo;
 	}
 	
-	public void handlePlayerAction(PlayerActionData a) {
+	public void handlePlayerAction(PlayerAction a) {
+		lock.lock();
 		String usr = a.getUsername();
 		String type = a.getType();
 		switch (type) {
 		case "MOVE":
 			players.get(usr).updatePosition(a.getX(), a.getY());
 			players.get(usr).setVelocity(a.getAction());
-			
-			//a.setPosition((int) players.get(usr).getX(), (int) players.get(usr).getY());
-			updateClients(a);
 			break;
 		case "CANCEL_MOVE":
 			players.get(usr).updatePosition(a.getX(), a.getY());
 			players.get(usr).cancelVelocity(a.getAction());
-			
-			//a.setPosition((int) players.get(usr).getX(), (int) players.get(usr).getY());
-			updateClients(a);
 			break;
 		case "LAUNCHER_ROTATION":
-			// TODO fix rotation
-			//players.get(usr).getLauncher().rotate(Integer.parseInt(a.getAction().split(",")[0]), Integer.parseInt(a.getAction().split(",")[1]));;
+			launchers.get(usr).rotate(a.getMouseX(), a.getMouseY());
 			break;
 		case "ROCKET_FIRED":
 			Missile missile = new Missile((int) launchers.get(usr).getCenterX(), (int) launchers.get(usr).getCenterY(), usr);
 			missile.setDirection(a.getMouseX(), a.getMouseY());
-			rockets.add(missile);
+			missile.setBlocks(blocks);
+			missile.setPlayers(players);
+			rockets.put(missileCounter, missile);
+			a.setMissileNumber(missileCounter);
+			missileCounter++;
+			break;
 		}
+		lock.unlock();
+		updateClients(a);
 	}
 	
 	public void run() {		
@@ -238,44 +254,57 @@ public class GameLobby implements Runnable {
 		}
 		
 		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
-		rq1.setData(players);
+		rq1.setData(players, "PLAYERS");
+		rq1.setData(blocks, "MAP");
 		updateClients(rq1);
-		gameStarted = true;
 		
 		while (gameStarted) {
 			long startTime = System.currentTimeMillis();
 			
-			PlayerPositionsData ppd = new PlayerPositionsData();
-			
 			for (Player p : players.values()) {
 				p.move();
 				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), p.getBlockSize());
-				ppd.addPlayerPos(p.getUsername(), p.x, p.y);
 			}
-			
-			//updateClients(ppd);
-			
 			if (!rockets.isEmpty()) {
-				for (Missile m : rockets) {
-					m.move();
-					// TODO check missile collision and also change to send positional data instead of actual missile objects?
+				for (Entry<Integer, Missile> e : rockets.entrySet()) {
+					e.getValue().move();
+					if (!e.getValue().isExploded()) {
+						int col = e.getValue().checkCollision();
+						String hit = e.getValue().checkPlayerCollision();
+						if (col != 0 || hit != null) {
+							GameEvent g = new GameEvent();
+							g.addEvent("MISSILE_EXPLODES", e.getKey());
+							System.out.println("BOOOM exploded missile " + e.getKey());
+							if (col != -1) {
+								g.addEvent("BLOCK_DESTROYED", col);
+								blocks.remove(col);
+							} else if (hit != null) {
+								g.addEvent("PLAYER_HIT", hit);
+								players.get(hit).die(e.getValue().getOwner());
+							}
+							rockets.remove(e.getKey());
+							outboundEventQueue.add(g);
+						}
+					}
 				}
-				updateClients(new LiveMissileData(rockets));
 			}
-
-			
-			
+			GameEvent g;
+			while ((g = outboundEventQueue.poll()) != null) {
+			    updateClients(g);
+			}
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
 			long sleepTime = TARGET_DELTA - delta;
 			try {
+				if (sleepTime <= 0) {
+					sleepTime = TARGET_DELTA;
+				}
 				Thread.sleep(sleepTime);
 				
 			} catch (InterruptedException DEAD) {
 				Thread.currentThread().interrupt();
 				gameStarted = false;
 			}
-			
 		}
 	}
 }

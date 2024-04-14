@@ -1,10 +1,6 @@
 package data;
 
-import java.io.Serializable;
-
-import game_utilities.PlayerCollision;
-
-public class PlayerActionData implements Serializable {
+public class PlayerAction extends Event {
 	private static final long serialVersionUID = 1L;
 	
 	private int gameID;
@@ -14,9 +10,13 @@ public class PlayerActionData implements Serializable {
 	private String action;
 	
 	private int mouseX, mouseY;
+	private int endX, endY;
 	private int posX, posY;
 	
-	public PlayerActionData(int g, String s, String t, String a) {
+	private int missileNumber;
+	private int priority = 10;
+	
+	public PlayerAction(int g, String s, String t, String a) {
 		gameID = g;
 		username = s;
 		type = t;
@@ -60,6 +60,20 @@ public class PlayerActionData implements Serializable {
 	public int getMouseY() {
 		return mouseY;
 	}
+	
+	public void setLauncherEnd(int x, int y) {
+		endX = x;
+		endY = y;
+	}
+	
+	public int getEndX() {
+		return endX;
+	}
+	
+	public int getEndY() {
+		return endY;
+	}
+	
 	public void setUsername(String username) {
 		this.username = username;
 	}
@@ -78,5 +92,21 @@ public class PlayerActionData implements Serializable {
 
 	public void setAction(String action) {
 		this.action = action;
+	}
+
+	public int getMissileNumber() {
+		return missileNumber;
+	}
+
+	public void setMissileNumber(int missileNumber) {
+		this.missileNumber = missileNumber;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
 	}
 }

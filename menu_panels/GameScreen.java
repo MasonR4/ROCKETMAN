@@ -1,5 +1,6 @@
 package menu_panels;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -8,6 +9,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.LinkedHashMap;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -25,6 +27,7 @@ public class GameScreen extends JLayeredPane {
 	private EightBitLabel randomLabel;
 	
 	private JTextArea log;
+	private JPanel logPanel;
 	private JScrollPane logScrollPane;
 	
 	private static final long serialVersionUID = 1L;
@@ -50,9 +53,23 @@ public class GameScreen extends JLayeredPane {
 		gamePanel.setBounds(340, 0, 900, 900);
 		gamePanel.setBorder(BorderFactory.createEtchedBorder());
 		
+		logPanel = new JPanel();
+		logPanel.setLayout(new BoxLayout(logPanel, BoxLayout.PAGE_AXIS));
+		logScrollPane = new JScrollPane(logPanel);
+		logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+		logScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		logScrollPane.setBounds(1240, 450, 360, 400);
+		logScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		logScrollPane.getVerticalScrollBar().addAdjustmentListener(e -> {
+			if (!e.getValueIsAdjusting()) {
+				e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+			}
+		});
+		
 		add(gamePanel, 1);
 		add(username);
 		add(randomLabel);
+		add(logScrollPane);
 	}
 	
 	public GameDisplay getGamePanel() {
@@ -65,6 +82,14 @@ public class GameScreen extends JLayeredPane {
 	
 	public void setRandomLabel(String msg) {
 		randomLabel.setText(msg);
+	}
+	
+	public void addLogMessage(String msg, Color color) {
+		EightBitLabel m = new EightBitLabel(msg, Font.BOLD, 25f);
+		m.setForeground(color);
+		logPanel.add(m);
+		logPanel.repaint();
+		repaint();
 	}
 	
 	public void setController(ActionListener c) {

@@ -11,7 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Player extends Rectangle implements Serializable {
 	private String username;
 	
-	private int size;
+	private int size = 20;
+	
 	private int lives = 3;
 	private int speed = 5;
 	
@@ -19,7 +20,6 @@ public class Player extends Rectangle implements Serializable {
 	
 	private LinkedHashMap<String, Integer> velocities = new LinkedHashMap<String, Integer>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
-	
 	
 	public Player(int size, int x, int y) {
 		super(x, y, size, size);
@@ -65,13 +65,16 @@ public class Player extends Rectangle implements Serializable {
 	
 	public boolean checkCollision(int newX, int newY) {
 		Rectangle futureBounds = new Rectangle(newX, newY, size, size);
-		
 		for (Block block : blocks.values()) {
-			if (futureBounds.intersects(block.getBounds())) {return true;}
+			if (block.isCollideable() && futureBounds.intersects(block.getBounds())) {return true;}
 		}
 		if (futureBounds.x < 0 || futureBounds.x > 900 - size) {return true;}
-        if (futureBounds.y < 0 || futureBounds.y > 900 - size) {return true;}
+        if (futureBounds.y < 0 || futureBounds.y > 865 - size) {return true;}
 		return false;
+	}
+	
+	public void die(String n) {
+		System.out.println(username + " was explodered by " + n);
 	}
 	
 	public int getXVelocity() {

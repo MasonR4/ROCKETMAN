@@ -142,6 +142,8 @@ public class ClientUI extends JFrame {
 		findGameScreen.setController(findGameScreenController);
 		lobbyScreen.setController(lobbyScreenController);
 		gameScreen.setController(gameScreenController); 
+		gameScreen.addMouseListener(gameScreenController);
+		gameScreen.addMouseMotionListener(gameScreenController);
 		profileScreen.setController(profileScreenController);
 
 		// ANNOYING EXTRA EXTRA STEP
@@ -176,14 +178,14 @@ public class ClientUI extends JFrame {
 	
 	public void disconnectProcedure() {
 		try {
-			if (gameScreenController.isStarted()) {
-				client.cancelGame();
-			}
 			if (client.getGameID() != -1) {
 				PlayerJoinLeaveData leaveData = new PlayerJoinLeaveData(client.getUsername());
 				leaveData.setGameID(client.getGameID());
 				leaveData.setJoining(false);
 				client.sendToServer(leaveData);
+			}
+			if (gameScreenController.isStarted()) {
+				client.cancelGame();
 			}
 			if(client.isConnected()) {
 				GenericRequest rq = new GenericRequest("CLIENT_DISCONNECTING");

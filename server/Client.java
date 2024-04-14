@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import javax.swing.SwingUtilities;
 import controller.CreateAccountScreenController;
 import controller.FindGameScreenController;
+import controller.GameEvent;
 import controller.GameScreenController;
 import controller.LobbyScreenController;
 import controller.LoginScreenController;
@@ -17,11 +18,9 @@ import controller.ProfileScreenController;
 import controller.ServerConnectionScreenController;
 import controller.SplashScreenController;
 import data.GenericRequest;
-import data.LiveMissileData;
-import data.PlayerActionData;
-import data.PlayerData;
+import data.PlayerAction;
+import data.PlayerStatistics;
 import data.PlayerJoinLeaveData;
-import data.PlayerPositionsData;
 import game_utilities.Block;
 import game_utilities.Player;
 import data.GameLobbyData;
@@ -124,16 +123,12 @@ public class Client extends AbstractClient {
 				break;
 				
 			case "GAME_STARTED":
-				lobbyController.startGame();
-				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData());
+				lobbyController.switchToGameScreen();
+				gameController.addMap((ConcurrentHashMap<Integer, Block>) ((GenericRequest) arg0).getData("MAP"));
+				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData("PLAYERS"));
 				gameController.startGame();
 				executor.execute(gameController);
 				break;
-				
-			case "MAP_INFO":
-				gameController.addMap((ConcurrentHashMap<Integer, Block>) ((GenericRequest) arg0).getData());
-				break;
-				
 			case "FORCE_DISCONNECT":
 				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
 				break;
@@ -146,21 +141,16 @@ public class Client extends AbstractClient {
 			gameID = info.getGameID();
 			findGameController.changeToGameLobbyMenu();
 			lobbyController.joinGameLobby(info);
-			
-			
 		} else if (arg0 instanceof PlayerJoinLeaveData) {
 			// for when a player joins lobby client is currently connected to
-		} else if (arg0 instanceof PlayerData) {
+		} else if (arg0 instanceof PlayerStatistics) {
 			// for when client request player statistics from the server
-		} else if (arg0 instanceof PlayerPositionsData) {
-			PlayerPositionsData posInfo = (PlayerPositionsData) arg0;
-			gameController.updatePlayerPositions(posInfo.getPlayerPositions());
-		} else if (arg0 instanceof LiveMissileData) {
-			LiveMissileData info = (LiveMissileData) arg0;
-			gameController.updateMissileData(info.getMissileData());
-		} else if (arg0 instanceof PlayerActionData) {
-			PlayerActionData action = (PlayerActionData) arg0;
+		} else if (arg0 instanceof PlayerAction) {
+			PlayerAction action = (PlayerAction) arg0;
 			gameController.handlePlayerAction(action);
+		} else if (arg0 instanceof GameEvent) {
+			GameEvent event = (GameEvent) arg0;
+			gameController.handleGameEvent(event);
 		}
 	}
 	

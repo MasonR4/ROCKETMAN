@@ -64,6 +64,10 @@ public class LobbyScreenController implements ActionListener {
 		playerPanel.revalidate();
 	}
 	
+	public void readyPlayer() {
+		
+	}
+	
 	public void readyButton() {
 		screen.readyReadyButton();
 	}
@@ -81,7 +85,7 @@ public class LobbyScreenController implements ActionListener {
 		cl.show(clientPanel, "FIND_GAME");
 	}
 	
-	public void startGame() {
+	public void switchToGameScreen() {
 		cl.show(clientPanel, "GAME");
 	}
 	
@@ -118,7 +122,8 @@ public class LobbyScreenController implements ActionListener {
 		case "Start Game":
 			try {
 				StartGameData info = new StartGameData(client.getGameID());	
-				// TODO add more configurable options if we have time				
+				// TODO add more configurable options if we have time
+				info.setMap("default");
 				client.sendToServer(info);
 			} catch (IOException SERVER_DECLINED_TO_START_GAME) {
 				SERVER_DECLINED_TO_START_GAME.printStackTrace();

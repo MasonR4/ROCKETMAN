@@ -16,7 +16,8 @@ public class RocketLauncher extends Rectangle {
 	private int endX;
 	private int endY;
 	
-	
+	private int mouseX;
+	private int mouseY;
 	
 	public RocketLauncher(int newX, int newY, int h, int w) {
 		x = newX;
@@ -54,6 +55,19 @@ public class RocketLauncher extends Rectangle {
 	public void moveLauncher(int nx, int ny, int size) {
 		x = (int) nx - (size / 6);
 		y = (int) ny - (size / 6);
+	}
+	
+	public void setMousePos(int x, int y) {
+		mouseX = x;
+		mouseY = y;
+	}
+	
+	public int getMouseX() {
+		return mouseX;
+	}
+	
+	public int getMouseY() {
+		return mouseY;
 	}
 	
 	public double getAngle() {

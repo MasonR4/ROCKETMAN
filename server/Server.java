@@ -125,6 +125,7 @@ public class Server extends AbstractServer {
 		logMessage("[Server] Server '" + serverName + "' started on port '" + this.getPort());
 		serverStatus.setText("RUNNING");
 		serverStatus.setForeground(Color.GREEN);
+		//games.clear();
 	}
 	
 	protected void serverStopped() {
@@ -157,6 +158,8 @@ public class Server extends AbstractServer {
 			cancelGame(i, false);
 		}
 		games.clear();
+		serverMenuController.bruh();
+		System.out.println(games.size());
 		try {
 			sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
 			close();
@@ -243,9 +246,17 @@ public class Server extends AbstractServer {
 	                    e.printStackTrace();
 	                }
 	            }
+	        } else {
+	        	try {
+                    GenericRequest rq = new GenericRequest("INVALID_LOGIN");
+                    rq.setData("Incorrect username or password");
+                    arg1.sendToClient(rq);
+                    serverLog.append("[Client " + arg1.getId() + "] Failed login attempt\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 	        }
-			
-			
+	        
 		} else if (arg0 instanceof CreateAccountData) {
 	        CreateAccountData createAccountData = (CreateAccountData) arg0;
 	        String username = createAccountData.getUsername();
@@ -273,7 +284,7 @@ public class Server extends AbstractServer {
 	                e.printStackTrace();
 	            }
 	        }
-		} else if (arg0 instanceof PlayerData) {
+		} else if (arg0 instanceof PlayerStatistics) {
 			// TODO query database for playerdata
 			// may change this to a genericRequest that receives only username from the client
 			// and sends PlayerData back
@@ -299,9 +310,13 @@ public class Server extends AbstractServer {
 			int gameID = info.getGameID();
 			GameLobby game = games.get(gameID);
 			game.readyPlayer(info);
+			try {
+				arg1.sendToClient(new GenericRequest(info.isReady() ? "CONFIRM_READY" : "CONFIRM_UNREADY"));
+			} catch (IOException CLIENT_WAS_NOT_READY) {
+				CLIENT_WAS_NOT_READY.printStackTrace();
+			}
 			
 		} else if (arg0 instanceof PlayerJoinLeaveData) {
-			System.out.println("server: received received player join/leave data"); // DEBUG
 			PlayerJoinLeaveData info = (PlayerJoinLeaveData) arg0;
 			int gameID = info.getGameID();
 			String username = info.getUsername();
@@ -344,12 +359,21 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof StartGameData) {
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
-			games.get(gid).startGame(info);
-			executor.execute(games.get(gid));
-		} else if (arg0 instanceof PlayerActionData) {
-			PlayerActionData a = (PlayerActionData) arg0;
+			if (games.get(gid).playersReady()) {
+				games.get(gid).startGame(info);
+				executor.execute(games.get(gid));
+			} else {
+				try {
+					GenericRequest nr = new GenericRequest("PLAYERS_NOT_READY");
+					nr.setData("All players must ready before starting match");
+					arg1.sendToClient(nr);
+				} catch (IOException CLIENT_UNTO_DUST) {
+					CLIENT_UNTO_DUST.printStackTrace();
+				}
+			}
+		} else if (arg0 instanceof PlayerAction) {
+			PlayerAction a = (PlayerAction) arg0;
 			int gid = a.getGameID();
-			System.out.println("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID()); // DEBUG
 			games.get(gid).handlePlayerAction(a);
 		}
 	} 

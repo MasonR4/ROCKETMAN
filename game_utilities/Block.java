@@ -2,30 +2,32 @@ package game_utilities;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.io.Serializable;
 
 public abstract class Block extends Rectangle implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	private String type;
-	private static final int BLOCK_SIZE = 35;
+	protected String type;
+	private static final int BLOCK_SIZE = 30;
 	private static final Dimension BLOCK_DIMENSION = new Dimension(BLOCK_SIZE, BLOCK_SIZE);
 	
-	private boolean collideable;
-	private boolean breakable;
+	protected boolean collideable;
+	protected boolean breakable;
 	
-	private Class<? extends Block> next;
+	protected Block next;
 	
-	private int xPos;
-	private int yPos;
+	protected int xPos;
+	protected int yPos;
 	
-	private int row;
-	private int col;
+	protected int row;
+	protected int col;
 	
-	private int number;
+	protected int number;
 	
-	private Color color;
+	protected Color color;
+	protected float opacity;
 	
 	// TODO add sprites 
 	// private ArrayList<BufferedImage> sprites = new ArrayList<BufferedImage>();
@@ -36,10 +38,10 @@ public abstract class Block extends Rectangle implements Serializable {
 		row = r;
 		col = c;
 		// SET TO THE POSITION THE BLOCK IN THE GRID IN NUMERICAL ORDER FROM LEFT TO RIGHT
-		number = (r * 21) + c; 
+		number = (r * 30) + c; 
 		setSize(BLOCK_DIMENSION);
 	}
-
+	
 	public String getType() {
 		return type;
 	}
@@ -48,12 +50,12 @@ public abstract class Block extends Rectangle implements Serializable {
 		this.type = type;
 	}
 
-	public Class<? extends Block> getNext() {
+	public Block getNext() {
 		return next;
 	}
 
 	public void setNext(Block next) {
-		this.next = next.getClass();
+		this.next = next;
 	}
 
 	public int getxPos() {
@@ -90,6 +92,10 @@ public abstract class Block extends Rectangle implements Serializable {
 
 	public Color getColor() {
 		return color;
+	}
+	
+	public float getOpacity() {
+		return opacity;
 	}
 	
 	public int getBlockSize() {

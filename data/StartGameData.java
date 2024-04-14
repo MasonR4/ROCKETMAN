@@ -29,8 +29,11 @@ public class StartGameData implements Serializable {
 		return playerLives;
 	}
 	
+	public void setMap(String s) {
+		map = s;
+	}
+	
 	public String getMap() {
 		return map;
 	}
-	
 }
