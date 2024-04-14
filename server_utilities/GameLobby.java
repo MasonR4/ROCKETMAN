@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import controller.GameEvent;
@@ -108,7 +109,7 @@ public class GameLobby implements Runnable {
 	
 	public void startGame(StartGameData info) {
 		blocks.putAll(server.loadMap(info.getMap()));
-		ArrayList<SpawnBlock> spawns = new ArrayList<>();
+		CopyOnWriteArrayList<SpawnBlock> spawns = new CopyOnWriteArrayList<>();
 		for (Block s : blocks.values()) {
 			if (s instanceof SpawnBlock) {
 				spawns.add((SpawnBlock) s);

@@ -85,7 +85,7 @@ public class LobbyScreenController implements ActionListener {
 		cl.show(clientPanel, "FIND_GAME");
 	}
 	
-	public void startGame() {
+	public void switchToGameScreen() {
 		cl.show(clientPanel, "GAME");
 	}
 	

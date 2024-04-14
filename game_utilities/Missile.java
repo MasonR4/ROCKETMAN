@@ -14,7 +14,7 @@ public class Missile extends Rectangle {
 	private double yVelocity = 0;
 	private int dmg;
 	private int MISSILE_SIZE = 8;
-	private int speed = 8;
+	private int speed = 12;
 	
 	private boolean exploded = false;
 	
@@ -29,6 +29,7 @@ public class Missile extends Rectangle {
 		owner = s;
 		height = MISSILE_SIZE;
 		width = MISSILE_SIZE;
+		setBounds(nx, ny, MISSILE_SIZE, MISSILE_SIZE);
 	}
 	
 	public void draw(Graphics g) {
@@ -51,7 +52,7 @@ public class Missile extends Rectangle {
 	
 	public int checkCollision() {
 		for (Block block : blocks.values()) {
-			if (block.isCollideable() && intersects(block.getBounds())) {
+			if (block.isCollideable() && block.contains(getCenterX(), getCenterY())) {
 				exploded = true;
 				System.out.println("collision with block " + block.getBlockNumber());
 				return block.getBlockNumber();
@@ -70,7 +71,7 @@ public class Missile extends Rectangle {
 	
 	public String checkPlayerCollision() {
 		for (Player p : players.values()) {
-			if (intersects(p.getBounds()) && !p.getUsername().equals(owner)) {
+			if (p.contains(getCenterX(), getCenterY()) && !p.getUsername().equals(owner)) {
 				System.out.println("chjgskhj with + " + p.getUsername());
 				return p.getUsername();
 			}

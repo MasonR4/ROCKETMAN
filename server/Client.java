@@ -123,17 +123,12 @@ public class Client extends AbstractClient {
 				break;
 				
 			case "GAME_STARTED":
-				lobbyController.startGame();
+				lobbyController.switchToGameScreen();
 				gameController.addMap((ConcurrentHashMap<Integer, Block>) ((GenericRequest) arg0).getData("MAP"));
 				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData("PLAYERS"));
 				gameController.startGame();
 				executor.execute(gameController);
 				break;
-				
-			case "MAP_INFO":
-				gameController.addMap((ConcurrentHashMap<Integer, Block>) ((GenericRequest) arg0).getData());
-				break;
-				
 			case "FORCE_DISCONNECT":
 				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
 				break;

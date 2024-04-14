@@ -38,7 +38,7 @@ public abstract class Block extends Rectangle implements Serializable {
 		row = r;
 		col = c;
 		// SET TO THE POSITION THE BLOCK IN THE GRID IN NUMERICAL ORDER FROM LEFT TO RIGHT
-		number = (r * 21) + c; 
+		number = (r * 30) + c; 
 		setSize(BLOCK_DIMENSION);
 	}
 	
