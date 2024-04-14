@@ -120,7 +120,6 @@ public class GameLobby implements Runnable {
 			newPlayer.setUsername(e.getKey());
 			newPlayer.setBlocks(blocks);
 			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
-			
 			boolean spawned = false;
 			while (!spawned) {
 				int chosenSpawn = random.nextInt(spawns.size());
@@ -132,13 +131,10 @@ public class GameLobby implements Runnable {
 					spawned = true;
 				}
 			}
-
-
-			
 			newLauncher.setOwner(newPlayer.getUsername());
 			launchers.put(newPlayer.getUsername(), newLauncher);
 			players.put(e.getKey(), newPlayer);
-		}		
+		}
 		gameStarted = true;		
 	}
 	
@@ -200,18 +196,14 @@ public class GameLobby implements Runnable {
 		updateClients(rq);
 	}
 	
-	public void updateClients(Object data) {
+	public synchronized void updateClients(Object data) {
 		for (ConnectionToClient c : playerConnections.values()) {
-			//synchronized(c) {
-			lock.lock();
 				try {
 					c.sendToClient(data);
 				} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
 					CLIENT_DOESNT_LIKE_YOU.printStackTrace();
 					server.logMessage("could not update client " + c.getId());
 				}
-				lock.unlock();
-			//}
 		}
 	}
 	
@@ -221,6 +213,7 @@ public class GameLobby implements Runnable {
 	}
 	
 	public void handlePlayerAction(PlayerAction a) {
+		lock.lock();
 		String usr = a.getUsername();
 		String type = a.getType();
 		switch (type) {
@@ -245,6 +238,7 @@ public class GameLobby implements Runnable {
 			missileCounter++;
 			break;
 		}
+		lock.unlock();
 		updateClients(a);
 	}
 	
@@ -270,7 +264,6 @@ public class GameLobby implements Runnable {
 				p.move();
 				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), p.getBlockSize());
 			}
-			
 			if (!rockets.isEmpty()) {
 				for (Entry<Integer, Missile> e : rockets.entrySet()) {
 					e.getValue().move();
@@ -294,12 +287,10 @@ public class GameLobby implements Runnable {
 					}
 				}
 			}
-			
 			GameEvent g;
 			while ((g = outboundEventQueue.poll()) != null) {
 			    updateClients(g);
 			}
-			
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
 			long sleepTime = TARGET_DELTA - delta;

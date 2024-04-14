@@ -122,7 +122,8 @@ public class LobbyScreenController implements ActionListener {
 		case "Start Game":
 			try {
 				StartGameData info = new StartGameData(client.getGameID());	
-				// TODO add more configurable options if we have time				
+				// TODO add more configurable options if we have time
+				info.setMap("testing");
 				client.sendToServer(info);
 			} catch (IOException SERVER_DECLINED_TO_START_GAME) {
 				SERVER_DECLINED_TO_START_GAME.printStackTrace();

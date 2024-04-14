@@ -10,7 +10,7 @@ public abstract class Block extends Rectangle implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	protected String type;
-	private static final int BLOCK_SIZE = 35;
+	private static final int BLOCK_SIZE = 30;
 	private static final Dimension BLOCK_DIMENSION = new Dimension(BLOCK_SIZE, BLOCK_SIZE);
 	
 	protected boolean collideable;
