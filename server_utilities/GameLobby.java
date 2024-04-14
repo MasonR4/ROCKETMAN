@@ -121,6 +121,7 @@ public class GameLobby implements Runnable {
 			for (Block s : blocks.values()) {
 				if (s instanceof SpawnBlock && !((SpawnBlock) s).isOccupied()) {
 					newPlayer.updatePosition((int) s.getCenterX(), (int) s.getCenterY());
+					break;
 				}
 			}
 			newLauncher.setOwner(newPlayer.getUsername());

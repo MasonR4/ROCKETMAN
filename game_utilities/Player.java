@@ -11,7 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Player extends Rectangle implements Serializable {
 	private String username;
 	
-	private int size;
+	private int size = 20;
+	
 	private int lives = 3;
 	private int speed = 5;
 	
