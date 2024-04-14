@@ -4,28 +4,23 @@ import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import data.PlayerActionData;
 import game.ClientUI;
 import game_utilities.Block;
 import game_utilities.Missile;
 import game_utilities.Player;
-import game_utilities.PlayerObject;
 import game_utilities.RocketLauncher;
 import menu_panels.GameScreen;
 import menu_utilities.GameDisplay;
@@ -46,7 +41,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	
 	private CardLayout cl;
 	
-	private ConcurrentHashMap<String, PlayerObject> players = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();	
@@ -191,7 +186,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	
 	public void addPlayers(ConcurrentHashMap<String, Player> newPlayers) {
 		for (Player p : newPlayers.values()) {
-			PlayerObject tempPlayer = new PlayerObject(p.getBlockSize(), p.x, p.y);
+			Player tempPlayer = new Player(p.getBlockSize(), p.x, p.y);
 			RocketLauncher tempLauncher = new RocketLauncher((int) p.getCenterX(), (int) p.getCenterY(), 24, 6);
 			tempPlayer.setUsername(p.getUsername());
 			tempPlayer.setColor(p.getColor());
@@ -244,12 +239,21 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		switch (type) {
 		case "MOVE":
 			players.get(usr).updatePosition(a.getX(), a.getY());
+			launchers.get(usr).moveLauncher(a.getX(), a.getY(), 20);
 			players.get(usr).setVelocity(a.getAction());
 			break;
 		case "CANCEL_MOVE":
 			players.get(usr).cancelVelocity(a.getAction());
 			players.get(usr).updatePosition(a.getX(), a.getY());
-			
+			launchers.get(usr).moveLauncher(a.getX(), a.getY(), 20);
+			break;
+		case "LAUNCHER_ROTATION":
+			launchers.get(usr).rotate(a.getMouseX(), a.getMouseY());
+			break;
+		case "ROCKET_FIRED":
+			Missile missile = new Missile(launchers.get(usr).getEndX(), launchers.get(usr).getEndY(), usr);
+			missile.setDirection(a.getMouseX(), a.getMouseY());
+			rockets.add(missile);
 			break;
 		}
 	}
@@ -259,8 +263,23 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		while (running && !Thread.currentThread().isInterrupted()) {
 			long startTime = System.currentTimeMillis();
 			
-			for (PlayerObject p : players.values()) {
+			for (Player p : players.values()) {
 				p.move();
+				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), 20);
+			}
+			
+			for (Missile m : rockets) {
+				m.move();
+				// TODO check collision? (clientside)
+			}
+			
+			PlayerActionData r = new PlayerActionData(client.getGameID(), username, "LAUNCHER_ROTATION", "speen");
+			r.setMousePos(mouseX, mouseY);
+			
+			try {
+				client.sendToServer(r);
+			} catch (IOException DOOR_STUCK) {
+				System.out.println("did not notify server of rotation oops");
 			}
 			
 			gamePanel.repaint();
@@ -300,9 +319,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	public void mouseMoved(MouseEvent e) {
 		mouseX = e.getX();
 		mouseY = e.getY();
-		//launchers.get(username).rotate(mouseX, mouseY);
-		// TODO send mouse position to server so that rotations for every player can be replicated
-		// but do it in a way that doesn't spam the server bc mousemoved is triggered like 10000 times a second
+		launchers.get(username).rotate(mouseX, mouseY);
 	}
 	
 	// required function graveyard...

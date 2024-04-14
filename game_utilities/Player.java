@@ -70,7 +70,7 @@ public class Player extends Rectangle implements Serializable {
 			if (futureBounds.intersects(block.getBounds())) {return true;}
 		}
 		if (futureBounds.x < 0 || futureBounds.x > 900 - size) {return true;}
-        if (futureBounds.y < 0 || futureBounds.y > 900 - size) {return true;}
+        if (futureBounds.y < 0 || futureBounds.y > 865 - size) {return true;}
 		return false;
 	}
 	

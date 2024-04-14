@@ -138,7 +138,6 @@ public class GameLobby implements Runnable {
 		if (playerCount <= 0) {
 			gameStarted = false;
 			server.cancelGame(gameID, true);
-			System.out.println("Game is toast");
 		}
 		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
@@ -206,26 +205,21 @@ public class GameLobby implements Runnable {
 		case "MOVE":
 			players.get(usr).updatePosition(a.getX(), a.getY());
 			players.get(usr).setVelocity(a.getAction());
-			
-			//a.setPosition((int) players.get(usr).getX(), (int) players.get(usr).getY());
-			updateClients(a);
 			break;
 		case "CANCEL_MOVE":
 			players.get(usr).updatePosition(a.getX(), a.getY());
 			players.get(usr).cancelVelocity(a.getAction());
-			
-			//a.setPosition((int) players.get(usr).getX(), (int) players.get(usr).getY());
-			updateClients(a);
 			break;
 		case "LAUNCHER_ROTATION":
-			// TODO fix rotation
-			//players.get(usr).getLauncher().rotate(Integer.parseInt(a.getAction().split(",")[0]), Integer.parseInt(a.getAction().split(",")[1]));;
+			launchers.get(usr).rotate(a.getMouseX(), a.getMouseY());
 			break;
 		case "ROCKET_FIRED":
 			Missile missile = new Missile((int) launchers.get(usr).getCenterX(), (int) launchers.get(usr).getCenterY(), usr);
 			missile.setDirection(a.getMouseX(), a.getMouseY());
 			rockets.add(missile);
+			break;
 		}
+		updateClients(a);
 	}
 	
 	public void run() {		
@@ -261,7 +255,7 @@ public class GameLobby implements Runnable {
 					m.move();
 					// TODO check missile collision and also change to send positional data instead of actual missile objects?
 				}
-				updateClients(new LiveMissileData(rockets));
+				//updateClients(new LiveMissileData(rockets));
 			}
 
 			

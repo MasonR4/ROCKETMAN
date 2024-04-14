@@ -60,6 +60,7 @@ public class PlayerActionData implements Serializable {
 	public int getMouseY() {
 		return mouseY;
 	}
+	
 	public void setUsername(String username) {
 		this.username = username;
 	}
