@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import controller.GameEvent;
 import data.GameLobbyData;
@@ -26,7 +25,7 @@ import ocsf.server.ConnectionToClient;
 import server.Server;
 
 public class GameLobby implements Runnable {
-	private final long TARGET_DELTA = 8;
+	private final long TARGET_DELTA = 16;
 	
 	private Server server;
 	private boolean gameStarted = false;
@@ -47,13 +46,12 @@ public class GameLobby implements Runnable {
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
 	
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
-	//private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
 	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
 	// these might be useful might not be 
 	private ConcurrentLinkedQueue<PlayerAction> inboundEventQueue = new ConcurrentLinkedQueue<>();
-	private ConcurrentLinkedQueue<PlayerAction> outboundEventQueue = new ConcurrentLinkedQueue<>();
+	private ConcurrentLinkedQueue<GameEvent> outboundEventQueue = new ConcurrentLinkedQueue<>();
 	
 	public GameLobby(String n, String hn, int mp, int gid, Server s) { 
 		lobbyName = n;
@@ -234,6 +232,7 @@ public class GameLobby implements Runnable {
 			Missile missile = new Missile((int) launchers.get(usr).getCenterX(), (int) launchers.get(usr).getCenterY(), usr);
 			missile.setDirection(a.getMouseX(), a.getMouseY());
 			missile.setBlocks(blocks);
+			missile.setPlayers(players);
 			rockets.put(missileCounter, missile);
 			a.setMissileNumber(missileCounter);
 			missileCounter++;
@@ -267,38 +266,45 @@ public class GameLobby implements Runnable {
 				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), p.getBlockSize());
 			}
 			
-			
 			if (!rockets.isEmpty()) {
 				for (Entry<Integer, Missile> e : rockets.entrySet()) {
 					e.getValue().move();
-					int col = e.getValue().checkCollision();
-					if (col != 0) {
-						GameEvent g = new GameEvent();
-						g.addEvent("MISSILE_EXPLODES", e.getKey());
-						System.out.println("BOOOM exploded missile " + e.getKey());
-						if (col != -1) {
-							g.addEvent("BLOCK_DESTROYED", col);
-							blocks.remove(col);
-//							for (Player p : players.values()) {
-//								p.setBlocks(blocks);
-//							}
-//							for (Missile m : rockets.values()) {
-//								m.setBlocks(blocks);
-//							}
+					if (!e.getValue().isExploded()) {
+						int col = e.getValue().checkCollision();
+						String hit = e.getValue().checkPlayerCollision();
+						if (col != 0 || hit != null) {
+							GameEvent g = new GameEvent();
+							g.addEvent("MISSILE_EXPLODES", e.getKey());
+							System.out.println("BOOOM exploded missile " + e.getKey());
+							if (col != -1) {
+								g.addEvent("BLOCK_DESTROYED", col);
+								blocks.remove(col);
+							} else if (hit != null) {
+								g.addEvent("PLAYER_HIT", hit);
+								players.get(hit).die(e.getValue().getOwner());
+							}
+							rockets.remove(e.getKey());
+							outboundEventQueue.add(g);
 						}
-						rockets.remove(e.getKey());
-						updateClients(g);
 					}
 				}
 			}
 			
-			
-			
+			if (!outboundEventQueue.isEmpty()) {
+				for (GameEvent g : outboundEventQueue) {
+					updateClients(g);
+				}
+				System.out.println("event queue size was: " + outboundEventQueue.size());
+				outboundEventQueue.clear();
+			}
 			
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
 			long sleepTime = TARGET_DELTA - delta;
 			try {
+				if (sleepTime <= 0) {
+					sleepTime = TARGET_DELTA;
+				}
 				Thread.sleep(sleepTime);
 				
 			} catch (InterruptedException DEAD) {

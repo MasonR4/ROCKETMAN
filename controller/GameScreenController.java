@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -20,6 +21,7 @@ import game.ClientUI;
 import game_utilities.Block;
 import game_utilities.Missile;
 import game_utilities.Player;
+import game_utilities.PlayerActionPriorityComparator;
 import game_utilities.RocketLauncher;
 import menu_panels.GameScreen;
 import menu_utilities.GameDisplay;
@@ -35,8 +37,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	private GameDisplay gamePanel;
 	private JPanel clientPanel;
 	
-	private final long TARGET_DELTA = 8;
-	private long reload_time = 0;
+	private final long TARGET_DELTA = 16;
 	
 	private CardLayout cl;
 	
@@ -46,9 +47,22 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();	
 	
 	private ConcurrentLinkedQueue<PlayerAction> inboundEventQueue = new ConcurrentLinkedQueue<>();
-	private ConcurrentLinkedQueue<PlayerAction> outboundEventQueue = new ConcurrentLinkedQueue<>();
+	private ConcurrentLinkedQueue<PlayerAction> bruh = new ConcurrentLinkedQueue<>();
+	
+	// === ACTION PRIORITIES ===
+	// 0 - Player Movement
+	// 1 - Rocket Fired
+	// 10 - Launcher Rotation
+	
+	private PriorityBlockingQueue<PlayerAction> outboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
 	
 	private int mouseX, mouseY;
+	
+	// === PLAYER STATS ===
+	
+	private long reload_time = 3000; // reload time (ms)
+	
+	private int score = 0;
 	
 	@SuppressWarnings("serial")
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
@@ -66,6 +80,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				if (players.get(username).getVelocity("UP") == 0) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "UP");
 					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPriority(0);
 					players.get(username).setVelocity("UP");
 					outboundEventQueue.add(playerAction);
 //					try {
@@ -83,6 +98,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			public void actionPerformed(ActionEvent e) {
 				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "UP");
 				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+				playerAction.setPriority(0);
 				players.get(username).cancelVelocity("UP");
 				outboundEventQueue.add(playerAction);
 //				try {
@@ -100,6 +116,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				if (players.get(username).getVelocity("LEFT") == 0) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "LEFT");
 					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPriority(0);
 					players.get(username).setVelocity("LEFT");
 					outboundEventQueue.add(playerAction);
 //					try {
@@ -117,6 +134,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			public void actionPerformed(ActionEvent e) {
 				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "LEFT");
 				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+				playerAction.setPriority(0);
 				players.get(username).cancelVelocity("LEFT");
 				outboundEventQueue.add(playerAction);
 //				try {
@@ -136,6 +154,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				
 				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "DOWN");
 				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+				playerAction.setPriority(0);
 				players.get(username).setVelocity("DOWN");
 				outboundEventQueue.add(playerAction);
 //				try {
@@ -153,6 +172,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			public void actionPerformed(ActionEvent e) {
 				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "DOWN");
 				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+				playerAction.setPriority(0);
 				players.get(username).cancelVelocity("DOWN");
 				outboundEventQueue.add(playerAction);
 //				try {
@@ -170,6 +190,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				if (players.get(username).getVelocity("RIGHT") == 0) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "RIGHT");
 					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPriority(0);
 					players.get(username).setVelocity("RIGHT");
 					outboundEventQueue.add(playerAction);
 //					try {
@@ -187,6 +208,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			public void actionPerformed(ActionEvent e) {
 				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "RIGHT");
 				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+				playerAction.setPriority(0);
 				players.get(username).cancelVelocity("RIGHT");
 				outboundEventQueue.add(playerAction);
 //				try {
@@ -246,9 +268,10 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				break;
 			case "BLOCK_DESTROYED":
 				blocks.remove(t.getValue());
-//				for (Player p : players.values()) {
-//					p.setBlocks(blocks);
-//				}
+				break;
+			case "PLAYER_HIT":
+				System.out.println("player was hit: " + t.getValue());
+				screen.addLogMessage(t.getValue() + " WAS EXPLODED", players.get(t.getValue()).getColor());
 				break;
 			}
 		}
@@ -276,7 +299,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			missile.setDirection(a.getMouseX(), a.getMouseY());
 			rockets.put(a.getMissileNumber(), missile);
 			System.out.println("new missile! " + a.getMissileNumber());
-			//rockets.add(missile);
 			break;
 		}
 	}
@@ -342,6 +364,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			screen.setRandomLabel("reloading");
 			reload_time = 3000;
 			PlayerAction m = new PlayerAction(client.getGameID(), username, "ROCKET_FIRED", "The missile knows where it is at all times. It knows this because it knows where it isn't. By subtracting where it is from where it isn't, or where it isn't from where it is (whichever is greater), it obtains a difference, or deviation. The guidance subsystem uses deviations to generate corrective commands to drive the missile from a position where it is to a position where it isn't, and arriving at a position where it wasn't, it now is. Consequently, the position where it is, is now the position that it wasn't, and it follows that the position that it was, is now the position that it isn't.\r\n" + "In the event that the position that it is in is not the position that it wasn't, the system has acquired a variation, the variation being the difference between where the missile is, and where it wasn't. If variation is considered to be a significant factor, it too may be corrected by the GEA. However, the missile must also know where it was.\r\n" + "The missile guidance computer scenario works as follows. Because a variation has modified some of the information the missile has obtained, it is not sure just where it is. However, it is sure where it isn't, within reason, and it knows where it was. It now subtracts where it should be from where it wasn't, or vice-versa, and by differentiating this from the algebraic sum of where it shouldn't be, and where it was, it is able to obtain the deviation and its variation, which is called error.");
+			m.setPriority(1);
 			m.setMousePos(mouseX, mouseY);
 			m.setLauncherEnd(launchers.get(username).getEndX(), launchers.get(username).getEndY());
 			outboundEventQueue.add(m);

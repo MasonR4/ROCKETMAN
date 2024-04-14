@@ -15,8 +15,11 @@ public class Missile extends Rectangle {
 	private int MISSILE_SIZE = 8;
 	private int speed = 17;
 	
+	private boolean exploded = false;
+	
 	private String owner;
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
 	
 	private GameLobby g;
 	
@@ -38,26 +41,41 @@ public class Missile extends Rectangle {
 		blocks = b;
 	}
 	
+	public void setPlayers(ConcurrentHashMap<String, Player> p) {
+		players = p;
+	}
+	
 	public void move() {
 		x += xVelocity;
 		y += yVelocity;		
 	}
 	
 	public int checkCollision() {
-		System.out.println("yeah missile collision woooo");
 		for (Block block : blocks.values()) {
 			if (block.isCollideable() && intersects(block.getBounds())) {
-				System.out.println("blyad " + block.getBlockNumber());
+				exploded = true;
 				return block.getBlockNumber();
 			}
 		}
-		if (getBounds().x < -8000 || getBounds().x > 8000 - MISSILE_SIZE) {
-			System.out.println("sheesh the edge");
-			return -1;}
-        if (getBounds().y < -8000 || getBounds().y > 8000 - MISSILE_SIZE) {
-        	System.out.println("sheesh the edge");
-        	return -1;}
+		if (getBounds().x < -5000 || getBounds().x > 5000) {
+			exploded = true;
+			return -1;
+		}
+        if (getBounds().y < -5000 || getBounds().y > 5000) {
+        	exploded = true;
+        	return -1;
+        }
         return 0;
+	}
+	
+	public String checkPlayerCollision() {
+		for (Player p : players.values()) {
+			if (intersects(p.getBounds()) && !p.getUsername().equals(owner)) {
+				System.out.println("chjgskhj");
+				return p.getUsername();
+			}
+		}
+		return null;
 	}
 	
 	public void setXVelocity(double xVel) {
@@ -91,10 +109,13 @@ public class Missile extends Rectangle {
         
         setXVelocity((normalizedDx * speed));
         setYVelocity((normalizedDy * speed));
-        //System.out.println(xVelocity + ", " + yVelocity); // debug
 	}
 
 	public String getOwner() {
 		return owner;
+	}
+
+	public boolean isExploded() {
+		return exploded;
 	}
 }

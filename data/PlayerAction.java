@@ -14,7 +14,7 @@ public class PlayerAction extends Event {
 	private int posX, posY;
 	
 	private int missileNumber;
-	private int priority;
+	private int priority = 10;
 	
 	public PlayerAction(int g, String s, String t, String a) {
 		gameID = g;
