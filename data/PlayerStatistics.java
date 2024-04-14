@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import ocsf.server.ConnectionToClient;
 
-public class PlayerData implements Serializable {
+public class PlayerStatistics implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private String username;
@@ -15,7 +15,7 @@ public class PlayerData implements Serializable {
 	// TODO when we get the database ready we will add variables here to store
 	private LinkedHashMap<String, Integer> statistics = new LinkedHashMap<String, Integer>();
 	
-	public PlayerData() {}
+	public PlayerStatistics() {}
 	
 	public String getUsername() {
 		return username;
@@ -40,5 +40,4 @@ public class PlayerData implements Serializable {
 	public void setReady(boolean ready) {
 		this.ready = ready;
 	}
-	
 }

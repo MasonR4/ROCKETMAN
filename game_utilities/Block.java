@@ -2,6 +2,7 @@ package game_utilities;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.io.Serializable;
 
@@ -26,6 +27,7 @@ public abstract class Block extends Rectangle implements Serializable {
 	protected int number;
 	
 	protected Color color;
+	protected float opacity;
 	
 	// TODO add sprites 
 	// private ArrayList<BufferedImage> sprites = new ArrayList<BufferedImage>();
@@ -39,7 +41,7 @@ public abstract class Block extends Rectangle implements Serializable {
 		number = (r * 21) + c; 
 		setSize(BLOCK_DIMENSION);
 	}
-
+	
 	public String getType() {
 		return type;
 	}
@@ -90,6 +92,10 @@ public abstract class Block extends Rectangle implements Serializable {
 
 	public Color getColor() {
 		return color;
+	}
+	
+	public float getOpacity() {
+		return opacity;
 	}
 	
 	public int getBlockSize() {

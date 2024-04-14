@@ -26,6 +26,9 @@ public class FindGameScreenController implements ActionListener {
 	private FindGameScreen screen;
 	private GameCreationPanel newGameScreen;
 	
+	private static final int MAX_PLAYERS = 16;
+	private static final int MIN_PLAYERS = 2;
+	
 	private CardLayout cl;
 	
 	public FindGameScreenController(Client c, JPanel p, ClientUI ui) {
@@ -77,11 +80,11 @@ public class FindGameScreenController implements ActionListener {
 				newGameScreen.setError("Max players cannot be blank");
 			} else {
 				maxPlayers = Integer.parseInt(newGameScreen.getMaxPlayers()); 
-				if (maxPlayers >= 2 && maxPlayers <= 4) {
+				if (maxPlayers >= MIN_PLAYERS && maxPlayers <= MAX_PLAYERS) {
 					if (lobbyName.length() < 3) {
 						newGameScreen.setError("Lobby name must be at least 3 characters in length");
 					} else {
-						GameLobbyData GameLobbyData = new GameLobbyData(lobbyName, client.getUsername(), 0, maxPlayers, -1);
+						GameLobbyData GameLobbyData = new GameLobbyData(lobbyName, client.getUsername(), 0, maxPlayers, client.getGameID());
 						try {
 							client.sendToServer(GameLobbyData);
 							newGameScreen.setVisible(false);

@@ -7,12 +7,13 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import data.GameLobbyData;
 import data.GenericRequest;
-import data.PlayerActionData;
-import data.PlayerData;
+import data.PlayerAction;
+import data.PlayerStatistics;
 import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
 import data.StartGameData;
@@ -39,14 +40,16 @@ public class GameLobby implements Runnable {
 	private Random random = new Random();
 	
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
-	private ConcurrentHashMap<String, PlayerData> playerInfo = new ConcurrentHashMap<String, PlayerData>();
+	private ConcurrentHashMap<String, PlayerStatistics> playerInfo = new ConcurrentHashMap<String, PlayerStatistics>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
 	
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
-	public GameLobby(String n, String hn, int mp, int gid, Server s) {
+	private ConcurrentLinkedQueue<Object> eventQueue = new ConcurrentLinkedQueue<>();
+	
+	public GameLobby(String n, String hn, int mp, int gid, Server s) { 
 		lobbyName = n;
 		hostUsername = hn;
 		gameID = gid;
@@ -73,7 +76,7 @@ public class GameLobby implements Runnable {
 	
 	public ArrayList<PlayerJoinLeaveData> getJoinedPlayerInfo() {
 		ArrayList<PlayerJoinLeaveData> joinedplayerInfo = new ArrayList<PlayerJoinLeaveData>();
-		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
+		for (Entry<String, PlayerStatistics> e : playerInfo.entrySet()) {
 			PlayerJoinLeaveData player = new PlayerJoinLeaveData(e.getKey());
 			player.setReady(e.getValue().isReady());
 			player.setHost(hostUsername.equals(e.getKey()));
@@ -96,7 +99,7 @@ public class GameLobby implements Runnable {
 	}
 	
 	public void startGame(StartGameData info) {
-		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
+		for (Entry<String, PlayerStatistics> e : playerInfo.entrySet()) {
 			// TODO prevent players from spawning within blocks on the map
 			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
 			RocketLauncher newLauncher = new RocketLauncher((int) newPlayer.getCenterX(), (int) newPlayer.getCenterY(), 24, 6);
@@ -110,9 +113,9 @@ public class GameLobby implements Runnable {
 		
 		blocks.putAll(server.loadMap(info.getMap()));
 		
-		GenericRequest mapInfo = new GenericRequest("MAP_INFO");
-		mapInfo.setData(blocks);
-		updateClients(mapInfo);
+		//GenericRequest mapInfo = new GenericRequest("MAP_INFO");
+		//mapInfo.setData(blocks);
+		//updateClients(mapInfo);
 		
 		gameStarted = true;		
 	}
@@ -141,7 +144,7 @@ public class GameLobby implements Runnable {
 	}
 	
 	public void addPlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
-		PlayerData temp = new PlayerData();
+		PlayerStatistics temp = new PlayerStatistics();
 		temp.setUsername(usr.getUsername());
 		if (playerCount == 0) {
 			hostUsername = usr.getUsername();
@@ -159,9 +162,19 @@ public class GameLobby implements Runnable {
 		setReadyClients();
 	}
 	
+	public boolean playersReady() {
+		boolean playersReady = true;
+		for (PlayerStatistics p : playerInfo.values()) {
+			if (!p.isReady()) {
+				playersReady = false;
+			}
+		}
+		return playersReady;
+	}
+	
 	public void setReadyClients() {
 		GenericRequest rq;
-		for (Entry<String, PlayerData> e : playerInfo.entrySet()) {
+		for (Entry<String, PlayerStatistics> e : playerInfo.entrySet()) {
 			if (e.getValue().isReady()) {
 				rq = new GenericRequest("CONFIRM_READY");
 			} else {
@@ -196,7 +209,7 @@ public class GameLobby implements Runnable {
 		return tempInfo;
 	}
 	
-	public void handlePlayerAction(PlayerActionData a) {
+	public void handlePlayerAction(PlayerAction a) {
 		String usr = a.getUsername();
 		String type = a.getType();
 		switch (type) {
@@ -231,9 +244,10 @@ public class GameLobby implements Runnable {
 		}
 		
 		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
-		rq1.setData(players);
+		rq1.setData(players, "PLAYERS");
+		rq1.setData(blocks, "MAP");
 		updateClients(rq1);
-		gameStarted = true;
+		//gameStarted = true;
 		
 		while (gameStarted) {
 			long startTime = System.currentTimeMillis();

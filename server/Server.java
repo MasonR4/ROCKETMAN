@@ -273,7 +273,7 @@ public class Server extends AbstractServer {
 	                e.printStackTrace();
 	            }
 	        }
-		} else if (arg0 instanceof PlayerData) {
+		} else if (arg0 instanceof PlayerStatistics) {
 			// TODO query database for playerdata
 			// may change this to a genericRequest that receives only username from the client
 			// and sends PlayerData back
@@ -344,10 +344,20 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof StartGameData) {
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
-			games.get(gid).startGame(info);
-			executor.execute(games.get(gid));
-		} else if (arg0 instanceof PlayerActionData) {
-			PlayerActionData a = (PlayerActionData) arg0;
+			if (games.get(gid).playersReady()) {
+				games.get(gid).startGame(info);
+				executor.execute(games.get(gid));
+			} else {
+				try {
+					GenericRequest nr = new GenericRequest("PLAYERS_NOT_READY");
+					nr.setData("All players must ready before starting match");
+					arg1.sendToClient(nr);
+				} catch (IOException CLIENT_UNTO_DUST) {
+					CLIENT_UNTO_DUST.printStackTrace();
+				}
+			}
+		} else if (arg0 instanceof PlayerAction) {
+			PlayerAction a = (PlayerAction) arg0;
 			int gid = a.getGameID();
 			System.out.println("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID()); // DEBUG
 			games.get(gid).handlePlayerAction(a);

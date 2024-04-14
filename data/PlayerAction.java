@@ -1,10 +1,6 @@
 package data;
 
-import java.io.Serializable;
-
-import game_utilities.PlayerCollision;
-
-public class PlayerActionData implements Serializable {
+public class PlayerAction extends Event {
 	private static final long serialVersionUID = 1L;
 	
 	private int gameID;
@@ -16,7 +12,7 @@ public class PlayerActionData implements Serializable {
 	private int mouseX, mouseY;
 	private int posX, posY;
 	
-	public PlayerActionData(int g, String s, String t, String a) {
+	public PlayerAction(int g, String s, String t, String a) {
 		gameID = g;
 		username = s;
 		type = t;

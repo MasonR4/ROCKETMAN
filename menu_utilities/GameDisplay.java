@@ -1,6 +1,8 @@
 package menu_utilities;
+import java.awt.AlphaComposite;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.BorderFactory;
@@ -45,19 +47,21 @@ public class GameDisplay extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		Graphics2D g2d = (Graphics2D) g;
 		for (Player p : players.values()) {
-			g.setColor(p.getColor());
-			g.fillRect(p.x, p.y, 20, 20);
-		}
-		for (Block b : blocks.values()) {
-			g.setColor(b.getColor());
-			g.fillRect(b.x, b.y, b.getBlockSize(), b.getBlockSize());
+			g2d.setColor(p.getColor());
+			g2d.fillRect(p.x, p.y, 20, 20);
 		}
 		for (RocketLauncher l : launchers.values()) {
 			l.draw(g);
 		}
 		for (Missile m : rockets) {
 			m.draw(g);
+		}
+		for (Block b : blocks.values()) {
+			g2d.setColor(b.getColor());
+			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, b.getOpacity()));
+			g2d.fillRect(b.x, b.y, b.getBlockSize(), b.getBlockSize());
 		}
 	}
 }

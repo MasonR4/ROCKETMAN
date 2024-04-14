@@ -67,7 +67,7 @@ public class Player extends Rectangle implements Serializable {
 		Rectangle futureBounds = new Rectangle(newX, newY, size, size);
 		
 		for (Block block : blocks.values()) {
-			if (futureBounds.intersects(block.getBounds())) {return true;}
+			if (block.isCollideable() && futureBounds.intersects(block.getBounds())) {return true;}
 		}
 		if (futureBounds.x < 0 || futureBounds.x > 900 - size) {return true;}
         if (futureBounds.y < 0 || futureBounds.y > 865 - size) {return true;}
