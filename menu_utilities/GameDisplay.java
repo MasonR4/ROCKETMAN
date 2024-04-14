@@ -15,7 +15,8 @@ import game_utilities.RocketLauncher;
 public class GameDisplay extends JPanel { 
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
-	private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
+	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
+	//private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
 	private static final long serialVersionUID = 1L;
@@ -40,7 +41,7 @@ public class GameDisplay extends JPanel {
 		launchers = r;
 	}
 	
-	public void setRockets(CopyOnWriteArrayList<Missile> r) {
+	public void setRockets(ConcurrentHashMap<Integer, Missile> r) {
 		rockets = r;
 	}
 	
@@ -55,7 +56,7 @@ public class GameDisplay extends JPanel {
 		for (RocketLauncher l : launchers.values()) {
 			l.draw(g);
 		}
-		for (Missile m : rockets) {
+		for (Missile m : rockets.values()) {
 			m.draw(g);
 		}
 		for (Block b : blocks.values()) {

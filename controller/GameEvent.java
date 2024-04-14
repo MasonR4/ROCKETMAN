@@ -1,16 +1,16 @@
 package controller;
 
 import java.io.Serializable;
+import java.util.concurrent.ConcurrentHashMap;
 
-import data.Event;
-
-public class GameEvent extends Event implements Serializable {
+public class GameEvent implements Serializable {
+	private ConcurrentHashMap<String, Object> events = new ConcurrentHashMap<>();
 	
-	private int gameID;
+	public void addEvent(String s, Object o) {
+		events.put(s, o);
+	}
 	
-	private String type;
-	private String action;
-	
-	// TODO placeholder class for things like map updates, player eliminations, rocket explosions etc.
-	
+	public ConcurrentHashMap<String, Object> getEvents() {
+		return events;			
+	}
 }

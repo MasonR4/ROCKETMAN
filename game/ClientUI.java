@@ -142,6 +142,8 @@ public class ClientUI extends JFrame {
 		findGameScreen.setController(findGameScreenController);
 		lobbyScreen.setController(lobbyScreenController);
 		gameScreen.setController(gameScreenController); 
+		gameScreen.addMouseListener(gameScreenController);
+		gameScreen.addMouseMotionListener(gameScreenController);
 		profileScreen.setController(profileScreenController);
 
 		// ANNOYING EXTRA EXTRA STEP

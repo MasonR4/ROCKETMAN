@@ -4,15 +4,21 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.util.concurrent.ConcurrentHashMap;
+
+import server_utilities.GameLobby;
 
 public class Missile extends Rectangle {
 	private double xVelocity = 0;
 	private double yVelocity = 0;
 	private int dmg;
 	private int MISSILE_SIZE = 8;
-	private int speed = 12;
+	private int speed = 17;
 	
 	private String owner;
+	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
+	
+	private GameLobby g;
 	
 	public Missile(int nx, int ny, String s) {
 		x = nx;
@@ -28,9 +34,30 @@ public class Missile extends Rectangle {
 		g.fillRect(x, y, MISSILE_SIZE, MISSILE_SIZE);
 	}
 	
+	public void setBlocks(ConcurrentHashMap<Integer, Block> b) {
+		blocks = b;
+	}
+	
 	public void move() {
-		x += (double)xVelocity;
-		y += (double)yVelocity;
+		x += xVelocity;
+		y += yVelocity;		
+	}
+	
+	public int checkCollision() {
+		System.out.println("yeah missile collision woooo");
+		for (Block block : blocks.values()) {
+			if (block.isCollideable() && intersects(block.getBounds())) {
+				System.out.println("blyad " + block.getBlockNumber());
+				return block.getBlockNumber();
+			}
+		}
+		if (getBounds().x < -8000 || getBounds().x > 8000 - MISSILE_SIZE) {
+			System.out.println("sheesh the edge");
+			return -1;}
+        if (getBounds().y < -8000 || getBounds().y > 8000 - MISSILE_SIZE) {
+        	System.out.println("sheesh the edge");
+        	return -1;}
+        return 0;
 	}
 	
 	public void setXVelocity(double xVel) {
@@ -39,6 +66,18 @@ public class Missile extends Rectangle {
 	
 	public void setYVelocity(double yVel) {
 		yVelocity = yVel;
+	}
+	
+	public void addListener(GameLobby gl) {
+		g = gl;
+	}
+	
+	public int getFutureX() {
+		return x += xVelocity * .1;
+	}
+	
+	public int getFutureY() {
+		return y += yVelocity * .1;
 	}
 	
 	public void setDirection(int mouseX, int mouseY) {
@@ -52,7 +91,7 @@ public class Missile extends Rectangle {
         
         setXVelocity((normalizedDx * speed));
         setYVelocity((normalizedDy * speed));
-        //System.out.println(xVelocity + " " + yVelocity);
+        //System.out.println(xVelocity + ", " + yVelocity); // debug
 	}
 
 	public String getOwner() {

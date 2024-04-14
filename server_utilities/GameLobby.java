@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+import controller.GameEvent;
 import data.GameLobbyData;
 import data.GenericRequest;
 import data.PlayerAction;
@@ -25,7 +26,7 @@ import ocsf.server.ConnectionToClient;
 import server.Server;
 
 public class GameLobby implements Runnable {
-	private final long TARGET_DELTA = 16;
+	private final long TARGET_DELTA = 8;
 	
 	private Server server;
 	private boolean gameStarted = false;
@@ -39,15 +40,20 @@ public class GameLobby implements Runnable {
 	
 	private Random random = new Random();
 	
+	private int missileCounter = 0;
+	
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<String, Player>();
 	private ConcurrentHashMap<String, PlayerStatistics> playerInfo = new ConcurrentHashMap<String, PlayerStatistics>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<String, ConnectionToClient>();
 	
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
-	private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
+	//private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
+	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
-	private ConcurrentLinkedQueue<Object> eventQueue = new ConcurrentLinkedQueue<>();
+	// these might be useful might not be 
+	private ConcurrentLinkedQueue<PlayerAction> inboundEventQueue = new ConcurrentLinkedQueue<>();
+	private ConcurrentLinkedQueue<PlayerAction> outboundEventQueue = new ConcurrentLinkedQueue<>();
 	
 	public GameLobby(String n, String hn, int mp, int gid, Server s) { 
 		lobbyName = n;
@@ -227,7 +233,11 @@ public class GameLobby implements Runnable {
 		case "ROCKET_FIRED":
 			Missile missile = new Missile((int) launchers.get(usr).getCenterX(), (int) launchers.get(usr).getCenterY(), usr);
 			missile.setDirection(a.getMouseX(), a.getMouseY());
-			rockets.add(missile);
+			missile.setBlocks(blocks);
+			rockets.put(missileCounter, missile);
+			a.setMissileNumber(missileCounter);
+			missileCounter++;
+			//rockets.add(missile);
 			break;
 		}
 		updateClients(a);
@@ -259,12 +269,30 @@ public class GameLobby implements Runnable {
 			
 			
 			if (!rockets.isEmpty()) {
-				for (Missile m : rockets) {
-					m.move();
-					// TODO check missile collision and also change to send positional data instead of actual missile objects?
+				for (Entry<Integer, Missile> e : rockets.entrySet()) {
+					e.getValue().move();
+					int col = e.getValue().checkCollision();
+					if (col != 0) {
+						GameEvent g = new GameEvent();
+						g.addEvent("MISSILE_EXPLODES", e.getKey());
+						System.out.println("BOOOM exploded missile " + e.getKey());
+						if (col != -1) {
+							g.addEvent("BLOCK_DESTROYED", col);
+							blocks.remove(col);
+//							for (Player p : players.values()) {
+//								p.setBlocks(blocks);
+//							}
+//							for (Missile m : rockets.values()) {
+//								m.setBlocks(blocks);
+//							}
+						}
+						rockets.remove(e.getKey());
+						updateClients(g);
+					}
 				}
 			}
-
+			
+			
 			
 			
 			long endTime = System.currentTimeMillis();
@@ -277,7 +305,6 @@ public class GameLobby implements Runnable {
 				Thread.currentThread().interrupt();
 				gameStarted = false;
 			}
-			
 		}
 	}
 }

@@ -10,7 +10,11 @@ public class PlayerAction extends Event {
 	private String action;
 	
 	private int mouseX, mouseY;
+	private int endX, endY;
 	private int posX, posY;
+	
+	private int missileNumber;
+	private int priority;
 	
 	public PlayerAction(int g, String s, String t, String a) {
 		gameID = g;
@@ -57,6 +61,19 @@ public class PlayerAction extends Event {
 		return mouseY;
 	}
 	
+	public void setLauncherEnd(int x, int y) {
+		endX = x;
+		endY = y;
+	}
+	
+	public int getEndX() {
+		return endX;
+	}
+	
+	public int getEndY() {
+		return endY;
+	}
+	
 	public void setUsername(String username) {
 		this.username = username;
 	}
@@ -75,5 +92,21 @@ public class PlayerAction extends Event {
 
 	public void setAction(String action) {
 		this.action = action;
+	}
+
+	public int getMissileNumber() {
+		return missileNumber;
+	}
+
+	public void setMissileNumber(int missileNumber) {
+		this.missileNumber = missileNumber;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
 	}
 }

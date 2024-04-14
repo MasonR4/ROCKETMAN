@@ -45,7 +45,14 @@ public class ServerMenuScreenController implements ActionListener {
 		gamesPanel.repaint();
 		gamesPanel.revalidate();
 	}
-
+	
+	public void bruh() {
+		gamesPanel.removeAll();
+		gamesPanel.repaint();
+		gamesPanel.revalidate();
+		screen.repaint();
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();

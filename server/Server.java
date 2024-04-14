@@ -125,6 +125,7 @@ public class Server extends AbstractServer {
 		logMessage("[Server] Server '" + serverName + "' started on port '" + this.getPort());
 		serverStatus.setText("RUNNING");
 		serverStatus.setForeground(Color.GREEN);
+		//games.clear();
 	}
 	
 	protected void serverStopped() {
@@ -157,6 +158,8 @@ public class Server extends AbstractServer {
 			cancelGame(i, false);
 		}
 		games.clear();
+		serverMenuController.bruh();
+		System.out.println(games.size());
 		try {
 			sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
 			close();
@@ -359,7 +362,7 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof PlayerAction) {
 			PlayerAction a = (PlayerAction) arg0;
 			int gid = a.getGameID();
-			System.out.println("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID()); // DEBUG
+			//System.out.println("Received: " + a.getType() + " " + a.getAction() + " From: " + a.getUsername() + " for " + a.getGameID()); // DEBUG
 			games.get(gid).handlePlayerAction(a);
 		}
 	} 
