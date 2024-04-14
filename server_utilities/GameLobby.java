@@ -11,11 +11,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import data.GameLobbyData;
 import data.GenericRequest;
-import data.LiveMissileData;
 import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
-import data.PlayerPositionsData;
 import data.PlayerReadyData;
 import data.StartGameData;
 import game_utilities.Block;
@@ -240,22 +238,17 @@ public class GameLobby implements Runnable {
 		while (gameStarted) {
 			long startTime = System.currentTimeMillis();
 			
-			PlayerPositionsData ppd = new PlayerPositionsData();
-			
 			for (Player p : players.values()) {
 				p.move();
 				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), p.getBlockSize());
-				ppd.addPlayerPos(p.getUsername(), p.x, p.y);
 			}
 			
-			//updateClients(ppd);
 			
 			if (!rockets.isEmpty()) {
 				for (Missile m : rockets) {
 					m.move();
 					// TODO check missile collision and also change to send positional data instead of actual missile objects?
 				}
-				//updateClients(new LiveMissileData(rockets));
 			}
 
 			

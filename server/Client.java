@@ -17,11 +17,9 @@ import controller.ProfileScreenController;
 import controller.ServerConnectionScreenController;
 import controller.SplashScreenController;
 import data.GenericRequest;
-import data.LiveMissileData;
 import data.PlayerActionData;
 import data.PlayerData;
 import data.PlayerJoinLeaveData;
-import data.PlayerPositionsData;
 import game_utilities.Block;
 import game_utilities.Player;
 import data.GameLobbyData;
@@ -152,12 +150,6 @@ public class Client extends AbstractClient {
 			// for when a player joins lobby client is currently connected to
 		} else if (arg0 instanceof PlayerData) {
 			// for when client request player statistics from the server
-		} else if (arg0 instanceof PlayerPositionsData) {
-			PlayerPositionsData posInfo = (PlayerPositionsData) arg0;
-			gameController.updatePlayerPositions(posInfo.getPlayerPositions());
-		} else if (arg0 instanceof LiveMissileData) {
-			LiveMissileData info = (LiveMissileData) arg0;
-			gameController.updateMissileData(info.getMissileData());
 		} else if (arg0 instanceof PlayerActionData) {
 			PlayerActionData action = (PlayerActionData) arg0;
 			gameController.handlePlayerAction(action);

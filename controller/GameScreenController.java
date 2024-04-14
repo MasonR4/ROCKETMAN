@@ -219,20 +219,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		return running;
 	}
 	
-	public void updatePlayerPositions(HashMap<String, int[]> positions) {
-		for (Entry<String, int[]> e : positions.entrySet()) {
-			players.get(e.getKey()).updatePosition(e.getValue()[0], e.getValue()[1]);
-			launchers.get(e.getKey()).moveLauncher((int) players.get(e.getKey()).getCenterX(), (int) players.get(e.getKey()).getCenterY(), 20);
-		}
-	}
-	
-	public void updateMissileData(CopyOnWriteArrayList<Missile> copyOnWriteArrayList) {
-		rockets.clear();
-		for (Missile m : copyOnWriteArrayList) {
-			rockets.add(m);
-		}
-	}
-	
 	public void handlePlayerAction(PlayerActionData a) {
 		String usr = a.getUsername();
 		String type = a.getType();
