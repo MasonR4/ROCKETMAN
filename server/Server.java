@@ -302,6 +302,11 @@ public class Server extends AbstractServer {
 			int gameID = info.getGameID();
 			GameLobby game = games.get(gameID);
 			game.readyPlayer(info);
+			try {
+				arg1.sendToClient(new GenericRequest(info.isReady() ? "CONFIRM_READY" : "CONFIRM_UNREADY"));
+			} catch (IOException CLIENT_WAS_NOT_READY) {
+				CLIENT_WAS_NOT_READY.printStackTrace();
+			}
 			
 		} else if (arg0 instanceof PlayerJoinLeaveData) {
 			System.out.println("server: received received player join/leave data"); // DEBUG

@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import server_utilities.GameLobby;
 
+@SuppressWarnings("serial")
 public class Missile extends Rectangle {
 	private double xVelocity = 0;
 	private double yVelocity = 0;
@@ -20,8 +21,6 @@ public class Missile extends Rectangle {
 	private String owner;
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
-	
-	private GameLobby g;
 	
 	public Missile(int nx, int ny, String s) {
 		x = nx;
@@ -84,10 +83,6 @@ public class Missile extends Rectangle {
 	
 	public void setYVelocity(double yVel) {
 		yVelocity = yVel;
-	}
-	
-	public void addListener(GameLobby gl) {
-		g = gl;
 	}
 	
 	public int getFutureX() {

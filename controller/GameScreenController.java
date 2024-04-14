@@ -1,6 +1,7 @@
 package controller;
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -46,15 +47,15 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();	
 	
-	private ConcurrentLinkedQueue<PlayerAction> inboundEventQueue = new ConcurrentLinkedQueue<>();
-	private ConcurrentLinkedQueue<PlayerAction> bruh = new ConcurrentLinkedQueue<>();
-	
 	// === ACTION PRIORITIES ===
 	// 0 - Player Movement
 	// 1 - Rocket Fired
 	// 10 - Launcher Rotation
 	
 	private PriorityBlockingQueue<PlayerAction> outboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
+	private PriorityBlockingQueue<PlayerAction> inboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
+	
+	private PriorityBlockingQueue<GameEvent> inboundGameEventQueue = new PriorityBlockingQueue<>(11, null);
 	
 	private int mouseX, mouseY;
 	
@@ -83,13 +84,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 					playerAction.setPriority(0);
 					players.get(username).setVelocity("UP");
 					outboundEventQueue.add(playerAction);
-//					try {
-//						synchronized(client) {
-//							client.sendToServer(playerAction);
-//						}
-//					} catch (IOException ACTION_DENIED) {
-//						ACTION_DENIED.printStackTrace();
-//					}
 				}
 			}
 		});
@@ -101,13 +95,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				playerAction.setPriority(0);
 				players.get(username).cancelVelocity("UP");
 				outboundEventQueue.add(playerAction);
-//				try {
-//					synchronized(client) {
-//						client.sendToServer(playerAction);
-//					}
-//				} catch (IOException ACTION_DENIED) {
-//					ACTION_DENIED.printStackTrace();
-//				}
 			}
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "MOVE_LEFT");
@@ -119,13 +106,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 					playerAction.setPriority(0);
 					players.get(username).setVelocity("LEFT");
 					outboundEventQueue.add(playerAction);
-//					try {
-//						synchronized(client) {
-//							client.sendToServer(playerAction);
-//						}
-//					} catch (IOException ACTION_DENIED) {
-//						ACTION_DENIED.printStackTrace();
-//					}
 				}
 			}
 		});
@@ -137,13 +117,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				playerAction.setPriority(0);
 				players.get(username).cancelVelocity("LEFT");
 				outboundEventQueue.add(playerAction);
-//				try {
-//					synchronized(client) {
-//						client.sendToServer(playerAction);
-//					}
-//				} catch (IOException ACTION_DENIED) {
-//					ACTION_DENIED.printStackTrace();
-//				}
 			}
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "MOVE_DOWN");
@@ -157,13 +130,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				playerAction.setPriority(0);
 				players.get(username).setVelocity("DOWN");
 				outboundEventQueue.add(playerAction);
-//				try {
-//					synchronized(client) {
-//						client.sendToServer(playerAction);
-//					}
-//				} catch (IOException ACTION_DENIED) {						
-//					ACTION_DENIED.printStackTrace();
-//				}
 				}
 			}
 		});
@@ -175,13 +141,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				playerAction.setPriority(0);
 				players.get(username).cancelVelocity("DOWN");
 				outboundEventQueue.add(playerAction);
-//				try {
-//					synchronized(client) {
-//						client.sendToServer(playerAction);
-//					}
-//				} catch (IOException ACTION_DENIED) {
-//					ACTION_DENIED.printStackTrace();
-//				}
 			}
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "MOVE_RIGHT");
@@ -193,13 +152,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 					playerAction.setPriority(0);
 					players.get(username).setVelocity("RIGHT");
 					outboundEventQueue.add(playerAction);
-//					try {
-//						synchronized(client) {
-//							client.sendToServer(playerAction);
-//						}
-//					} catch (IOException ACTION_DENIED) {
-//						ACTION_DENIED.printStackTrace();
-//					}
 				}
 			}
 		});
@@ -211,13 +163,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				playerAction.setPriority(0);
 				players.get(username).cancelVelocity("RIGHT");
 				outboundEventQueue.add(playerAction);
-//				try {
-//					synchronized(client) {
-//						client.sendToServer(playerAction);
-//					}
-//				} catch (IOException ACTION_DENIED) {
-//					ACTION_DENIED.printStackTrace();
-//				}
 			}
 		});
 	}
@@ -259,7 +204,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	}
 	
 	public void handleGameEvent(GameEvent e) {
-		// TODO add more events and stuff
 		for (Entry<String, Object> t : e.getEvents().entrySet()) {
 			switch (t.getKey()) {
 			case "MISSILE_EXPLODES":
@@ -315,18 +259,11 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			
 			for (Missile m : rockets.values()) {
 				m.move();
-				// TODO check collision? (clientside)
 			}
 			
 			PlayerAction r = new PlayerAction(client.getGameID(), username, "LAUNCHER_ROTATION", "speen");
 			r.setMousePos(mouseX, mouseY);
 			outboundEventQueue.add(r);
-			
-//			try {
-//				client.sendToServer(r);
-//			} catch (IOException t) {
-//				
-//			}
 			
 			try {
 				if (!outboundEventQueue.isEmpty()) {
@@ -368,13 +305,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			m.setMousePos(mouseX, mouseY);
 			m.setLauncherEnd(launchers.get(username).getEndX(), launchers.get(username).getEndY());
 			outboundEventQueue.add(m);
-//			try {
-//				synchronized(client) {
-//					client.sendToServer(m);
-//				}
-//			} catch (IOException theMissileDoesntKnowWhereItIs) {
-//				theMissileDoesntKnowWhereItIs.printStackTrace();
-//			}
+			screen.addLogMessage("LOL", Color.RED);
 		}
 	}
 	

@@ -64,6 +64,10 @@ public class LobbyScreenController implements ActionListener {
 		playerPanel.revalidate();
 	}
 	
+	public void readyPlayer() {
+		
+	}
+	
 	public void readyButton() {
 		screen.readyReadyButton();
 	}

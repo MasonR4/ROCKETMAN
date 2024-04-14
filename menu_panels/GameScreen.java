@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.LinkedHashMap;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -53,6 +54,7 @@ public class GameScreen extends JLayeredPane {
 		gamePanel.setBorder(BorderFactory.createEtchedBorder());
 		
 		logPanel = new JPanel();
+		logPanel.setLayout(new BoxLayout(logPanel, BoxLayout.PAGE_AXIS));
 		logScrollPane = new JScrollPane(logPanel);
 		logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		logScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -83,11 +85,11 @@ public class GameScreen extends JLayeredPane {
 	}
 	
 	public void addLogMessage(String msg, Color color) {
-		EightBitLabel m = new EightBitLabel(msg, Font.PLAIN, 15f);
+		EightBitLabel m = new EightBitLabel(msg, Font.BOLD, 25f);
 		m.setForeground(color);
 		logPanel.add(m);
 		logPanel.repaint();
-		logPanel.revalidate();
+		repaint();
 	}
 	
 	public void setController(ActionListener c) {

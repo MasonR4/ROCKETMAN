@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import controller.GameEvent;
 import data.GameLobbyData;
@@ -21,6 +22,7 @@ import game_utilities.Block;
 import game_utilities.Missile;
 import game_utilities.Player;
 import game_utilities.RocketLauncher;
+import game_utilities.SpawnBlock;
 import ocsf.server.ConnectionToClient;
 import server.Server;
 
@@ -52,6 +54,12 @@ public class GameLobby implements Runnable {
 	// these might be useful might not be 
 	private ConcurrentLinkedQueue<PlayerAction> inboundEventQueue = new ConcurrentLinkedQueue<>();
 	private ConcurrentLinkedQueue<GameEvent> outboundEventQueue = new ConcurrentLinkedQueue<>();
+	
+	private final ReentrantLock lock = new ReentrantLock();
+	//private final ReentrantLock playerLock = new ReentrantLock();
+	//private final ReentrantLock rocketsLock = new ReentrantLock();
+	
+	//private final ReentrantLock outboundEventQueueLock = new ReentrantLock();
 	
 	public GameLobby(String n, String hn, int mp, int gid, Server s) { 
 		lobbyName = n;
@@ -103,24 +111,22 @@ public class GameLobby implements Runnable {
 	}
 	
 	public void startGame(StartGameData info) {
+		blocks.putAll(server.loadMap(info.getMap()));
 		for (Entry<String, PlayerStatistics> e : playerInfo.entrySet()) {
-			// TODO prevent players from spawning within blocks on the map
 			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
 			RocketLauncher newLauncher = new RocketLauncher((int) newPlayer.getCenterX(), (int) newPlayer.getCenterY(), 24, 6);
 			newPlayer.setUsername(e.getKey());
 			newPlayer.setBlocks(blocks);
 			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
+			for (Block s : blocks.values()) {
+				if (s instanceof SpawnBlock && !((SpawnBlock) s).isOccupied()) {
+					newPlayer.updatePosition((int) s.getCenterX(), (int) s.getCenterY());
+				}
+			}
 			newLauncher.setOwner(newPlayer.getUsername());
 			launchers.put(newPlayer.getUsername(), newLauncher);
 			players.put(e.getKey(), newPlayer);
-		}
-		
-		blocks.putAll(server.loadMap(info.getMap()));
-		
-		//GenericRequest mapInfo = new GenericRequest("MAP_INFO");
-		//mapInfo.setData(blocks);
-		//updateClients(mapInfo);
-		
+		}		
 		gameStarted = true;		
 	}
 	
@@ -163,7 +169,7 @@ public class GameLobby implements Runnable {
 	public void readyPlayer(PlayerReadyData r) {
 		String name = r.getUsername();
 		playerInfo.get(name).setReady(r.isReady());
-		setReadyClients();
+		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
 	
 	public boolean playersReady() {
@@ -176,19 +182,6 @@ public class GameLobby implements Runnable {
 		return playersReady;
 	}
 	
-	public void setReadyClients() {
-		GenericRequest rq;
-		for (Entry<String, PlayerStatistics> e : playerInfo.entrySet()) {
-			if (e.getValue().isReady()) {
-				rq = new GenericRequest("CONFIRM_READY");
-			} else {
-				rq = new GenericRequest("CONFIRM_UNREADY");
-			}
-			updateClients(rq);
-		}
-		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
-	}
-	
 	public void updatePlayerInfoInLobbyForClients(ArrayList<PlayerJoinLeaveData> a) {
 		GenericRequest rq = new GenericRequest("LOBBY_PLAYER_INFO");
 		rq.setData(a);
@@ -197,14 +190,16 @@ public class GameLobby implements Runnable {
 	
 	public void updateClients(Object data) {
 		for (ConnectionToClient c : playerConnections.values()) {
-			synchronized(c) {
+			//synchronized(c) {
+			lock.lock();
 				try {
 					c.sendToClient(data);
 				} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
 					CLIENT_DOESNT_LIKE_YOU.printStackTrace();
 					server.logMessage("could not update client " + c.getId());
 				}
-			}
+				lock.unlock();
+			//}
 		}
 	}
 	
@@ -236,7 +231,6 @@ public class GameLobby implements Runnable {
 			rockets.put(missileCounter, missile);
 			a.setMissileNumber(missileCounter);
 			missileCounter++;
-			//rockets.add(missile);
 			break;
 		}
 		updateClients(a);
@@ -256,7 +250,6 @@ public class GameLobby implements Runnable {
 		rq1.setData(players, "PLAYERS");
 		rq1.setData(blocks, "MAP");
 		updateClients(rq1);
-		//gameStarted = true;
 		
 		while (gameStarted) {
 			long startTime = System.currentTimeMillis();
@@ -290,12 +283,9 @@ public class GameLobby implements Runnable {
 				}
 			}
 			
-			if (!outboundEventQueue.isEmpty()) {
-				for (GameEvent g : outboundEventQueue) {
-					updateClients(g);
-				}
-				System.out.println("event queue size was: " + outboundEventQueue.size());
-				outboundEventQueue.clear();
+			GameEvent g;
+			while ((g = outboundEventQueue.poll()) != null) {
+			    updateClients(g);
 			}
 			
 			long endTime = System.currentTimeMillis();
