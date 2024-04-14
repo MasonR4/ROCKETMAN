@@ -300,7 +300,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	public void mouseMoved(MouseEvent e) {
 		mouseX = e.getX();
 		mouseY = e.getY();
-		launchers.get(username).rotate(mouseX, mouseY);
+		//launchers.get(username).rotate(mouseX, mouseY);
 		// TODO send mouse position to server so that rotations for every player can be replicated
 		// but do it in a way that doesn't spam the server bc mousemoved is triggered like 10000 times a second
 	}

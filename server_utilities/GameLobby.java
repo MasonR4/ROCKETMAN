@@ -135,9 +135,10 @@ public class GameLobby implements Runnable {
 				hostUsername = usernames[0];
 			}			
 		} 
-		if (playerCount == 0) {
+		if (playerCount <= 0) {
 			gameStarted = false;
 			server.cancelGame(gameID, true);
+			System.out.println("Game is toast");
 		}
 		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
