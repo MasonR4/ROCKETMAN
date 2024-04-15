@@ -279,6 +279,7 @@ public class GameLobby implements Runnable {
 						p.getValue().getBlockSize());
 			}
 
+
 			for (Iterator<Map.Entry<Integer, Missile>> it = rockets.entrySet().iterator(); it.hasNext();) {
 				Map.Entry<Integer, Missile> entry = it.next();
 				Missile r = entry.getValue();

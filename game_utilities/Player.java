@@ -77,6 +77,9 @@ public class Player extends Rectangle implements Serializable {
 	
 	public void die(String n) {
 		System.out.println(username + " was explodered by " + n);
+		//Reduce Lives by 1
+		//default lives == 1 therefore die(), lives = 0
+		//send back data that lives = 0
 	}
 	
 	public int getXVelocity() {
