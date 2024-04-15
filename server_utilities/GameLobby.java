@@ -40,6 +40,7 @@ public class GameLobby implements Runnable {
 
 	private Server server;
 	private boolean gameStarted = false;
+	private boolean gameWon = false;
 
 	private String lobbyName;
 	private String hostUsername;
@@ -335,5 +336,14 @@ public class GameLobby implements Runnable {
 				gameStarted = false;
 			}
 		}
+		
+		// TODO if game is won, collect all the data here and send it to clients
+		// also submit player scores and stats to database
+		
+		if (gameWon) {
+			
+		}
+		
+		
 	}
 }

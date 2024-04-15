@@ -77,7 +77,6 @@ public class Database {
 	
 	public int[] getStatistics(String username) {
         int[] statistics = new int[6]; // Array to store statistics
-
         String query = "SELECT * FROM statistics WHERE username = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, username);

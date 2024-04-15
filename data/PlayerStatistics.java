@@ -15,7 +15,23 @@ public class PlayerStatistics implements Serializable {
 	// TODO when we get the database ready we will add variables here to store
 	private LinkedHashMap<String, Integer> statistics = new LinkedHashMap<String, Integer>();
 	
-	public PlayerStatistics() {}
+	public PlayerStatistics() {
+		statistics.put("wins", 0);
+		statistics.put("losses", 0);
+		statistics.put("eliminations", 0);
+		statistics.put("rocketsFired", 0);
+		statistics.put("blocksDestroyed", 0);
+		statistics.put("powerupsCollected", 0);
+	}
+	
+	public void incrementStat(String s) {
+		int total = statistics.get(s);
+		statistics.put(s, total++);
+	}
+	
+	public int getStat(String s) {
+		return statistics.get(s);
+	}
 	
 	public String getUsername() {
 		return username;
