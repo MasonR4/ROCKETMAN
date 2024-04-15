@@ -1,9 +1,9 @@
-package controller;
+package data;
 
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class GameEvent implements Serializable {
+public class GameEvent extends Event implements Serializable {
 	private ConcurrentHashMap<String, Object> events = new ConcurrentHashMap<>();
 	
 	public void addEvent(String s, Object o) {

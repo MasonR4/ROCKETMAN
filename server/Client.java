@@ -9,7 +9,6 @@ import java.util.concurrent.Executors;
 import javax.swing.SwingUtilities;
 import controller.CreateAccountScreenController;
 import controller.FindGameScreenController;
-import controller.GameEvent;
 import controller.GameScreenController;
 import controller.LobbyScreenController;
 import controller.LoginScreenController;
@@ -23,6 +22,7 @@ import data.PlayerStatistics;
 import data.PlayerJoinLeaveData;
 import game_utilities.Block;
 import game_utilities.Player;
+import data.GameEvent;
 import data.GameLobbyData;
 import ocsf.client.AbstractClient;
 

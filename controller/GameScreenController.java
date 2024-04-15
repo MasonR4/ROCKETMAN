@@ -17,6 +17,8 @@ import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+
+import data.GameEvent;
 import data.PlayerAction;
 import game.ClientUI;
 import game_utilities.Block;
@@ -25,6 +27,7 @@ import game_utilities.Player;
 import game_utilities.PlayerActionPriorityComparator;
 import game_utilities.RocketLauncher;
 import menu_panels.GameScreen;
+import menu_utilities.EightBitLabel;
 import menu_utilities.GameDisplay;
 import server.Client;
 
@@ -220,6 +223,10 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				System.out.println("player was hit: " + t.getValue());
 				screen.addLogMessage(t.getValue() + " WAS EXPLODED", players.get(t.getValue()).getColor());
 				break;
+			case "LOG_MESSAGE":
+				EightBitLabel msg = (EightBitLabel) t.getValue();
+				screen.addLogMessage(msg);
+				break;
 			}
 		}
 	}
@@ -291,6 +298,9 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				reload_time = -100;
 				screen.setRandomLabel("ready");}
 			try {
+				if (sleepTime <= 0) {
+					sleepTime = TARGET_DELTA;
+				}
 				Thread.sleep(sleepTime);
 			} catch (InterruptedException DEAD) {
 				Thread.currentThread().interrupt();

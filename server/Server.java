@@ -3,11 +3,12 @@ package server;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -29,17 +30,18 @@ public class Server extends AbstractServer {
 	private ServerMenuScreenController serverMenuController;
 	
 	private ConcurrentHashMap<Integer, GameLobby> games = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<Integer, ScheduledFuture<?>> runningGames = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<Integer, ExecutorService> execGames = new ConcurrentHashMap<>();
 	private int gameCount = 0;
-	
 
 	private Database serverDatabase = new Database();
-	private final ExecutorService executor = Executors.newCachedThreadPool();
-	
 	private static final MapCreator maps = new MapCreator();
 	
 	private ArrayList<String> connectedPlayers = new ArrayList<String>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<>();
 	private int connectedPlayerCount = 0;
+	
+	private final ReentrantLock lock = new ReentrantLock();
 	
 	private Database database;
 	
@@ -125,7 +127,6 @@ public class Server extends AbstractServer {
 		logMessage("[Server] Server '" + serverName + "' started on port '" + this.getPort());
 		serverStatus.setText("RUNNING");
 		serverStatus.setForeground(Color.GREEN);
-		//games.clear();
 	}
 	
 	protected void serverStopped() {
@@ -142,9 +143,21 @@ public class Server extends AbstractServer {
 		logMessage("[Server] Restart Required");
 	}
 	
+	public void startGame(int id) {
+		System.out.println("started game " + id);
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		execGames.put(id, executor);
+		executor.submit(games.get(id));
+	}
+	
 	public void cancelGame(int id, boolean remove) {
 		if (games.get(id).isStarted()) {
 			games.get(id).stopGame();
+			ScheduledFuture<?> f = runningGames.get(id);
+			if (f != null) {
+				f.cancel(true);
+				runningGames.remove(id);
+			}
 		}
 		if (remove) { 
 			logMessage("[Info] Canceled Game " + id);
@@ -159,7 +172,6 @@ public class Server extends AbstractServer {
 		}
 		games.clear();
 		serverMenuController.bruh();
-		System.out.println(games.size());
 		try {
 			sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
 			close();
@@ -169,8 +181,10 @@ public class Server extends AbstractServer {
 	}
 	
 	public void logMessage(String msg) {
+		lock.lock();
 		serverLog.append(msg + "\n");
 		serverLog.setCaretPosition(serverLog.getDocument().getLength());
+		lock.unlock();
 	}
 	
 	public void sendToPlayer(String usr, Object data) {
@@ -279,7 +293,7 @@ public class Server extends AbstractServer {
 	                GenericRequest rq = new GenericRequest("ACCOUNT_CREATION_FAILED");
 	                rq.setData("Username already exists");
 	                arg1.sendToClient(rq);
-	                serverLog.append("[Client " + arg1.getId() + "] Failed to create account '" + username + "'\n");
+	                serverLog.append("[Client " + arg1.getId() + "] Failed to create acc)ount '" + username + "'\n");
 	            } catch (IOException e) {
 	                e.printStackTrace();
 	            }
@@ -359,22 +373,26 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof StartGameData) {
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
-			if (games.get(gid).playersReady()) {
-				games.get(gid).startGame(info);
-				executor.execute(games.get(gid));
-			} else {
-				try {
-					GenericRequest nr = new GenericRequest("PLAYERS_NOT_READY");
-					nr.setData("All players must ready before starting match");
-					arg1.sendToClient(nr);
-				} catch (IOException CLIENT_UNTO_DUST) {
-					CLIENT_UNTO_DUST.printStackTrace();
+			
+			if (!games.get(gid).isStarted()) {
+				if (games.get(gid).playersReady()) {
+					games.get(gid).startGame(info);
+					startGame(gid);
+				} else {
+					try {
+						GenericRequest nr = new GenericRequest("PLAYERS_NOT_READY");
+						nr.setData("All players must ready before starting match");
+						arg1.sendToClient(nr);
+					} catch (IOException CLIENT_UNTO_DUST) {
+						CLIENT_UNTO_DUST.printStackTrace();
+					}
 				}
 			}
+
 		} else if (arg0 instanceof PlayerAction) {
 			PlayerAction a = (PlayerAction) arg0;
 			int gid = a.getGameID();
-			games.get(gid).handlePlayerAction(a);
+			games.get(gid).addPlayerAction(a);
 		}
 	} 
 }

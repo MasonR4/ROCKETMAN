@@ -50,7 +50,7 @@ public class Missile extends Rectangle {
 		y += yVelocity;		
 	}
 	
-	public int checkCollision() {
+	public synchronized int checkBlockCollision() {
 		for (Block block : blocks.values()) {
 			if (block.isCollideable() && block.contains(getCenterX(), getCenterY())) {
 				exploded = true;
@@ -58,25 +58,26 @@ public class Missile extends Rectangle {
 				return block.getBlockNumber();
 			}
 		}
-		if (getBounds().x < -5000 || getBounds().x > 5000) {
-			exploded = true;
-			return -1;
-		}
-        if (getBounds().y < -5000 || getBounds().y > 5000) {
-        	exploded = true;
-        	return -1;
-        }
         return 0;
+	}
+	
+	public boolean checkBoundaryCollision() {
+	    if (getBounds().x < -5000 || getBounds().x > 5000 || getBounds().y < -5000 || getBounds().y > 5000) {
+	        exploded = true;
+	        return true;
+	    }
+	    return false;
 	}
 	
 	public String checkPlayerCollision() {
 		for (Player p : players.values()) {
 			if (p.contains(getCenterX(), getCenterY()) && !p.getUsername().equals(owner)) {
 				System.out.println("chjgskhj with + " + p.getUsername());
+				exploded = true;
 				return p.getUsername();
 			}
 		}
-		return null;
+		return "";
 	}
 	
 	public void setXVelocity(double xVel) {
