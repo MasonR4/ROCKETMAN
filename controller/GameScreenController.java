@@ -296,6 +296,9 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				reload_time = -100;
 				screen.setRandomLabel("ready");}
 			try {
+				if (sleepTime <= 0) {
+					sleepTime = TARGET_DELTA;
+				}
 				Thread.sleep(sleepTime);
 			} catch (InterruptedException DEAD) {
 				Thread.currentThread().interrupt();

@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -40,6 +42,8 @@ public class Server extends AbstractServer {
 	private ArrayList<String> connectedPlayers = new ArrayList<String>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<>();
 	private int connectedPlayerCount = 0;
+	
+	private final ReentrantLock lock = new ReentrantLock();
 	
 	private Database database;
 	
@@ -125,7 +129,6 @@ public class Server extends AbstractServer {
 		logMessage("[Server] Server '" + serverName + "' started on port '" + this.getPort());
 		serverStatus.setText("RUNNING");
 		serverStatus.setForeground(Color.GREEN);
-		//games.clear();
 	}
 	
 	protected void serverStopped() {
@@ -169,8 +172,10 @@ public class Server extends AbstractServer {
 	}
 	
 	public void logMessage(String msg) {
+		lock.lock();
 		serverLog.append(msg + "\n");
 		serverLog.setCaretPosition(serverLog.getDocument().getLength());
+		lock.unlock();
 	}
 	
 	public void sendToPlayer(String usr, Object data) {
@@ -279,7 +284,7 @@ public class Server extends AbstractServer {
 	                GenericRequest rq = new GenericRequest("ACCOUNT_CREATION_FAILED");
 	                rq.setData("Username already exists");
 	                arg1.sendToClient(rq);
-	                serverLog.append("[Client " + arg1.getId() + "] Failed to create account '" + username + "'\n");
+	                serverLog.append("[Client " + arg1.getId() + "] Failed to create acc)ount '" + username + "'\n");
 	            } catch (IOException e) {
 	                e.printStackTrace();
 	            }

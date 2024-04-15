@@ -15,6 +15,7 @@ public class Player extends Rectangle implements Serializable {
 	
 	private int lives = 3;
 	private int speed = 5;
+	private boolean alive;
 	
 	private Color color;
 	
@@ -24,6 +25,7 @@ public class Player extends Rectangle implements Serializable {
 	public Player(int size, int x, int y) {
 		super(x, y, size, size);
 		this.size = size;
+		setAlive(true);
 		velocities.put("DOWN", 0);
 	    velocities.put("UP", 0);
 	    velocities.put("RIGHT", 0);
@@ -111,5 +113,13 @@ public class Player extends Rectangle implements Serializable {
 
 	public void setColor(Color color) {
 		this.color = color;
+	}
+
+	public boolean isAlive() {
+		return alive;
+	}
+
+	public void setAlive(boolean alive) {
+		this.alive = alive;
 	}
 }

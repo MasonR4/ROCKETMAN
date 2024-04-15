@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -267,29 +269,35 @@ public class GameLobby implements Runnable {
 				p.move();
 				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), p.getBlockSize());
 			}
-			if (!rockets.isEmpty()) {
-				for (Entry<Integer, Missile> e : rockets.entrySet()) {
-					e.getValue().move();
-					if (!e.getValue().isExploded()) {
-						int col = e.getValue().checkCollision();
-						String hit = e.getValue().checkPlayerCollision();
-						if (col != 0 || !hit.isBlank()) {
-							GameEvent g = new GameEvent();
-							g.addEvent("MISSILE_EXPLODES", e.getKey());
-							System.out.println("BOOOM exploded missile " + e.getKey());
-							if (col != -1) {
-								g.addEvent("BLOCK_DESTROYED", col);
-								blocks.remove(col);
-							} else if (!hit.isBlank()) {
-								System.out.println("PLAYER HIT BRUIH");
-								g.addEvent("PLAYER_HIT", hit);
-								EightBitLabel msg = new EightBitLabel(e.getValue().getOwner() + " exploded " + hit, Font.PLAIN, 25f);
-								g.addEvent("LOG_MESSAGE", msg);
-								players.get(hit).die(e.getValue().getOwner());
-							}
-							rockets.remove(e.getKey());
-							outboundEventQueue.add(g);
+			for (Iterator<Map.Entry<Integer, Missile>> it = rockets.entrySet().iterator(); it.hasNext();) {
+				System.out.println("iterato missile " + rockets.values().size());
+				Map.Entry<Integer, Missile> entry = it.next();
+				Missile r = entry.getValue();
+				if (!r.isExploded()) {
+					int col = r.checkCollision();
+					String hit = r.checkPlayerCollision();
+					if (col == -1 || col > 0) {
+						GameEvent g = new GameEvent();
+						g.addEvent("MISSILE_EXPLODES", entry.getKey());
+						System.out.println("BOOOM exploded missile " + entry.getKey());
+						if (col != -1) {
+							g.addEvent("BLOCK_DESTROYED", col);
+							blocks.remove(col);
 						}
+						outboundEventQueue.add(g);
+					} else if (!hit.isBlank()) {
+						GameEvent g = new GameEvent();
+						g.addEvent("MISSILE_EXPLODES", entry.getKey());
+						System.out.println("BOOOM exploded missile " + entry.getKey());
+						System.out.println("PLAYER HIT BRUIH");
+						g.addEvent("PLAYER_HIT", hit);
+						EightBitLabel msg = new EightBitLabel(r.getOwner() + " exploded " + hit, Font.PLAIN, 25f);
+						g.addEvent("LOG_MESSAGE", msg);
+						outboundEventQueue.add(g);
+						//players.get(hit).die(r.getOwner());
+					}
+					if(r.isExploded()) {
+						it.remove();
 					}
 				}
 			}
