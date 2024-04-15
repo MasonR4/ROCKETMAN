@@ -3,16 +3,12 @@ package server;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
-
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -37,13 +33,8 @@ public class Server extends AbstractServer {
 	private ConcurrentHashMap<Integer, ScheduledFuture<?>> runningGames = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, ExecutorService> execGames = new ConcurrentHashMap<>();
 	private int gameCount = 0;
-	
-	private final int TICK_DURATION = 16; // 16ms is roughly 60fps or in the case of the server 60 updates a second
 
 	private Database serverDatabase = new Database();
-	//private final ExecutorService executor = Executors.newCachedThreadPool();
-	//private final ScheduledExecutorService executor2;
-	
 	private static final MapCreator maps = new MapCreator();
 	
 	private ArrayList<String> connectedPlayers = new ArrayList<String>();
@@ -56,7 +47,6 @@ public class Server extends AbstractServer {
 	
 	public Server() {
 		super(8300);
-		//executor2 = Executors.newScheduledThreadPool(8);
 	}
 	
 	public ConcurrentHashMap<Integer, Block> loadMap(String m) {
@@ -155,14 +145,9 @@ public class Server extends AbstractServer {
 	
 	public void startGame(int id) {
 		System.out.println("started game " + id);
-		
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		execGames.put(id, executor);
-		
 		executor.submit(games.get(id));
-		
-		//ScheduledFuture<?> game = executor2.scheduleWithFixedDelay(games.get(id), 0, TICK_DURATION, TimeUnit.MILLISECONDS);
-		//runningGames.put(id, game);
 	}
 	
 	public void cancelGame(int id, boolean remove) {
@@ -392,7 +377,6 @@ public class Server extends AbstractServer {
 			if (!games.get(gid).isStarted()) {
 				if (games.get(gid).playersReady()) {
 					games.get(gid).startGame(info);
-					//executor.execute(games.get(gid));
 					startGame(gid);
 				} else {
 					try {
@@ -408,7 +392,6 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof PlayerAction) {
 			PlayerAction a = (PlayerAction) arg0;
 			int gid = a.getGameID();
-			//games.get(gid).handlePlayerAction(a);
 			games.get(gid).addPlayerAction(a);
 		}
 	} 
