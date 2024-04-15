@@ -269,10 +269,9 @@ public class GameLobby implements Runnable {
 	
 	@Override
 	public void run() {	
-		// HONESTLY bro I DONT EVEN KNOW WHY I NEED THESE??!?! ScheduledExecutorService runs this function once every 16ms WIAT WHY DOES IT RUN IT TWICE bro im so done
 		boolean didPlayers = false;
 		boolean didRockets = false; 
-		System.out.println("Running task on: " + Thread.currentThread().getName());
+		
 //		while (!gameStarted) {
 //			try {
 //				Thread.currentThread();
@@ -287,8 +286,9 @@ public class GameLobby implements Runnable {
 //		rq1.setData(blocks, "MAP");
 //		updateClients(rq1);
 		
-		//while (gameStarted) {
+		while (gameStarted) {
 			long startTime = System.currentTimeMillis();
+			System.out.println("Running task on: " + Thread.currentThread().getName());
 			
 			Event a;
 			while((a = inboundEventQueue.poll()) != null) {
@@ -297,10 +297,6 @@ public class GameLobby implements Runnable {
 				}
 			}
 			inboundEventQueue.clear();
-//			for (Player p : players.values()) {
-//				p.move();
-//				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), p.getBlockSize());
-//			}
 			if (!didPlayers) {
 				for (Iterator<Map.Entry<String, Player>> it = players.entrySet().iterator(); it.hasNext();) {
 					
@@ -360,23 +356,23 @@ public class GameLobby implements Runnable {
 			outboundEventQueue.clear();
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
-			System.out.println("last frame took: " + delta);
+			//System.out.println("last frame took: " + delta);
 			long sleepTime = TARGET_DELTA - delta;
 			
 			didPlayers = false;
-			didPlayers = true;
+			didRockets = false;
 			
-			//System.out.println("LAST FRAME DELTA: " + delta + " SLEEPING FOR " + sleepTime);
-//			try {
-//				if (sleepTime <= 0) {
-//					sleepTime = TARGET_DELTA;
-//				}
-//				Thread.sleep(sleepTime);
-//				
-//			} catch (InterruptedException DEAD) {
-//				Thread.currentThread().interrupt();
-//				gameStarted = false;
-//			}
-		//}
+			System.out.println("LAST FRAME DELTA: " + delta + " SLEEPING FOR " + sleepTime);
+			try {
+				if (sleepTime <= 0) {
+					sleepTime = TARGET_DELTA;
+				}
+				Thread.sleep(sleepTime);
+				
+			} catch (InterruptedException DEAD) {
+				Thread.currentThread().interrupt();
+				gameStarted = false;
+			}
+		}
 	}
 }

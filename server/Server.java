@@ -34,14 +34,15 @@ public class Server extends AbstractServer {
 	private ServerMenuScreenController serverMenuController;
 	
 	private ConcurrentHashMap<Integer, GameLobby> games = new ConcurrentHashMap<>();
-	private ConcurrentHashMap<Integer, ScheduledFuture<?>> runningGames = new ConcurrentHashMap();
+	private ConcurrentHashMap<Integer, ScheduledFuture<?>> runningGames = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<Integer, ExecutorService> execGames = new ConcurrentHashMap<>();
 	private int gameCount = 0;
 	
 	private final int TICK_DURATION = 16; // 16ms is roughly 60fps or in the case of the server 60 updates a second
 
 	private Database serverDatabase = new Database();
 	//private final ExecutorService executor = Executors.newCachedThreadPool();
-	private final ScheduledExecutorService executor2;
+	//private final ScheduledExecutorService executor2;
 	
 	private static final MapCreator maps = new MapCreator();
 	
@@ -55,7 +56,7 @@ public class Server extends AbstractServer {
 	
 	public Server() {
 		super(8300);
-		executor2 = Executors.newScheduledThreadPool(8);
+		//executor2 = Executors.newScheduledThreadPool(8);
 	}
 	
 	public ConcurrentHashMap<Integer, Block> loadMap(String m) {
@@ -154,8 +155,14 @@ public class Server extends AbstractServer {
 	
 	public void startGame(int id) {
 		System.out.println("started game " + id);
-		ScheduledFuture<?> game = executor2.scheduleWithFixedDelay(games.get(id), 0, TICK_DURATION, TimeUnit.MILLISECONDS);
-		runningGames.put(id, game);
+		
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		execGames.put(id, executor);
+		
+		executor.submit(games.get(id));
+		
+		//ScheduledFuture<?> game = executor2.scheduleWithFixedDelay(games.get(id), 0, TICK_DURATION, TimeUnit.MILLISECONDS);
+		//runningGames.put(id, game);
 	}
 	
 	public void cancelGame(int id, boolean remove) {
@@ -381,19 +388,23 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof StartGameData) {
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
-			if (games.get(gid).playersReady()) {
-				games.get(gid).startGame(info);
-				//executor.execute(games.get(gid));
-				startGame(gid);
-			} else {
-				try {
-					GenericRequest nr = new GenericRequest("PLAYERS_NOT_READY");
-					nr.setData("All players must ready before starting match");
-					arg1.sendToClient(nr);
-				} catch (IOException CLIENT_UNTO_DUST) {
-					CLIENT_UNTO_DUST.printStackTrace();
+			
+			if (!games.get(gid).isStarted()) {
+				if (games.get(gid).playersReady()) {
+					games.get(gid).startGame(info);
+					//executor.execute(games.get(gid));
+					startGame(gid);
+				} else {
+					try {
+						GenericRequest nr = new GenericRequest("PLAYERS_NOT_READY");
+						nr.setData("All players must ready before starting match");
+						arg1.sendToClient(nr);
+					} catch (IOException CLIENT_UNTO_DUST) {
+						CLIENT_UNTO_DUST.printStackTrace();
+					}
 				}
 			}
+
 		} else if (arg0 instanceof PlayerAction) {
 			PlayerAction a = (PlayerAction) arg0;
 			int gid = a.getGameID();
