@@ -19,6 +19,7 @@ public class PlayerStatistics implements Serializable {
 		statistics.put("wins", 0);
 		statistics.put("losses", 0);
 		statistics.put("eliminations", 0);
+		statistics.put("deaths", 0);
 		statistics.put("rocketsFired", 0);
 		statistics.put("blocksDestroyed", 0);
 		statistics.put("powerupsCollected", 0);
