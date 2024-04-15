@@ -12,9 +12,13 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
-import controller.GameEvent;
+
+import data.Event;
+import data.GameEvent;
 import data.GameLobbyData;
 import data.GenericRequest;
 import data.PlayerAction;
@@ -57,9 +61,11 @@ public class GameLobby implements Runnable {
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
 	// these might be useful might not be 
-	private ConcurrentLinkedQueue<PlayerAction> inboundEventQueue = new ConcurrentLinkedQueue<>();
-	private ConcurrentLinkedQueue<GameEvent> outboundEventQueue = new ConcurrentLinkedQueue<>();
+	private ConcurrentLinkedQueue<Event> inboundEventQueue = new ConcurrentLinkedQueue<>();
+	private ConcurrentLinkedQueue<Event> outboundEventQueue = new ConcurrentLinkedQueue<>();
 	
+	
+	//private ScheduledExecutorService gameExecutor = Executors.newSingleThreadScheduledExecutor();
 	private final ReentrantLock lock = new ReentrantLock();
 	
 	public GameLobby(String n, String hn, int mp, int gid, Server s) { 
@@ -140,6 +146,13 @@ public class GameLobby implements Runnable {
 			launchers.put(newPlayer.getUsername(), newLauncher);
 			players.put(e.getKey(), newPlayer);
 		}
+		
+		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
+		rq1.setData(players, "PLAYERS");
+		rq1.setData(blocks, "MAP");
+		updateClients(rq1);
+		
+		
 		gameStarted = true;		
 	}
 	
@@ -217,8 +230,12 @@ public class GameLobby implements Runnable {
 		return tempInfo;
 	}
 	
+	public void addPlayerAction(PlayerAction a) {
+		inboundEventQueue.add(a);
+	}
+	
 	public void handlePlayerAction(PlayerAction a) {
-		lock.lock();
+		//lock.lock();
 		String usr = a.getUsername();
 		String type = a.getType();
 		switch (type) {
@@ -243,81 +260,123 @@ public class GameLobby implements Runnable {
 			missileCounter++;
 			break;
 		}
-		lock.unlock();
-		updateClients(a);
+		//lock.unlock();
+		//updateClients(a);
+		outboundEventQueue.add(a);
 	}
 	
-	public void run() {		
-		while (!gameStarted) {
-			try {
-				Thread.currentThread();
-				Thread.sleep(100);
-			} catch (InterruptedException ie) {
-				
-			}
-		}
+	int missileIterationCounter = 0;
+	
+	@Override
+	public void run() {	
+		// HONESTLY bro I DONT EVEN KNOW WHY I NEED THESE??!?! ScheduledExecutorService runs this function once every 16ms WIAT WHY DOES IT RUN IT TWICE bro im so done
+		boolean didPlayers = false;
+		boolean didRockets = false; 
+		System.out.println("Running task on: " + Thread.currentThread().getName());
+//		while (!gameStarted) {
+//			try {
+//				Thread.currentThread();
+//				Thread.sleep(100);
+//			} catch (InterruptedException ie) {
+//				
+//			}
+//		}
 		
-		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
-		rq1.setData(players, "PLAYERS");
-		rq1.setData(blocks, "MAP");
-		updateClients(rq1);
+//		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
+//		rq1.setData(players, "PLAYERS");
+//		rq1.setData(blocks, "MAP");
+//		updateClients(rq1);
 		
-		while (gameStarted) {
+		//while (gameStarted) {
 			long startTime = System.currentTimeMillis();
 			
-			for (Player p : players.values()) {
-				p.move();
-				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), p.getBlockSize());
-			}
-			for (Iterator<Map.Entry<Integer, Missile>> it = rockets.entrySet().iterator(); it.hasNext();) {
-				System.out.println("iterato missile " + rockets.values().size());
-				Map.Entry<Integer, Missile> entry = it.next();
-				Missile r = entry.getValue();
-				if (!r.isExploded()) {
-					int col = r.checkCollision();
-					String hit = r.checkPlayerCollision();
-					if (col == -1 || col > 0) {
-						GameEvent g = new GameEvent();
-						g.addEvent("MISSILE_EXPLODES", entry.getKey());
-						System.out.println("BOOOM exploded missile " + entry.getKey());
-						if (col != -1) {
-							g.addEvent("BLOCK_DESTROYED", col);
-							blocks.remove(col);
-						}
-						outboundEventQueue.add(g);
-					} else if (!hit.isBlank()) {
-						GameEvent g = new GameEvent();
-						g.addEvent("MISSILE_EXPLODES", entry.getKey());
-						System.out.println("BOOOM exploded missile " + entry.getKey());
-						System.out.println("PLAYER HIT BRUIH");
-						g.addEvent("PLAYER_HIT", hit);
-						EightBitLabel msg = new EightBitLabel(r.getOwner() + " exploded " + hit, Font.PLAIN, 25f);
-						g.addEvent("LOG_MESSAGE", msg);
-						outboundEventQueue.add(g);
-						//players.get(hit).die(r.getOwner());
-					}
-					if(r.isExploded()) {
-						it.remove();
-					}
+			Event a;
+			while((a = inboundEventQueue.poll()) != null) {
+				if (a instanceof PlayerAction) {
+					handlePlayerAction((PlayerAction) a);
 				}
 			}
-			GameEvent g;
+			inboundEventQueue.clear();
+//			for (Player p : players.values()) {
+//				p.move();
+//				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), p.getBlockSize());
+//			}
+			if (!didPlayers) {
+				for (Iterator<Map.Entry<String, Player>> it = players.entrySet().iterator(); it.hasNext();) {
+					
+					Entry<String, Player> p = it.next();
+					p.getValue().move();
+					System.out.println("moved player " + p.getKey());
+					launchers.get(p.getKey()).moveLauncher((int) p.getValue().getCenterX(), (int) p.getValue().getCenterY(), p.getValue().getBlockSize());
+				}
+				didPlayers = true;
+			}
+			
+			if (!didRockets) {
+				for (Iterator<Map.Entry<Integer, Missile>> it = rockets.entrySet().iterator(); it.hasNext();) {
+					missileIterationCounter++;
+					System.out.println("iterato missile " + missileIterationCounter + " num of rockets: " + rockets.values().size());
+					Map.Entry<Integer, Missile> entry = it.next();
+					Missile r = entry.getValue();
+					r.move();
+					if (!r.isExploded()) {
+						int col = r.checkBlockCollision();
+						String hit = r.checkPlayerCollision();
+						System.out.println("hit block: " + col + " hit player: " + hit + " missile number: " + entry.getKey());
+						GameEvent g = new GameEvent();
+						if (r.checkBoundaryCollision()) {
+							g.addEvent("MISSILE_EXPLODES", entry.getKey());
+							outboundEventQueue.add(g);
+						} else if (col > 0) {
+							g.addEvent("MISSILE_EXPLODES", entry.getKey());
+							System.out.println("BOOOM exploded missile " + entry.getKey());
+							g.addEvent("BLOCK_DESTROYED", col);
+							blocks.remove(col);
+							outboundEventQueue.add(g);
+						} else if (!hit.isBlank()) {
+							g.addEvent("MISSILE_EXPLODES", entry.getKey());
+							System.out.println("BOOOM exploded missile " + entry.getKey());
+							System.out.println("PLAYER HIT BRUIH");
+							g.addEvent("PLAYER_HIT", hit);
+							EightBitLabel msg = new EightBitLabel(r.getOwner() + " exploded " + hit, Font.PLAIN, 25f);
+							g.addEvent("LOG_MESSAGE", msg);
+							outboundEventQueue.add(g);
+						}
+						if(r.isExploded()) {
+							it.remove();
+						}
+					}
+				}
+				didRockets = true;
+			}
+			
+			
+			// TODO implement checks for game win state here
+			
+			Event g;
 			while ((g = outboundEventQueue.poll()) != null) {
 			    updateClients(g);
 			}
+			outboundEventQueue.clear();
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
+			System.out.println("last frame took: " + delta);
 			long sleepTime = TARGET_DELTA - delta;
-			try {
-				if (sleepTime <= 0) {
-					sleepTime = TARGET_DELTA;
-				}
-				Thread.sleep(sleepTime);
-				
-			} catch (InterruptedException DEAD) {
-				Thread.currentThread().interrupt();
-				gameStarted = false;
-			}
-		}
+			
+			didPlayers = false;
+			didPlayers = true;
+			
+			//System.out.println("LAST FRAME DELTA: " + delta + " SLEEPING FOR " + sleepTime);
+//			try {
+//				if (sleepTime <= 0) {
+//					sleepTime = TARGET_DELTA;
+//				}
+//				Thread.sleep(sleepTime);
+//				
+//			} catch (InterruptedException DEAD) {
+//				Thread.currentThread().interrupt();
+//				gameStarted = false;
+//			}
+		//}
 	}
 }

@@ -17,6 +17,8 @@ import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+
+import data.GameEvent;
 import data.PlayerAction;
 import game.ClientUI;
 import game_utilities.Block;

@@ -8,6 +8,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JLabel;
@@ -31,11 +34,14 @@ public class Server extends AbstractServer {
 	private ServerMenuScreenController serverMenuController;
 	
 	private ConcurrentHashMap<Integer, GameLobby> games = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<Integer, ScheduledFuture<?>> runningGames = new ConcurrentHashMap();
 	private int gameCount = 0;
 	
+	private final int TICK_DURATION = 16; // 16ms is roughly 60fps or in the case of the server 60 updates a second
 
 	private Database serverDatabase = new Database();
-	private final ExecutorService executor = Executors.newCachedThreadPool();
+	//private final ExecutorService executor = Executors.newCachedThreadPool();
+	private final ScheduledExecutorService executor2;
 	
 	private static final MapCreator maps = new MapCreator();
 	
@@ -49,6 +55,7 @@ public class Server extends AbstractServer {
 	
 	public Server() {
 		super(8300);
+		executor2 = Executors.newScheduledThreadPool(8);
 	}
 	
 	public ConcurrentHashMap<Integer, Block> loadMap(String m) {
@@ -145,9 +152,20 @@ public class Server extends AbstractServer {
 		logMessage("[Server] Restart Required");
 	}
 	
+	public void startGame(int id) {
+		System.out.println("started game " + id);
+		ScheduledFuture<?> game = executor2.scheduleWithFixedDelay(games.get(id), 0, TICK_DURATION, TimeUnit.MILLISECONDS);
+		runningGames.put(id, game);
+	}
+	
 	public void cancelGame(int id, boolean remove) {
 		if (games.get(id).isStarted()) {
 			games.get(id).stopGame();
+			ScheduledFuture<?> f = runningGames.get(id);
+			if (f != null) {
+				f.cancel(true);
+				runningGames.remove(id);
+			}
 		}
 		if (remove) { 
 			logMessage("[Info] Canceled Game " + id);
@@ -162,7 +180,6 @@ public class Server extends AbstractServer {
 		}
 		games.clear();
 		serverMenuController.bruh();
-		System.out.println(games.size());
 		try {
 			sendToAllClients(new GenericRequest("FORCE_DISCONNECT"));
 			close();
@@ -366,7 +383,8 @@ public class Server extends AbstractServer {
 			int gid = info.getGameID();
 			if (games.get(gid).playersReady()) {
 				games.get(gid).startGame(info);
-				executor.execute(games.get(gid));
+				//executor.execute(games.get(gid));
+				startGame(gid);
 			} else {
 				try {
 					GenericRequest nr = new GenericRequest("PLAYERS_NOT_READY");
@@ -379,7 +397,8 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof PlayerAction) {
 			PlayerAction a = (PlayerAction) arg0;
 			int gid = a.getGameID();
-			games.get(gid).handlePlayerAction(a);
+			//games.get(gid).handlePlayerAction(a);
+			games.get(gid).addPlayerAction(a);
 		}
 	} 
 }
