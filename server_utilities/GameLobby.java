@@ -258,31 +258,33 @@ public class GameLobby implements Runnable {
 		rq1.setData(blocks, "MAP");
 		updateClients(rq1);
 		
-		while (gameStarted) {
+		while (gameStarted) { //game loop
 			long startTime = System.currentTimeMillis();
 			
 			for (Player p : players.values()) {
 				p.move();
 				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), p.getBlockSize());
 			}
-			if (!rockets.isEmpty()) {
+			
+			if (!rockets.isEmpty()) { //if rockets are empty, create a new rocket
 				for (Entry<Integer, Missile> e : rockets.entrySet()) {
-					e.getValue().move();
-					if (!e.getValue().isExploded()) {
+					e.getValue().move(); //move the rocket
+					if (!e.getValue().isExploded()) { //if rocket isExploded check for collision
 						int col = e.getValue().checkCollision();
 						String hit = e.getValue().checkPlayerCollision();
-						if (col != 0 || hit != null) {
+						if (col != 0 || hit != null) { //if hit, notify server and print messages
 							GameEvent g = new GameEvent();
 							g.addEvent("MISSILE_EXPLODES", e.getKey());
 							System.out.println("BOOOM exploded missile " + e.getKey());
 							if (col != -1) {
 								g.addEvent("BLOCK_DESTROYED", col);
 								blocks.remove(col);
-							} else if (hit != null) {
+							} else if (hit != null) { //if missile hits player, notify server and clients of who hit who
 								g.addEvent("PLAYER_HIT", hit);
 								players.get(hit).die(e.getValue().getOwner());
+								//if player lives = 0, remove player model and notify them they died
 							}
-							rockets.remove(e.getKey());
+							rockets.remove(e.getKey()); //remove rockets
 							outboundEventQueue.add(g);
 						}
 					}
