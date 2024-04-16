@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public class StartGameData implements Serializable {
 	
-	// TODO all values we want to be configured from the lobby screen go here
-	
+	private static final long serialVersionUID = -7049710051366582248L;
+
 	private int gameID;
 	
 	private int playerLives;
@@ -15,10 +15,10 @@ public class StartGameData implements Serializable {
 	// reload speed?
 	// time limit?
 	
-	public StartGameData(int gid) {
+	public StartGameData(int gid, String m, int lives) {
 		gameID = gid;
-		playerLives = 4;
-		map = "default";
+		playerLives = lives;
+		map = m;
 	}
 	
 	public int getGameID() {

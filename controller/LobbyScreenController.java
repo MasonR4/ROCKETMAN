@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import data.GameLobbyData;
@@ -13,6 +15,7 @@ import data.PlayerReadyData;
 import data.StartGameData;
 import game.ClientUI;
 import menu_panels.LobbyScreen;
+import menu_utilities.EightBitLabel;
 import menu_utilities.PlayerListingPanel;
 import server.Client;
 
@@ -28,6 +31,22 @@ public class LobbyScreenController implements ActionListener {
 	
 	private CardLayout cl;
 	
+	// STUFF FOR GAME STATS GOES HERE OH NO
+	private ArrayList<String> mapNames = new ArrayList<String>();
+	private int selectedMap = 0;
+	
+	private int livesCount = 3;
+	private final int MAX_LIVES = 10;
+	private final int MIN_LIVES = 1;
+	
+	private EightBitLabel map;
+	private EightBitLabel lives;
+	private EightBitLabel reload;
+	private EightBitLabel time;
+	
+	//private HashMap<String, Integer> reloadSpeeds = new HashMap<>();
+	// also set max time?
+	
 	public LobbyScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
 		clientPanel = p;
@@ -36,6 +55,10 @@ public class LobbyScreenController implements ActionListener {
 		cl = (CardLayout) clientPanel.getLayout();
 		screen = (LobbyScreen) clientPanel.getComponent(6);
 		playerPanel = screen.getPlayerPanel();
+		map = screen.getMapLabel();
+		lives = screen.getLivesLabel();
+		reload = screen.getReloadLabel();
+		time = screen.getTimeLabel();
 	}
 	
 	public void addPlayerListing(ArrayList<PlayerJoinLeaveData> data) {
@@ -81,6 +104,11 @@ public class LobbyScreenController implements ActionListener {
 		SwingUtilities.invokeLater(() -> screen.updateLobbyInfo());
 	}
 	
+	public void setMapNames(ArrayList<String> m) {
+		System.out.println("set maps to " + m);
+		mapNames = m;
+	}
+	
 	public void leaveGameLobby() {
 		cl.show(clientPanel, "FIND_GAME");
 	}
@@ -121,9 +149,7 @@ public class LobbyScreenController implements ActionListener {
 			
 		case "Start Game":
 			try {
-				StartGameData info = new StartGameData(client.getGameID());	
-				// TODO add more configurable options if we have time
-				info.setMap("default");
+				StartGameData info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount);
 				client.sendToServer(info);
 			} catch (IOException SERVER_DECLINED_TO_START_GAME) {
 				SERVER_DECLINED_TO_START_GAME.printStackTrace();
@@ -140,6 +166,40 @@ public class LobbyScreenController implements ActionListener {
 				LEAVING_FAILED_YOU_ARE_TRAPPED.printStackTrace();
 			}
 			break;
+			
+		case "MAP+":
+			selectedMap++;
+			if (selectedMap == mapNames.size()) {
+				selectedMap = 0;
+			}
+			map.setText(mapNames.get(selectedMap));
+			break;
+			
+		case "MAP-":
+			selectedMap--;
+			if (selectedMap < 0) {
+				selectedMap = mapNames.size() - 1;
+			}
+			map.setText(mapNames.get(selectedMap));
+			break;
+			
+		case "LIVES+":
+			livesCount++;
+			if (livesCount > MAX_LIVES) {
+				livesCount = MAX_LIVES;
+			}
+			lives.setText(Integer.toString(livesCount));
+			break;
+			
+		case "LIVES-":
+			livesCount--;
+			if (livesCount <= MIN_LIVES) {
+				livesCount = MIN_LIVES;
+				lives.setText("Sudden Death");
+			} else {
+				lives.setText(Integer.toString(livesCount));
+			}
+			
 		}
 		
 	}

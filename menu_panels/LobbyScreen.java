@@ -25,9 +25,28 @@ public class LobbyScreen extends JPanel {
 	private EightBitLabel playerCountLabel;
 	private EightBitLabel readyStatusLabel;
 	
+	private EightBitLabel gameInfoTitleLabel;
+	private EightBitLabel mapLabel;
+	private EightBitLabel map;
+	private EightBitLabel timeLabel;
+	private EightBitLabel time;
+	private EightBitLabel livesLabel;
+	private EightBitLabel lives;
+	private EightBitLabel reloadSpeedLabel;
+	private EightBitLabel reloadSpeed;
+	
 	private EightBitButton readyButton;
 	private EightBitButton startGameButton;
 	private EightBitButton leaveButton;
+	
+	private EightBitButton mapRight;
+	private EightBitButton mapLeft;
+	private EightBitButton timeRight;
+	private EightBitButton timeLeft;
+	private EightBitButton livesRight;
+	private EightBitButton livesLeft;
+	private EightBitButton reloadRight;
+	private EightBitButton reloadLeft;
 	
 	private JPanel gameInfoPanel;
 	private JPanel playersPanel;
@@ -56,10 +75,91 @@ public class LobbyScreen extends JPanel {
 		readyStatusLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		readyStatusLabel.setForeground(Color.RED);
 		
+		
+		
 		gameInfoPanel = new JPanel();
 		gameInfoPanel.setLayout(null);
 		gameInfoPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		gameInfoPanel.setBounds(1150, 75, 400, 700);
+		
+		gameInfoTitleLabel = new EightBitLabel("Game Settings", Font.PLAIN, 48f);
+		gameInfoTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		gameInfoTitleLabel.setBounds(50, 10, 275, 30);
+		
+		
+		mapLabel = new EightBitLabel("Map", Font.PLAIN, 38f);
+		mapLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		mapLabel.setBounds(75, 65, 250, 20);
+		
+		map = new EightBitLabel("default", Font.PLAIN, 32f);
+		map.setHorizontalAlignment(SwingConstants.CENTER);
+		map.setBounds(75, 105, 250, 20);
+		
+		mapRight = new EightBitButton(">");
+		mapRight.setActionCommand("MAP+");
+		mapRight.setBounds(335, 100, 40, 30);
+		
+		mapLeft = new EightBitButton("<");
+		mapLeft.setActionCommand("MAP-");
+		mapLeft.setBounds(25, 100, 40, 30);
+		
+		timeLabel = new EightBitLabel("Time Limit", Font.PLAIN, 38f);
+		timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		timeLabel.setBounds(75, 150, 250, 20);
+		
+		time = new EightBitLabel("00:00", Font.PLAIN, 32f);
+		time.setHorizontalAlignment(SwingConstants.CENTER);
+		time.setBounds(75, 195, 250, 20);
+		
+		timeRight = new EightBitButton(">");
+		timeRight.setActionCommand("TIME+");
+		timeRight.setBounds(335, 190, 40, 30);
+		
+		timeLeft = new EightBitButton("<");
+		timeLeft.setActionCommand("TIME-");
+		timeLeft.setBounds(25, 190, 40, 30);
+		
+		livesLabel = new EightBitLabel("Player Health", Font.PLAIN, 38f);
+		livesLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		livesLabel.setBounds(75, 235, 250, 20);
+		
+		lives = new EightBitLabel("3", Font.PLAIN, 32f);
+		lives.setBounds(75, 280, 250, 20);
+		
+		livesRight = new EightBitButton(">");
+		livesRight.setActionCommand("LIVES+");
+		livesRight.setBounds(335, 275, 40, 30);
+		
+		livesLeft = new EightBitButton("<");
+		livesLeft.setActionCommand("LIVES-");
+		livesLeft.setBounds(25, 275, 40, 30);
+		
+		reloadSpeedLabel = new EightBitLabel("Reload Speed", Font.PLAIN, 38f);
+		reloadSpeedLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		reloadSpeedLabel.setBounds(75, 325, 250, 20);
+		
+		reloadSpeed = new EightBitLabel("Default", Font.PLAIN, 32f);
+		reloadSpeed.setHorizontalAlignment(SwingConstants.CENTER);
+		reloadSpeed.setBounds(75, 370, 250, 20);
+		
+		reloadRight = new EightBitButton(">");
+		reloadRight.setActionCommand("RELOAD+");
+		reloadRight.setBounds(335, 365, 40, 30);
+		
+		reloadLeft = new EightBitButton("<");
+		reloadLeft.setActionCommand("RELOAD-");
+		reloadLeft.setBounds(25, 365, 40, 30);
+		
+		gameInfoPanel.add(gameInfoTitleLabel);
+		gameInfoPanel.add(mapLabel);
+		gameInfoPanel.add(map);
+		gameInfoPanel.add(timeLabel);
+		gameInfoPanel.add(time);
+		gameInfoPanel.add(livesLabel);
+		gameInfoPanel.add(lives);
+		gameInfoPanel.add(reloadSpeedLabel);
+		gameInfoPanel.add(reloadSpeed);
+		
 		
 		playersPanel = new JPanel();
 		playersPanel.setLayout(new BoxLayout(playersPanel, BoxLayout.PAGE_AXIS));
@@ -90,6 +190,22 @@ public class LobbyScreen extends JPanel {
 	
 	public void enableHostControls() {
 		startGameButton.addActionListener(controller);
+		mapRight.addActionListener(controller);
+		mapLeft.addActionListener(controller);
+		timeRight.addActionListener(controller);
+		timeLeft.addActionListener(controller);
+		livesRight.addActionListener(controller);
+		livesLeft.addActionListener(controller);
+		reloadRight.addActionListener(controller);
+		reloadLeft.addActionListener(controller);
+		gameInfoPanel.add(mapRight);
+		gameInfoPanel.add(mapLeft);
+		gameInfoPanel.add(timeRight);
+		gameInfoPanel.add(timeLeft);
+		gameInfoPanel.add(livesRight);
+		gameInfoPanel.add(livesLeft);
+		gameInfoPanel.add(reloadRight);
+		gameInfoPanel.add(reloadLeft);
 		add(startGameButton);
 	}
 	
@@ -105,6 +221,22 @@ public class LobbyScreen extends JPanel {
 	
 	public JPanel getPlayerPanel() {
 		return playersPanel;
+	}
+	
+	public EightBitLabel getMapLabel() {
+		return map;
+	}
+	
+	public EightBitLabel getLivesLabel() {
+		return lives;
+	}
+	
+	public EightBitLabel getTimeLabel() {
+		return time;
+	}
+	
+	public EightBitLabel getReloadLabel() {
+		return reloadSpeed;
 	}
 	
 	public void setLobbyInfo(String h, int p, int mp) {

@@ -54,7 +54,7 @@ public class ClientUI extends JFrame {
 	// layout
 	private JPanel containerPanel;
 
-	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 920);
+	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 930);
 	private static final CardLayout CL = new CardLayout();
 	private static final String DEFAULT_MENU = "SERVER_CONNECTION";
 
@@ -169,7 +169,7 @@ public class ClientUI extends JFrame {
 		// lol?
 		serverConnectionScreenController.actionPerformed(new ActionEvent(this, 0, "BYPASS_CONNECTION_AND_ATTEMPT_LOGIN"));
 
-		CL.show(containerPanel, "LOBBY"); // TODO FOR DEBUGGING REMOVE LATER
+		//CL.show(containerPanel, "LOBBY"); // TODO FOR DEBUGGING REMOVE LATER
 	}
 
 	public void updateConfigData(String key, String value) {

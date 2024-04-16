@@ -140,6 +140,7 @@ public class Client extends AbstractClient {
 			GameLobbyData info = (GameLobbyData) arg0;
 			gameID = info.getGameID();
 			findGameController.changeToGameLobbyMenu();
+			lobbyController.setMapNames(info.getMaps());
 			lobbyController.joinGameLobby(info);
 		} else if (arg0 instanceof PlayerJoinLeaveData) {
 			// for when a player joins lobby client is currently connected to

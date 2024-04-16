@@ -128,6 +128,7 @@ public class GameLobby implements Runnable {
 			RocketLauncher newLauncher = new RocketLauncher((int) newPlayer.getCenterX(), (int) newPlayer.getCenterY(), 24, 6);
 			newPlayer.setUsername(e.getKey());
 			newPlayer.setBlocks(blocks);
+			newPlayer.setLives(info.getPlayerLives());
 			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
 			boolean spawned = false;
 			while (!spawned) {
@@ -226,6 +227,7 @@ public class GameLobby implements Runnable {
 	// TODO remove if not needed later
 	public GameLobbyData generateGameListing() {
 		GameLobbyData tempInfo = new GameLobbyData(lobbyName, hostUsername, playerCount, playerCap, gameID);
+		tempInfo.setMaps(server.getMapNames());
 		return tempInfo;
 	}
 
