@@ -163,7 +163,8 @@ public class Client extends AbstractClient {
 			StartGameData s = (StartGameData) arg0;
 			lobbyController.updateGameLobbySettings(s);
 		} else if (arg0 instanceof EndGameData) {
-			// placeholder for receiving end of game data
+			EndGameData data = (EndGameData) arg0;
+			gameOverController.setEndGameStats(data);
 		}
 	}
 	

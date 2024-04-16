@@ -210,6 +210,24 @@ public class LobbyScreen extends JPanel {
 		gameInfoPanel.add(reloadRight);
 		gameInfoPanel.add(reloadLeft);
 		add(startGameButton);
+		repaint();
+		revalidate();
+	}
+	
+	public void disableHostControls() {
+		remove(startGameButton);
+		gameInfoPanel.remove(mapRight);
+		gameInfoPanel.remove(mapLeft);
+		gameInfoPanel.remove(timeRight);
+		gameInfoPanel.remove(timeLeft);
+		gameInfoPanel.remove(livesRight);
+		gameInfoPanel.remove(livesLeft);
+		gameInfoPanel.remove(reloadRight);
+		gameInfoPanel.remove(reloadLeft);
+		unreadyReadyButton();
+		repaint();
+		revalidate();
+		
 	}
 	
 	public void unreadyReadyButton() {

@@ -201,7 +201,16 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	
 	public void stopGame() {
 		running = false;
-		Thread.currentThread().interrupt();
+		//Thread.currentThread().interrupt();
+	}
+	
+	public void resetGame() {
+		players.clear();
+		blocks.clear();
+		rockets.clear();
+		effects.clear();
+		trailCount = -1;
+		screen.reset();
 	}
 	
 	public boolean isStarted() {
@@ -231,6 +240,13 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			case "ADD_EFFECT":
 				Effect newEffect = (Effect) t.getValue();
 				effects.put(newEffect.getEffectNumber(), newEffect);
+				break;
+			case "ANNOUNCE":
+				
+				break;
+			case "GAME_END":
+				resetGame();
+				stopGame();
 				break;
 				default:
 					System.out.println("No case to handle GameEvent: " + t.getKey() + "(" + t.getValue() + ")");

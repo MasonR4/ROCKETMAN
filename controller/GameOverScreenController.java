@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
+
+import data.EndGameData;
 import game.ClientUI;
 import menu_panels.GameOverScreen;
 import server.Client;
@@ -27,16 +29,30 @@ public class GameOverScreenController implements ActionListener {
 		screen = (GameOverScreen) clientPanel.getComponent(9);
 	}
 
-	
+	public void setEndGameStats(EndGameData e) {
+		screen.setEndGameStats(e);
+		cl.show(clientPanel, "GAME_OVER");
+	}
 	
 	public void returnToLobby() {
 		cl.show(clientPanel, "LOBBY");
 	}
 	
+	public void reset() {
+		screen.reset();
+	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
-		
+		switch(action) {
+		case "GO_LOBBY":
+			System.out.println("leave lobby pressed");
+			cl.show(clientPanel, "LOBBY");
+			break;
+		case "LEAVE":
+			// TODO leave game from end game screen
+			break;
+		}
 	}
 }

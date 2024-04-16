@@ -132,42 +132,45 @@ public class GameLobby implements Runnable {
 	}
 	
 	public void startGame(StartGameData info) {
-			blocks.putAll(server.loadMap(info.getMap()));
-			CopyOnWriteArrayList<SpawnBlock> spawns = new CopyOnWriteArrayList<>();
-			for (Block s : blocks.values()) {
-				if (s instanceof SpawnBlock) {
-					spawns.add((SpawnBlock) s);
+		blocks.clear();
+		rockets.clear();
+		missileCounter = 0;
+		effectCounter = 0;
+		blocks.putAll(server.loadMap(info.getMap()));
+		CopyOnWriteArrayList<SpawnBlock> spawns = new CopyOnWriteArrayList<>();
+		for (Block s : blocks.values()) {
+			if (s instanceof SpawnBlock) {
+				spawns.add((SpawnBlock) s);
+			}
+		}
+		for (Entry<String, PlayerStatistics> e : playerStats.entrySet()) {
+			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
+			RocketLauncher newLauncher = new RocketLauncher((int) newPlayer.getCenterX(), (int) newPlayer.getCenterY(), 24, 6);
+			newPlayer.setUsername(e.getKey());
+			newPlayer.setBlocks(blocks);
+			newPlayer.setLives(info.getPlayerLives());
+			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
+			boolean spawned = false;
+			while (!spawned) {
+				int chosenSpawn = random.nextInt(spawns.size());
+				if (spawns.get(chosenSpawn).isOccupied()) {
+					spawned = false;
+				} else {
+					newPlayer.updatePosition((int) spawns.get(chosenSpawn).getCenterX(),
+							(int) spawns.get(chosenSpawn).getCenterY());
+					spawns.get(chosenSpawn).setOccupied(true);
+					spawned = true;
 				}
 			}
-			for (Entry<String, PlayerStatistics> e : playerStats.entrySet()) {
-				Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
-				RocketLauncher newLauncher = new RocketLauncher((int) newPlayer.getCenterX(), (int) newPlayer.getCenterY(), 24, 6);
-				newPlayer.setUsername(e.getKey());
-				newPlayer.setBlocks(blocks);
-				newPlayer.setLives(info.getPlayerLives());
-				newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
-				boolean spawned = false;
-				while (!spawned) {
-					int chosenSpawn = random.nextInt(spawns.size());
-					if (spawns.get(chosenSpawn).isOccupied()) {
-						spawned = false;
-					} else {
-						newPlayer.updatePosition((int) spawns.get(chosenSpawn).getCenterX(),
-								(int) spawns.get(chosenSpawn).getCenterY());
-						spawns.get(chosenSpawn).setOccupied(true);
-						spawned = true;
-					}
-				}
-				newLauncher.setOwner(newPlayer.getUsername());
-				launchers.put(newPlayer.getUsername(), newLauncher);
-				players.put(e.getKey(), newPlayer);
-			}
-
+			newLauncher.setOwner(newPlayer.getUsername());
+			launchers.put(newPlayer.getUsername(), newLauncher);
+			players.put(e.getKey(), newPlayer);
+		}
 			GenericRequest rq1 = new GenericRequest("GAME_STARTED");
-			rq1.setData(players, "PLAYERS");
-			rq1.setData(blocks, "MAP");
-			updateClients(rq1);
-			gameStarted = true;
+		rq1.setData(players, "PLAYERS");
+		rq1.setData(blocks, "MAP");
+		updateClients(rq1);
+		gameStarted = true;
 	}
 	
 	public void stopGame() {
@@ -312,7 +315,7 @@ public class GameLobby implements Runnable {
 						g.addEvent("ADD_EFFECT", e);
 						effectCounter++;
 						playerStats.get(r.getOwner()).incrementStat("blocksDestroyed");
-						playerStats.get(r.getOwner()).addScore(1);
+						playerStats.get(r.getOwner()).addScore(5);
 						blocks.remove(col);
 						updateClients(g);
 					} else if (!hit.isBlank()) {
@@ -328,7 +331,7 @@ public class GameLobby implements Runnable {
 							g.addEvent("ADD_EFFECT", d);
 							effectCounter++;
 							playerStats.get(r.getOwner()).incrementStat("eliminations");
-							playerStats.get(r.getOwner()).addScore(15);
+							playerStats.get(r.getOwner()).addScore(50);
 							playerStats.get(hit).incrementStat("deaths");
 						} else {
 							g.addEvent("PLAYER_HIT", hit);
@@ -372,19 +375,32 @@ public class GameLobby implements Runnable {
 		// also submit player scores and stats to database
 		
 		if (gameWon) {
+			
+			GameEvent g = new GameEvent();
+			g.addEvent("GAME_END", "gg");
+			updateClients(g);
+			
+			for (Entry<String, Player> e : players.entrySet()) {
+				if (e.getValue().isAlive()) {
+					playerStats.get(e.getKey()).addScore(100);
+				}
+			}
 			for (Entry<String, PlayerStatistics> e : playerStats.entrySet()) {
-				// submit data to database (unfinished)
+				e.getValue().setReady(false);
 				server.submitPlayerStatsToDB(e.getKey(), e.getValue());
 			}
+			
+			updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
+			
 			EndGameData gameStats = new EndGameData();
 			gameStats.setPlayers(players);
 			gameStats.setStats(playerStats);
-			//updateClients(gameStats);
+			updateClients(gameStats);
 			
 			//Send back to lobby
-			GenericRequest btl = new GenericRequest("BACK_TO_LOBBY");
-			btl.setData(players, "PLAYERS");
-			updateClients(btl);
+			//GenericRequest btl = new GenericRequest("BACK_TO_LOBBY");
+			//btl.setData(players, "PLAYERS");
+			//updateClients(btl);
 		}
 	}
 }

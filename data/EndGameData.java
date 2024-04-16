@@ -1,5 +1,6 @@
 package data;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -7,7 +8,8 @@ import java.util.stream.Collectors;
 
 import game_utilities.Player;
 
-public class EndGameData {
+@SuppressWarnings("serial")
+public class EndGameData implements Serializable {
 	
 	private String winner;
 	
