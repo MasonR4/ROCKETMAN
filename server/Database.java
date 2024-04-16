@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import data.PlayerStatistics;
+
 public class Database {
 	// Database connection
 	private Connection conn;
@@ -111,4 +113,30 @@ public class Database {
 		
 		return averages;
 	}
+	
+	public boolean insertPlayerStatistics(PlayerStatistics playerStats) {
+	    // SQL query to insert player statistics
+	    String insertQuery = "INSERT INTO statistics (username, wins, losses, eliminations, deaths, rocketsFired, blocksDestroyed) "
+	                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+	    
+	    try (PreparedStatement ps = conn.prepareStatement(insertQuery)) {
+	        ps.setString(1, playerStats.getUsername());
+	        ps.setInt(2, playerStats.getStat("wins"));
+	        ps.setInt(3, playerStats.getStat("losses"));
+	        ps.setInt(4, playerStats.getStat("eliminations"));
+	        ps.setInt(5, playerStats.getStat("deaths"));
+	        ps.setInt(6, playerStats.getStat("rocketsFired"));
+	        ps.setInt(7, playerStats.getStat("blocksDestroyed"));
+	        
+	        // Execute the insert query
+	        int rowsAffected = ps.executeUpdate();
+	        
+	        // Return true if the insert was successful
+	        return rowsAffected > 0;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+
 }

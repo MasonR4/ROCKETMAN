@@ -194,7 +194,12 @@ public class Server extends AbstractServer {
 	
 	// TODO make function to submit player stats to database
 	public void submitPlayerStatsToDB(String username, PlayerStatistics stats) {
-		
+		boolean success = serverDatabase.insertPlayerStatistics(stats);
+	    if (success) {
+	        System.out.println("Player statistics inserted successfully for user: " + username);
+	    } else {
+	        System.out.println("Failed to insert player statistics for user: " + username);
+	    }
 	}
 	
 	@Override
