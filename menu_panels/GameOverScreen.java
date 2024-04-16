@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 
 import data.EndGameData;
 import data.PlayerStatistics;
@@ -26,6 +27,8 @@ public class GameOverScreen extends JPanel {
 	private JScrollPane statsScrollPane;
 	
 	private EightBitLabel title;
+	private EightBitLabel gameMode;
+	private EightBitLabel playerTitleLabel;
 	
 	private EightBitButton leaveButton;
 	private EightBitButton returnButton;
@@ -40,6 +43,10 @@ public class GameOverScreen extends JPanel {
 		
 		title = new EightBitLabel("GAME END", Font.BOLD, 222f);
 		title.setBounds(375, 45, 850, 150);
+		
+		playerTitleLabel = new EightBitLabel("Players", Font.PLAIN, 60f);
+		playerTitleLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+		playerTitleLabel.setBounds(700, 325, 200, 50);
 		
 		statsBox = new JPanel();
 		statsBox.setLayout(new GridLayout(2, 4, 5, 5));
@@ -63,6 +70,7 @@ public class GameOverScreen extends JPanel {
 		add(statsScrollPane);
 		add(leaveButton);
 		add(returnButton);
+		add(playerTitleLabel);
 	}
 	
 	public void setEndGameStats(EndGameData e) {
@@ -76,6 +84,7 @@ public class GameOverScreen extends JPanel {
 		for (int i = 0; i < (fill - rank) + 1; i++) {
 			JPanel filler = new JPanel();
 			filler.setPreferredSize(new Dimension(290, 390));
+			filler.setOpaque(false);
 			statsBox.add(filler);
 		}
 		repaint();
