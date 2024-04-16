@@ -136,6 +136,9 @@ public class Client extends AbstractClient {
 			case "CONFIRM_DISCONNECT_AND_EXIT":
 				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
 				break;
+			case "BACK_TO_LOBBY":
+				//cl.show(containerPanel, "LOBBY");
+				break;
 			} 
 		} else if (arg0 instanceof GameLobbyData) {
 			GameLobbyData info = (GameLobbyData) arg0;
