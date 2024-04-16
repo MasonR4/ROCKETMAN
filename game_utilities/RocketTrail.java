@@ -11,7 +11,7 @@ public class RocketTrail extends Effect {
 	public RocketTrail(int x, int y) {
 		super(x, y);
 		animated = true;
-		frames = 120;
+		frames = 12;
 		height = 7;
 		width = 7;
 		color = new Color(173, 173, 173);
@@ -19,7 +19,7 @@ public class RocketTrail extends Effect {
 	
 	public void animate() {
 		frameCounter++;
-		if (frameCounter % 40 == 0) {
+		if (frameCounter % 4 == 0) {
 			height -= 2;
 			width -= 2;
 		}

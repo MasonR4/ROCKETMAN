@@ -19,6 +19,7 @@ import controller.SplashScreenController;
 import data.GenericRequest;
 import data.PlayerAction;
 import data.PlayerStatistics;
+import data.StartGameData;
 import data.PlayerJoinLeaveData;
 import game_utilities.Block;
 import game_utilities.Player;
@@ -152,6 +153,10 @@ public class Client extends AbstractClient {
 		} else if (arg0 instanceof GameEvent) {
 			GameEvent event = (GameEvent) arg0;
 			gameController.handleGameEvent(event);
+		} else if (arg0 instanceof StartGameData) {
+			System.out.println("got lobby settings");
+			StartGameData s = (StartGameData) arg0;
+			lobbyController.updateGameLobbySettings(s);
 		}
 	}
 	

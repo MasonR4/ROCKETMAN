@@ -11,14 +11,16 @@ public class StartGameData implements Serializable {
 	private int playerLives;
 	private String map;
 	
+	private boolean actuallyStart;
 	// player speed?
 	// reload speed?
 	// time limit?
 	
-	public StartGameData(int gid, String m, int lives) {
+	public StartGameData(int gid, String m, int lives, boolean b) {
 		gameID = gid;
 		playerLives = lives;
 		map = m;
+		actuallyStart = b;
 	}
 	
 	public int getGameID() {
@@ -35,5 +37,9 @@ public class StartGameData implements Serializable {
 	
 	public String getMap() {
 		return map;
+	}
+
+	public boolean isActuallyStarting() {
+		return actuallyStart;
 	}
 }

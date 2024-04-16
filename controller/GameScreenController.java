@@ -24,6 +24,7 @@ import game_utilities.Missile;
 import game_utilities.Player;
 import game_utilities.PlayerActionPriorityComparator;
 import game_utilities.RocketLauncher;
+import game_utilities.RocketTrail;
 import menu_panels.GameScreen;
 import menu_utilities.EightBitLabel;
 import menu_utilities.GameDisplay;
@@ -63,6 +64,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	// === PLAYER STATS ===
 	
 	private long reload_time = 1800; // reload time (ms)
+	private Integer trailCount = -1;
 	
 	@SuppressWarnings("serial")
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
@@ -179,7 +181,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			tempPlayer.setUsername(p.getUsername());
 			tempPlayer.setColor(p.getColor());
 			tempPlayer.setBlocks(blocks);
-			System.out.println("added players and map");
+			tempPlayer.setLives(p.getLives());
 			tempLauncher.setOwner(p.getUsername());
 			launchers.put(p.getUsername(), tempLauncher);
 			players.put(p.getUsername(), tempPlayer);			
@@ -273,7 +275,10 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			}
 			
 			for (Missile m : rockets.values()) {
-				m.move();
+				RocketTrail trail = new RocketTrail((int) m.getCenterX(), (int) m.getCenterY());
+				effects.put(trailCount, trail);
+				trailCount--;
+				m.move();				
 			}
 			
 			for (Entry<Integer, Effect> e : effects.entrySet()) {
