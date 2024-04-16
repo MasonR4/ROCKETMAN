@@ -16,6 +16,7 @@ public class GeneratorGUI extends JFrame {
     private JButton[][] buttons = new JButton[SIZE][SIZE];
     private int[][] grid = new int[SIZE][SIZE];
     private boolean lineMode = false;
+    private boolean hollowSquareMode = false;
     private JButton firstPoint;
     private JButton secondPoint;
     private Stack<int[][]> undoStack = new Stack<>();
@@ -61,21 +62,28 @@ public class GeneratorGUI extends JFrame {
         } else {
             // Assuming a typical change to grid, like toggling its value
             JButton pressedButton = (JButton) e.getSource();
-            int i = -1, j = -1;
-            for (int row = 0; row < SIZE; row++) {
-                for (int col = 0; col < SIZE; col++) {
-                    if (buttons[row][col] == pressedButton) {
-                        i = row;
-                        j = col;
-                        break;
+            if (lineMode) {
+                handleLineTool(pressedButton);
+            } else if (hollowSquareMode) {
+                handleHollowSquareTool(pressedButton);
+            } else {
+                // Handle other actions or normal mode
+                int i = -1, j = -1;
+                for (int row = 0; row < SIZE; row++) {
+                    for (int col = 0; col < SIZE; col++) {
+                        if (buttons[row][col] == pressedButton) {
+                            i = row;
+                            j = col;
+                            break;
+                        }
                     }
                 }
-            }
-            if (i != -1 && j != -1) {
-                saveState();  // Save state before changing the grid value
-                grid[i][j] = (grid[i][j] + 1) % 10;  // Just a sample toggle operation
-                if (grid[i][j] == 2) grid[i][j] = 9;  // Skip to 9 if the new value is 2
-                updateButtonColor(i, j);
+                if (i != -1 && j != -1) {
+                    saveState();  // Save state before changing the grid value
+                    grid[i][j] = (grid[i][j] + 1) % 10;  // Just a sample toggle operation
+                    if (grid[i][j] == 2) grid[i][j] = 9;  // Skip to 9 if the new value is 2
+                    updateButtonColor(i, j);
+                }
             }
         }
     }
@@ -128,6 +136,71 @@ public class GeneratorGUI extends JFrame {
             }
         }
     }
+    
+    private void drawHollowSquare(JButton start, JButton end) {
+        int startX = -1, startY = -1, endX = -1, endY = -1;
+
+        // Finding the coordinates of start and end corners
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (buttons[i][j] == start) {
+                    startX = i;
+                    startY = j;
+                }
+                if (buttons[i][j] == end) {
+                    endX = i;
+                    endY = j;
+                }
+            }
+        }
+
+        if (startX == -1 || startY == -1 || endX == -1 || endY == -1) return; // Coordinates not found
+
+        // Draw the top and bottom lines
+        for (int j = Math.min(startY, endY); j <= Math.max(startY, endY); j++) {
+            updateButtonState(startX, j, 1);
+            updateButtonState(endX, j, 1);
+        }
+        // Draw the left and right lines
+        for (int i = Math.min(startX, endX); i <= Math.max(startX, endX); i++) {
+            updateButtonState(i, startY, 1);
+            updateButtonState(i, endY, 1);
+        }
+    }
+    
+    private void handleLineTool(JButton pressedButton) {
+        if (firstPoint == null) {
+            firstPoint = pressedButton;
+        } else if (secondPoint == null) {
+            secondPoint = pressedButton;
+            saveState();  // Save state before drawing a line
+            drawLine(firstPoint, secondPoint);
+            resetSelections();
+        }
+    }
+
+    private void handleHollowSquareTool(JButton pressedButton) {
+        if (firstPoint == null) {
+            firstPoint = pressedButton;
+        } else if (secondPoint == null) {
+        	secondPoint = pressedButton;
+            saveState();  // Save state before drawing a hollow square
+            drawHollowSquare(firstPoint, secondPoint);
+            resetSelections();
+        }
+    }
+    
+    private void resetSelections() {
+        firstPoint = null;
+        secondPoint = null;
+    }
+
+    private void updateButtonState(int x, int y, int state) {
+        if (grid[x][y] != 9) {  // Assuming we're not allowed to overwrite '9's
+            grid[x][y] = state;
+            updateButtonColor(x, y);
+        }
+    }
 
     private void updateButtonColor(int i, int j) {
         switch (grid[i][j]) {
@@ -144,18 +217,24 @@ public class GeneratorGUI extends JFrame {
 
     private void initializeMenuBar() {
         JMenuBar menuBar = new JMenuBar();
-        
-        
+
         // File menu
         JMenu fileMenu = new JMenu("File");
+        // Export item
         JMenuItem exportItem = new JMenuItem("Export");
         exportItem.addActionListener(e -> exportArrayToFile());
         fileMenu.add(exportItem);
+        
+        // Clear item
         JMenuItem clearItem = new JMenuItem("Clear");
         clearItem.addActionListener(e -> clearGrid());
         fileMenu.add(clearItem);
+
+        // Tools menu for Line and Hollow Square
+        JMenu toolsMenu = new JMenu("Tools");
+        JCheckBoxMenuItem lineItem = new JCheckBoxMenuItem("Line");
+        JCheckBoxMenuItem hollowSquareItem = new JCheckBoxMenuItem("Hollow Square");
         
-        //Edit menu
         JMenu editMenu = new JMenu("Edit");
         JMenuItem undoItem = new JMenuItem("Undo");
         undoItem.addActionListener(e -> undo());
@@ -163,20 +242,25 @@ public class GeneratorGUI extends JFrame {
         redoItem.addActionListener(e -> redo());
         editMenu.add(undoItem);
         editMenu.add(redoItem);
-
-        // Line menu
-        JMenu lineMenu = new JMenu("Tools");
-        JCheckBoxMenuItem lineModeItem = new JCheckBoxMenuItem("Enable Line");
-        lineModeItem.addActionListener(e -> {
-            lineMode = lineModeItem.isSelected();
-            firstPoint = null; // Reset on mode change
-            secondPoint = null;
+        
+        lineItem.addActionListener(e -> {
+            hollowSquareMode = false; // Disable hollow square mode if line is enabled
+            hollowSquareItem.setSelected(false);
+            lineMode = lineItem.isSelected();
+            resetSelections();
         });
 
-        lineMenu.add(lineModeItem);
+        hollowSquareItem.addActionListener(e -> {
+            lineMode = false; // Disable line mode if hollow square is enabled
+            lineItem.setSelected(false);
+            hollowSquareMode = hollowSquareItem.isSelected();
+            resetSelections();
+        });
 
+        toolsMenu.add(lineItem);
+        toolsMenu.add(hollowSquareItem);
         menuBar.add(fileMenu);
-        menuBar.add(lineMenu);
+        menuBar.add(toolsMenu);
         menuBar.add(editMenu);
         setJMenuBar(menuBar);
     }
@@ -200,7 +284,7 @@ public class GeneratorGUI extends JFrame {
     }
 
     private void undo() {
-        debugStacks();  // Debug print to see if undo is triggered and stack sizes
+        //debugStacks();  // Debug print to see if undo is triggered and stack sizes
         if (!undoStack.isEmpty()) {
             redoStack.push(copyGrid(grid));
             int[][] previous = undoStack.pop();
@@ -210,7 +294,7 @@ public class GeneratorGUI extends JFrame {
     }
 
     private void redo() {
-        debugStacks();  // Debug print to see if redo is triggered and stack sizes
+        //debugStacks();  // Debug print to see if redo is triggered and stack sizes
         if (!redoStack.isEmpty()) {
             undoStack.push(copyGrid(grid));
             int[][] next = redoStack.pop();
