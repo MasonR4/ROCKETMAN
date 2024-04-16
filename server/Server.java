@@ -195,6 +195,11 @@ public class Server extends AbstractServer {
 		}
 	}
 	
+	// TODO make function to submit player stats to database
+	public void submitPlayerStatsToDB(String username, PlayerStatistics stats) {
+		
+	}
+	
 	@Override
 	protected void handleMessageFromClient(Object arg0, ConnectionToClient arg1) {
 		if (arg0 instanceof GenericRequest) {

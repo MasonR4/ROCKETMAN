@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+
+import data.EndGameData;
 import data.Event;
 import data.GameEvent;
 import data.GameLobbyData;
@@ -351,9 +353,15 @@ public class GameLobby implements Runnable {
 		// also submit player scores and stats to database
 		
 		if (gameWon) {
+			for (Entry<String, PlayerStatistics> e : playerStats.entrySet()) {
+				server.submitPlayerStatsToDB(e.getKey(), e.getValue());
+			}
+			EndGameData gameStats = new EndGameData();
+			gameStats.setPlayers(players);
+			gameStats.setStats(playerStats);
+			updateClients(gameStats);
 			
+			// submit player list and connections to server to keep lobbies together
 		}
-		
-		
 	}
 }

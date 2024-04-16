@@ -223,8 +223,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				gamePanel.repaint();
 				break;
 			case "PLAYER_HIT":
-				System.out.println("player was hit: " + t.getValue());
-				screen.addLogMessage(t.getValue() + " WAS EXPLODED", players.get(t.getValue()).getColor());
+				players.get(t.getValue()).takeHit();
 				break;
 			case "PLAYER_ELIMINATED":
 				players.get(t.getValue()).die();
