@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Stack;
 
 public class GeneratorGUI extends JFrame {
     private static final int SIZE = 30;
@@ -17,6 +18,8 @@ public class GeneratorGUI extends JFrame {
     private boolean lineMode = false;
     private JButton firstPoint;
     private JButton secondPoint;
+    private Stack<int[][]> undoStack = new Stack<>();
+    private Stack<int[][]> redoStack = new Stack<>();
 
     public GeneratorGUI() {
         super("Array Grid Generator");
@@ -45,26 +48,34 @@ public class GeneratorGUI extends JFrame {
     }
 
     private void buttonPressed(ActionEvent e) {
-        JButton sourceButton = (JButton) e.getSource();
         if (lineMode) {
             if (firstPoint == null) {
-                firstPoint = sourceButton;
+                firstPoint = (JButton) e.getSource();
             } else if (secondPoint == null) {
-                secondPoint = sourceButton;
+                secondPoint = (JButton) e.getSource();
+                saveState();  // Save state before drawing a line
                 drawLine(firstPoint, secondPoint);
                 firstPoint = null; // Reset for the next line
                 secondPoint = null;
             }
         } else {
-            for (int i = 0; i < SIZE; i++) {
-                for (int j = 0; j < SIZE; j++) {
-                    if (e.getSource() == buttons[i][j]) {
-                        grid[i][j] = (grid[i][j] + 1) % 10; // Cycles through 0, 1, 9
-                        if (grid[i][j] == 2) grid[i][j] = 9;
-                        updateButtonColor(i, j);
+            // Assuming a typical change to grid, like toggling its value
+            JButton pressedButton = (JButton) e.getSource();
+            int i = -1, j = -1;
+            for (int row = 0; row < SIZE; row++) {
+                for (int col = 0; col < SIZE; col++) {
+                    if (buttons[row][col] == pressedButton) {
+                        i = row;
+                        j = col;
                         break;
                     }
                 }
+            }
+            if (i != -1 && j != -1) {
+                saveState();  // Save state before changing the grid value
+                grid[i][j] = (grid[i][j] + 1) % 10;  // Just a sample toggle operation
+                if (grid[i][j] == 2) grid[i][j] = 9;  // Skip to 9 if the new value is 2
+                updateButtonColor(i, j);
             }
         }
     }
@@ -134,6 +145,7 @@ public class GeneratorGUI extends JFrame {
     private void initializeMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         
+        
         // File menu
         JMenu fileMenu = new JMenu("File");
         JMenuItem exportItem = new JMenuItem("Export");
@@ -142,20 +154,78 @@ public class GeneratorGUI extends JFrame {
         JMenuItem clearItem = new JMenuItem("Clear");
         clearItem.addActionListener(e -> clearGrid());
         fileMenu.add(clearItem);
+        
+        //Edit menu
+        JMenu editMenu = new JMenu("Edit");
+        JMenuItem undoItem = new JMenuItem("Undo");
+        undoItem.addActionListener(e -> undo());
+        JMenuItem redoItem = new JMenuItem("Redo");
+        redoItem.addActionListener(e -> redo());
+        editMenu.add(undoItem);
+        editMenu.add(redoItem);
 
         // Line menu
-        JMenu lineMenu = new JMenu("Line");
+        JMenu lineMenu = new JMenu("Tools");
         JCheckBoxMenuItem lineModeItem = new JCheckBoxMenuItem("Enable Line");
         lineModeItem.addActionListener(e -> {
             lineMode = lineModeItem.isSelected();
             firstPoint = null; // Reset on mode change
             secondPoint = null;
         });
+
         lineMenu.add(lineModeItem);
 
         menuBar.add(fileMenu);
         menuBar.add(lineMenu);
+        menuBar.add(editMenu);
         setJMenuBar(menuBar);
+    }
+    
+    private void debugStacks() {
+        System.out.println("Undo Stack Size: " + undoStack.size());
+        System.out.println("Redo Stack Size: " + redoStack.size());
+    }
+    
+    private void saveState() {
+        undoStack.push(copyGrid(grid));
+        redoStack.clear();  // Clear the redo stack whenever a new action is performed
+    }
+
+    private int[][] copyGrid(int[][] original) {
+        int[][] copy = new int[SIZE][SIZE];
+        for (int i = 0; i < SIZE; i++) {
+            System.arraycopy(original[i], 0, copy[i], 0, SIZE);
+        }
+        return copy;
+    }
+
+    private void undo() {
+        debugStacks();  // Debug print to see if undo is triggered and stack sizes
+        if (!undoStack.isEmpty()) {
+            redoStack.push(copyGrid(grid));
+            int[][] previous = undoStack.pop();
+            restoreGrid(previous);
+            //debugStacks();  // Debug after operation
+        }
+    }
+
+    private void redo() {
+        debugStacks();  // Debug print to see if redo is triggered and stack sizes
+        if (!redoStack.isEmpty()) {
+            undoStack.push(copyGrid(grid));
+            int[][] next = redoStack.pop();
+            restoreGrid(next);
+            //debugStacks();  // Debug after operation
+        }
+    }
+
+    private void restoreGrid(int[][] state) {
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                grid[i][j] = state[i][j];
+                updateButtonColor(i, j); // Ensure this method sets the button color based on the grid value
+            }
+        }
     }
 
     private void clearGrid() {
