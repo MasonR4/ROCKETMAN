@@ -70,16 +70,17 @@ public class GameDisplay extends JPanel {
 		}
 		for (Player p : players.values()) {
 			if (p.isAlive()) {
-				//g2d.setColor(p.getColor());
-				//g2d.fillRect(p.x, p.y, 20, 20);
 				p.draw(g);
 				launchers.get(p.getUsername()).draw(g);
 			}
 		}
 		for (Effect e : effects.values()) {
-			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, e.getOpacity()));
+			//g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, e.getOpacity()));
 			if (e.isAnimated()) {
-				// e.animate
+				if (e.getFrameCount() != e.getFrames()) {
+					e.animate();
+					e.draw(g);
+				}
 			} else {
 				e.draw(g);
 			}

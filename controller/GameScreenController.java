@@ -276,6 +276,12 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				m.move();
 			}
 			
+			for (Entry<Integer, Effect> e : effects.entrySet()) {
+				if (e.getValue().isAnimated() && e.getValue().getFrameCount() >= e.getValue().getFrames()) {
+					effects.remove(e.getKey());
+				}
+			}
+			
 			PlayerAction r = new PlayerAction(client.getGameID(), username, "LAUNCHER_ROTATION", "speen");
 			r.setMousePos(mouseX, mouseY);
 			outboundEventQueue.add(r);

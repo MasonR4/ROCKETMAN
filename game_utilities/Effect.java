@@ -7,14 +7,23 @@ import java.awt.Rectangle;
 public abstract class Effect extends Rectangle {
 	private static final long serialVersionUID = -7599985014110776973L;
 	protected boolean animated;
-	protected int frames;
+
 	protected Color color;
+	
+	protected int frames;
+	protected int frameCounter = 0;
 	
 	protected float opacity = 1f;
 	
 	protected int effectNumber;
 	
-	public Effect() {}
+	protected int height;
+	protected int width;
+	
+	public Effect(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
 	public void animate() {}
 	public void draw(Graphics g) {}
 	
@@ -40,6 +49,10 @@ public abstract class Effect extends Rectangle {
 	
 	public int getFrames() {
 		return frames;
+	}
+	
+	public int getFrameCount() {
+		return frameCounter;
 	}
 	
 	public float getOpacity() {

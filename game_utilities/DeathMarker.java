@@ -18,11 +18,10 @@ public class DeathMarker extends Effect {
 	String username;
 	
 	public DeathMarker(int x, int y, String s) {
-		xPos = x;
-		yPos = y;
+		super(x, y);
 		username = s;
 		animated = false;
-		setBounds(xPos, yPos, width, height);
+		setBounds(x, y, width, height);
 	}
 	
 	public void draw(Graphics g) {

@@ -27,9 +27,11 @@ import data.StartGameData;
 import game_utilities.Block;
 import game_utilities.DeathMarker;
 import game_utilities.Effect;
+import game_utilities.Explosion;
 import game_utilities.Missile;
 import game_utilities.Player;
 import game_utilities.RocketLauncher;
+import game_utilities.RocketTrail;
 import game_utilities.SpawnBlock;
 import menu_utilities.EightBitLabel;
 import ocsf.server.ConnectionToClient;
@@ -278,6 +280,8 @@ public class GameLobby implements Runnable {
 			for (Iterator<Map.Entry<Integer, Missile>> it = rockets.entrySet().iterator(); it.hasNext();) {
 				Map.Entry<Integer, Missile> entry = it.next();
 				Missile r = entry.getValue();
+				//RocketTrail trail = new RocketTrail((int) r.getCenterX(), (int) r.getCenterY());
+				//g.addEvent("ADD_EFFECT", trail);
 				r.move();
 				if (!r.isExploded()) {
 					int col = r.checkBlockCollision();
@@ -285,16 +289,22 @@ public class GameLobby implements Runnable {
 					GameEvent g = new GameEvent();
 					if (r.checkBoundaryCollision()) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
+						Explosion e = new Explosion((int) r.getCenterX(), (int) r.getCenterY());
+						g.addEvent("ADD_EFFECT", e);
 						updateClients(g);
 					} else if (col > 0) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
 						g.addEvent("BLOCK_DESTROYED", col);
+						Explosion e = new Explosion((int) r.getCenterX(), (int) r.getCenterY());
+						g.addEvent("ADD_EFFECT", e);
 						playerStats.get(r.getOwner()).incrementStat("blocksDestroyed");
 						playerStats.get(r.getOwner()).addScore(1);
 						blocks.remove(col);
 						updateClients(g);
 					} else if (!hit.isBlank()) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
+						Explosion e = new Explosion((int) r.getCenterX(), (int) r.getCenterY());
+						g.addEvent("ADD_EFFECT", e);
 						players.get(hit).takeHit();
 						if (!players.get(hit).isAlive()) {
 							g.addEvent("PLAYER_ELIMINATED", hit);
@@ -319,6 +329,7 @@ public class GameLobby implements Runnable {
 						it.remove();
 					}
 				}
+				//updateClients(g);
 			}
 
 			// TODO implement checks for game win state here
