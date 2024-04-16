@@ -14,6 +14,7 @@ import data.GameLobbyData;
 import menu_utilities.EightBitButton;
 import menu_utilities.EightBitLabel;
 
+@SuppressWarnings("serial")
 public class ServerGameListingPanel extends JPanel {
 	
 	private String name;

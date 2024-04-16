@@ -26,7 +26,6 @@ public class GameScreen extends JLayeredPane {
 	private EightBitLabel username;
 	private EightBitLabel randomLabel;
 	
-	private JTextArea log;
 	private JPanel logPanel;
 	private JScrollPane logScrollPane;
 	
@@ -88,16 +87,12 @@ public class GameScreen extends JLayeredPane {
 		EightBitLabel m = new EightBitLabel(msg, Font.BOLD, 25f);
 		m.setForeground(color);
 		logPanel.add(m);
-		//logPanel.repaint();
-		//logScrollPane.repaint();
 		repaint();
 		revalidate();
 	}
 	
 	public void addLogMessage(EightBitLabel msg) {
 		logPanel.add(msg);
-		//logPanel.repaint();
-		//logScrollPane.repaint();
 		repaint();
 		revalidate();
 	}

@@ -39,8 +39,8 @@ public class LobbyScreenController implements ActionListener {
 	
 	private EightBitLabel map;
 	private EightBitLabel lives;
-	private EightBitLabel reload;
-	private EightBitLabel time;
+	//private EightBitLabel reload;
+	//private EightBitLabel time;
 	
 	//private HashMap<String, Integer> reloadSpeeds = new HashMap<>();
 	// also set max time?
@@ -55,8 +55,8 @@ public class LobbyScreenController implements ActionListener {
 		playerPanel = screen.getPlayerPanel();
 		map = screen.getMapLabel();
 		lives = screen.getLivesLabel();
-		reload = screen.getReloadLabel();
-		time = screen.getTimeLabel();
+		//reload = screen.getReloadLabel();
+		//time = screen.getTimeLabel();
 	}
 	
 	public void addPlayerListing(ArrayList<PlayerJoinLeaveData> data) {
@@ -86,10 +86,6 @@ public class LobbyScreenController implements ActionListener {
 		screen.updateLobbyInfo();
 		playerPanel.repaint();
 		playerPanel.revalidate();
-	}
-	
-	public void readyPlayer() {
-		
 	}
 	
 	public void readyButton() {

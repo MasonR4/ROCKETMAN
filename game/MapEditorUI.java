@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Stack;
 
+@SuppressWarnings("serial")
 public class MapEditorUI extends JFrame {
     private static final int SIZE = 30;
     private static final Color COLOR_ONE = Color.RED;
@@ -265,7 +266,8 @@ public class MapEditorUI extends JFrame {
         setJMenuBar(menuBar);
     }
     
-    private void debugStacks() {
+    @SuppressWarnings("unused")
+	private void debugStacks() {
         System.out.println("Undo Stack Size: " + undoStack.size());
         System.out.println("Redo Stack Size: " + redoStack.size());
     }
