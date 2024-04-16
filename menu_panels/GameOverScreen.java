@@ -28,6 +28,7 @@ public class GameOverScreen extends JPanel {
 	}
 	
 	
+	
 	public void setController(ActionListener ac) {
 		controller = ac;
 		for (Component c : this.getComponents()) {

@@ -139,7 +139,7 @@ public class Client extends AbstractClient {
 				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
 				break;
 			case "BACK_TO_LOBBY":
-				//cl.show(containerPanel, "LOBBY");
+				gameOverController.returnToLobby();
 				break;
 			} 
 		} else if (arg0 instanceof GameLobbyData) {

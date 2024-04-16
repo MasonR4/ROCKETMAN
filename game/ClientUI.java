@@ -177,7 +177,7 @@ public class ClientUI extends JFrame {
 		// lol?
 		serverConnectionScreenController.actionPerformed(new ActionEvent(this, 0, "BYPASS_CONNECTION_AND_ATTEMPT_LOGIN"));
 
-		CL.show(containerPanel, "GAME_OVER"); // TODO FOR DEBUGGING REMOVE LATER
+		//CL.show(containerPanel, "GAME_OVER"); // TODO FOR DEBUGGING REMOVE LATER
 	}
 
 	public void updateConfigData(String key, String value) {

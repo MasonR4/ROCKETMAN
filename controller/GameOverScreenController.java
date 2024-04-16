@@ -29,7 +29,9 @@ public class GameOverScreenController implements ActionListener {
 
 	
 	
-	
+	public void returnToLobby() {
+		cl.show(clientPanel, "LOBBY");
+	}
 	
 	
 	@Override
