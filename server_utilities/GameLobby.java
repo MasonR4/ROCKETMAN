@@ -348,7 +348,15 @@ public class GameLobby implements Runnable {
 			// TODO implement checks for game win state here
 			
 			if (remainingPlayers == 1 && playerCount > 1) {
+				//check players alive
 				
+				//display winner's name
+				
+				//give option for rematch and go back to lobby
+				
+				//if rematch == true, restart game loop with the same settings
+				
+				//if lobby is true redirect all players to lobby and unready them
 			}
 			
 			long endTime = System.currentTimeMillis();
