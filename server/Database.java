@@ -27,6 +27,10 @@ public class Database {
 		}
 	}
 
+	public Connection getConnection() {
+        return conn;
+    }
+	
 	// Method for verifying a username and password.
 	public boolean verifyAccount(String username, String password) {
 		String query = "SELECT username FROM userData WHERE username = ? AND password = AES_ENCRYPT(?, 'key')";
@@ -104,8 +108,6 @@ public class Database {
 		
 		// KDA
 		averages[1] = stats[2]/stats[3];
-		
-		
 		
 		return averages;
 	}
