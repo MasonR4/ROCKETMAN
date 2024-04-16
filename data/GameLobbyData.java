@@ -1,6 +1,7 @@
 package data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class GameLobbyData implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -11,7 +12,9 @@ public class GameLobbyData implements Serializable {
 	private int playerCount;
 	private int maxPlayers;
 	private int gameID;
-
+	
+	private ArrayList<String> maps;
+	
 	public GameLobbyData(String n, String hn, int p, int mp, int gid) {
 		name = n;
 		maxPlayers = mp;	
@@ -42,5 +45,13 @@ public class GameLobbyData implements Serializable {
 	
 	public int getGameID() {
 		return gameID;
+	}
+
+	public ArrayList<String> getMaps() {
+		return maps;
+	}
+
+	public void setMaps(ArrayList<String> maps) {
+		this.maps = maps;
 	}	
 }

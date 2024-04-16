@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Player extends Rectangle implements Serializable {
+	private static final long serialVersionUID = 1370509841513275945L;
+
 	private String username;
 	
 	private int size = 20;
@@ -79,6 +81,7 @@ public class Player extends Rectangle implements Serializable {
 	public void die() {
 		lives = 0;
 		colorFromWhenTheyWereAlive = color;
+		alive = false;
 		color = Color.GRAY;
 	}
 	
@@ -116,6 +119,10 @@ public class Player extends Rectangle implements Serializable {
 	
 	public int getBlockSize() {
 		return size;
+	}
+	
+	public Color getColorFromWhenTheyWereNotDeadAsInAlive() {
+		return colorFromWhenTheyWereAlive;
 	}
 	
 	public Color getColor() {

@@ -62,9 +62,9 @@ public class GameLobby implements Runnable {
 	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 
-	// these might be useful might not be
-	private ConcurrentLinkedQueue<Event> inboundEventQueue = new ConcurrentLinkedQueue<>();
-	private ConcurrentLinkedQueue<Event> outboundEventQueue = new ConcurrentLinkedQueue<>();
+	// TODO remove later if not needed
+	//private ConcurrentLinkedQueue<Event> inboundEventQueue = new ConcurrentLinkedQueue<>();
+	//private ConcurrentLinkedQueue<Event> outboundEventQueue = new ConcurrentLinkedQueue<>();
 
 	public GameLobby(String n, String hn, int mp, int gid, Server s) {
 		lobbyName = n;
@@ -212,7 +212,7 @@ public class GameLobby implements Runnable {
 		updateClients(rq);
 	}
 
-	public void updateClients(Object data) {
+	public synchronized void updateClients(Object data) {
 		for (ConnectionToClient c : playerConnections.values()) {
 			try {
 				c.sendToClient(data);
@@ -222,17 +222,15 @@ public class GameLobby implements Runnable {
 			}
 		}
 	}
-
+	
+	// TODO remove if not needed later
 	public GameLobbyData generateGameListing() {
 		GameLobbyData tempInfo = new GameLobbyData(lobbyName, hostUsername, playerCount, playerCap, gameID);
 		return tempInfo;
 	}
 
-	public void addPlayerAction(PlayerAction a) {
-		inboundEventQueue.add(a);
-	}
 
-	public void handlePlayerAction(PlayerAction a) {
+	public synchronized void handlePlayerAction(PlayerAction a) {
 		String usr = a.getUsername();
 		String type = a.getType();
 		switch (type) {
@@ -258,26 +256,21 @@ public class GameLobby implements Runnable {
 			playerStats.get(a.getUsername()).incrementStat("rocketsFired");
 			break;
 		}
-		outboundEventQueue.add(a);
+		updateClients(a);
 	}
 
 	@Override
 	public void run() {
 		while (gameStarted) {
 			long startTime = System.currentTimeMillis();
-			
-			Event a;
-			while ((a = inboundEventQueue.poll()) != null) {
-				if (a instanceof PlayerAction) {
-					handlePlayerAction((PlayerAction) a);
-				}
-			}
-			inboundEventQueue.clear();
+			int remainingPlayers = 0;
 			
 			for (Entry<String, Player> p : players.entrySet()) {
 				p.getValue().move();
-				launchers.get(p.getKey()).moveLauncher((int) p.getValue().getCenterX(), (int) p.getValue().getCenterY(),
-						p.getValue().getBlockSize());
+				launchers.get(p.getKey()).moveLauncher((int) p.getValue().getCenterX(), (int) p.getValue().getCenterY(), p.getValue().getBlockSize());
+				if (p.getValue().isAlive()) {
+					remainingPlayers++;
+				}
 			}
 
 			for (Iterator<Map.Entry<Integer, Missile>> it = rockets.entrySet().iterator(); it.hasNext();) {
@@ -290,14 +283,14 @@ public class GameLobby implements Runnable {
 					GameEvent g = new GameEvent();
 					if (r.checkBoundaryCollision()) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
-						outboundEventQueue.add(g);
+						updateClients(g);
 					} else if (col > 0) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
 						g.addEvent("BLOCK_DESTROYED", col);
 						playerStats.get(r.getOwner()).incrementStat("blocksDestroyed");
 						playerStats.get(r.getOwner()).addScore(1);
 						blocks.remove(col);
-						outboundEventQueue.add(g);
+						updateClients(g);
 					} else if (!hit.isBlank()) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
 						players.get(hit).takeHit();
@@ -305,6 +298,7 @@ public class GameLobby implements Runnable {
 							g.addEvent("PLAYER_ELIMINATED", hit);
 							DeathMarker d = new DeathMarker(players.get(hit).x, players.get(hit).y, hit);
 							d.setEffectNumber(effectCounter);
+							d.setColor(players.get(hit).getColorFromWhenTheyWereNotDeadAsInAlive());
 							effectCounter++;
 							g.addEvent("ADD_EFFECT", d);
 							playerStats.get(r.getOwner()).incrementStat("eliminations");
@@ -317,7 +311,7 @@ public class GameLobby implements Runnable {
 						EightBitLabel msg = new EightBitLabel(r.getOwner() + " exploded " + hit, Font.PLAIN, 25f);
 						g.addEvent("LOG_MESSAGE", msg);
 						
-						outboundEventQueue.add(g);
+						updateClients(g);
 					}
 					if (r.isExploded()) {
 						it.remove();
@@ -326,13 +320,11 @@ public class GameLobby implements Runnable {
 			}
 
 			// TODO implement checks for game win state here
-
-			Event g;
-			while ((g = outboundEventQueue.poll()) != null) {
-				updateClients(g);
+			
+			if (remainingPlayers == 1 && playerCount > 1) {
+				
 			}
-			outboundEventQueue.clear();
-
+			
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
 			long sleepTime = TARGET_DELTA - delta;
@@ -354,6 +346,7 @@ public class GameLobby implements Runnable {
 		
 		if (gameWon) {
 			for (Entry<String, PlayerStatistics> e : playerStats.entrySet()) {
+				// submit data to database (unfinished)
 				server.submitPlayerStatsToDB(e.getKey(), e.getValue());
 			}
 			EndGameData gameStats = new EndGameData();

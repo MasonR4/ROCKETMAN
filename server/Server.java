@@ -344,7 +344,9 @@ public class Server extends AbstractServer {
 					if (!games.get(gameID).isFull()) {
 						games.get(gameID).addPlayer(arg1, info);
 						try {
-							arg1.sendToClient(games.get(gameID).generateGameListing());
+							GameLobbyData lobbyInfo = games.get(gameID).generateGameListing();
+							lobbyInfo.setMaps(maps.getMapNames());
+							arg1.sendToClient(lobbyInfo);
 							serverMenuController.addGameListings(getAllGames());
 							logMessage("[Client " + arg1.getId() + "] Joined game " + gameID + " as " + username);
 							} catch (IOException CLIENT_VITALS_CANNOT_BE_CONFIRMED) {
@@ -397,7 +399,8 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof PlayerAction) {
 			PlayerAction a = (PlayerAction) arg0;
 			int gid = a.getGameID();
-			games.get(gid).addPlayerAction(a);
+			//games.get(gid).addPlayerAction(a);
+			games.get(gid).handlePlayerAction(a);
 		}
 	} 
 }

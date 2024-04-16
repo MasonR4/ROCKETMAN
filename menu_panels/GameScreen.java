@@ -88,13 +88,13 @@ public class GameScreen extends JLayeredPane {
 		EightBitLabel m = new EightBitLabel(msg, Font.BOLD, 25f);
 		m.setForeground(color);
 		logPanel.add(m);
-		logPanel.repaint();
+		//logPanel.repaint();
 		repaint();
 	}
 	
 	public void addLogMessage(EightBitLabel msg) {
 		logPanel.add(msg);
-		logPanel.repaint();
+		//logPanel.repaint();
 		repaint();
 	}
 	

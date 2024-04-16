@@ -1,7 +1,6 @@
 package controller;
 
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -11,18 +10,15 @@ import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-
 import data.GameEvent;
 import data.PlayerAction;
 import game.ClientUI;
 import game_utilities.Block;
-import game_utilities.DeathMarker;
 import game_utilities.Effect;
 import game_utilities.Missile;
 import game_utilities.Player;
@@ -59,16 +55,14 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	// 10 - Launcher Rotation
 	
 	private PriorityBlockingQueue<PlayerAction> outboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
-	private PriorityBlockingQueue<PlayerAction> inboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
-	private PriorityBlockingQueue<GameEvent> inboundGameEventQueue = new PriorityBlockingQueue<>(11, null);
+	//private PriorityBlockingQueue<PlayerAction> inboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
+	//private PriorityBlockingQueue<GameEvent> inboundGameEventQueue = new PriorityBlockingQueue<>(11, null);
 	
 	private int mouseX, mouseY;
 	
 	// === PLAYER STATS ===
 	
-	private long reload_time = 3000; // reload time (ms)
-	
-	private int score = 0;
+	private long reload_time = 1800; // reload time (ms)
 	
 	@SuppressWarnings("serial")
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
@@ -234,7 +228,8 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				break;
 			case "ADD_EFFECT":
 				Effect newEffect = (Effect) t.getValue();
-				effects.put(newEffect.getEffectNumber(), newEffect);				
+				effects.put(newEffect.getEffectNumber(), newEffect);
+				break;
 				default:
 					System.out.println("No case to handle GameEvent: " + t.getKey() + "(" + t.getValue() + ")");
 					break;
@@ -263,7 +258,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			Missile missile = new Missile(a.getEndX(), a.getEndY(), usr);
 			missile.setDirection(a.getMouseX(), a.getMouseY());
 			rockets.put(a.getMissileNumber(), missile);
-			System.out.println("new missile! " + a.getMissileNumber());
 			break;
 		}
 	}

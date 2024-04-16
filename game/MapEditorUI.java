@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Stack;
 
-public class MapEditor extends JFrame {
+public class MapEditorUI extends JFrame {
     private static final int SIZE = 30;
     private static final Color COLOR_ONE = Color.RED;
     private static final Color COLOR_TWO = Color.WHITE;
@@ -22,7 +22,7 @@ public class MapEditor extends JFrame {
     private Stack<int[][]> undoStack = new Stack<>();
     private Stack<int[][]> redoStack = new Stack<>();
 
-    public MapEditor() {
+    public MapEditorUI() {
         super("Array Grid Generator");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 600);
@@ -371,6 +371,6 @@ public class MapEditor extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(MapEditor::new);
+        SwingUtilities.invokeLater(MapEditorUI::new);
     }
 }

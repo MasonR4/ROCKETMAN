@@ -5,7 +5,7 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 
 public abstract class Effect extends Rectangle {
-	// TODO let him cook...
+	private static final long serialVersionUID = -7599985014110776973L;
 	protected boolean animated;
 	protected int frames;
 	protected Color color;

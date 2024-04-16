@@ -29,7 +29,7 @@ public class DeathMarker extends Effect {
 		Graphics2D g2d = (Graphics2D) g.create();
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setStroke(new BasicStroke(3));
-		g2d.setColor(Color.GRAY);
+		g2d.setColor(color);
         g2d.drawLine(xPos, yPos, xPos + width, yPos + height);  
         g2d.drawLine(xPos + width, yPos, xPos, yPos + height);  
 	}

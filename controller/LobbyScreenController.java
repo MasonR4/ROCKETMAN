@@ -123,7 +123,7 @@ public class LobbyScreenController implements ActionListener {
 			try {
 				StartGameData info = new StartGameData(client.getGameID());	
 				// TODO add more configurable options if we have time
-				info.setMap("fortnite_balls");
+				info.setMap("default");
 				client.sendToServer(info);
 			} catch (IOException SERVER_DECLINED_TO_START_GAME) {
 				SERVER_DECLINED_TO_START_GAME.printStackTrace();
