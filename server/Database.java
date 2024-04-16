@@ -86,9 +86,9 @@ public class Database {
                     statistics[0] = rs.getInt("wins");
                     statistics[1] = rs.getInt("losses");
                     statistics[2] = rs.getInt("eliminations");
-                    statistics[3] = rs.getInt("rocketsFired");
-                    statistics[4] = rs.getInt("blocksDestroyed");
-                    statistics[5] = rs.getInt("powerupsCollected");
+                    statistics[3] = rs.getInt("deaths");
+                    statistics[4] = rs.getInt("rocketsFired");
+                    statistics[5] = rs.getInt("blocksDestroyed");
                 }
             }
         } catch (SQLException e) {
