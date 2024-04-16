@@ -13,6 +13,7 @@ import data.PlayerReadyData;
 import data.StartGameData;
 import game.ClientUI;
 import menu_panels.LobbyScreen;
+import menu_utilities.EightBitLabel;
 import menu_utilities.PlayerListingPanel;
 import server.Client;
 
@@ -28,6 +29,22 @@ public class LobbyScreenController implements ActionListener {
 	
 	private CardLayout cl;
 	
+	// STUFF FOR GAME STATS GOES HERE OH NO
+	private ArrayList<String> mapNames = new ArrayList<String>();
+	private int selectedMap = 0;
+	
+	private int livesCount = 3;
+	private final int MAX_LIVES = 10;
+	private final int MIN_LIVES = 1;
+	
+	private EightBitLabel map;
+	private EightBitLabel lives;
+	//private EightBitLabel reload;
+	//private EightBitLabel time;
+	
+	//private HashMap<String, Integer> reloadSpeeds = new HashMap<>();
+	// also set max time?
+	
 	public LobbyScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
 		clientPanel = p;
@@ -36,10 +53,19 @@ public class LobbyScreenController implements ActionListener {
 		cl = (CardLayout) clientPanel.getLayout();
 		screen = (LobbyScreen) clientPanel.getComponent(6);
 		playerPanel = screen.getPlayerPanel();
+		map = screen.getMapLabel();
+		lives = screen.getLivesLabel();
+		//reload = screen.getReloadLabel();
+		//time = screen.getTimeLabel();
 	}
 	
 	public void addPlayerListing(ArrayList<PlayerJoinLeaveData> data) {
 		playerPanel.removeAll();
+		readyButton();
+		if (screen.hasHostControls()) {
+			screen.disableHostControls();
+			screen.setHostControls(false);
+		}
 		for (PlayerJoinLeaveData d : data) {
 			PlayerListingPanel p = new PlayerListingPanel(d.getUsername());
 			if (d.isReady()) {
@@ -50,22 +76,23 @@ public class LobbyScreenController implements ActionListener {
 			if (d.getUsername().equals(client.getUsername()) && d.isHost()) {
 				p.setHost("Host (You)");
 				screen.setDynamicLobbyInfo(d.getUsername(), data.size());
-				screen.enableHostControls();
+				if (!screen.hasHostControls()) {
+					screen.enableHostControls();
+					screen.setHostControls(true);
+				}
 			} else if (d.getUsername().equals(client.getUsername())) {
+				screen.disableHostControls();
 				p.setHost("You");
 			} else if (d.isHost()) {
 				p.setHost("Host");
 				screen.setDynamicLobbyInfo(d.getUsername(), data.size());
+				screen.disableHostControls();
 			}
 			playerPanel.add(p);
 		}
 		screen.updateLobbyInfo();
 		playerPanel.repaint();
 		playerPanel.revalidate();
-	}
-	
-	public void readyPlayer() {
-		
 	}
 	
 	public void readyButton() {
@@ -81,6 +108,11 @@ public class LobbyScreenController implements ActionListener {
 		SwingUtilities.invokeLater(() -> screen.updateLobbyInfo());
 	}
 	
+	public void setMapNames(ArrayList<String> m) {
+		System.out.println("set maps to " + m);
+		mapNames = m;
+	}
+	
 	public void leaveGameLobby() {
 		cl.show(clientPanel, "FIND_GAME");
 	}
@@ -89,10 +121,30 @@ public class LobbyScreenController implements ActionListener {
 		cl.show(clientPanel, "GAME");
 	}
 	
+	public void sendGameLobbySettings(StartGameData s) {
+		try {
+			client.sendToServer(s);
+		} catch (IOException SETTINGS_REJECTION) {
+			SETTINGS_REJECTION.printStackTrace();
+		}
+	}
+	
+	public void updateGameLobbySettings(StartGameData s) {
+		if (!screen.getHostUsername().equals(client.getUsername())) {
+			map.setText(s.getMap()); 
+			if (s.getPlayerLives() == 1) {
+				lives.setText("Sudden Death");
+			} else {
+				lives.setText(Integer.toString(s.getPlayerLives()));
+			}
+			screen.repaint();
+		}
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
-		
+		StartGameData info;
 		switch (action) {
 		case "Ready":
 			if (client.isConnected()) {
@@ -120,14 +172,8 @@ public class LobbyScreenController implements ActionListener {
 			break;
 			
 		case "Start Game":
-			try {
-				StartGameData info = new StartGameData(client.getGameID());	
-				// TODO add more configurable options if we have time
-				info.setMap("default");
-				client.sendToServer(info);
-			} catch (IOException SERVER_DECLINED_TO_START_GAME) {
-				SERVER_DECLINED_TO_START_GAME.printStackTrace();
-			}
+				info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, true);
+				sendGameLobbySettings(info);
 			break;
 			
 		case "Leave":
@@ -140,8 +186,50 @@ public class LobbyScreenController implements ActionListener {
 				LEAVING_FAILED_YOU_ARE_TRAPPED.printStackTrace();
 			}
 			break;
+			
+		case "MAP+":
+			selectedMap++;
+			if (selectedMap == mapNames.size()) {
+				selectedMap = 0;
+			}
+			map.setText(mapNames.get(selectedMap));
+			info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, false);
+			sendGameLobbySettings(info);
+			break;
+			
+		case "MAP-":
+			selectedMap--;
+			if (selectedMap < 0) {
+				selectedMap = mapNames.size() - 1;
+			}
+			map.setText(mapNames.get(selectedMap));
+			info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, false);
+			sendGameLobbySettings(info);
+			break;
+			
+		case "LIVES+":
+			livesCount++;
+			System.out.println("added lives");
+			if (livesCount > MAX_LIVES) {
+				livesCount = MAX_LIVES;
+			}
+			lives.setText(Integer.toString(livesCount));
+			info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, false);
+			sendGameLobbySettings(info);
+			break;
+			
+		case "LIVES-":
+			livesCount--;
+			System.out.println("removed lives");
+			if (livesCount <= MIN_LIVES) {
+				livesCount = MIN_LIVES;
+				lives.setText("Sudden Death");
+			} else {
+				lives.setText(Integer.toString(livesCount));
+			}
+			info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, false);
+			sendGameLobbySettings(info);
+			break;
 		}
-		
 	}
-
 }

@@ -1,7 +1,6 @@
 package controller;
 
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -11,21 +10,21 @@ import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-
 import data.GameEvent;
 import data.PlayerAction;
 import game.ClientUI;
 import game_utilities.Block;
+import game_utilities.Effect;
 import game_utilities.Missile;
 import game_utilities.Player;
 import game_utilities.PlayerActionPriorityComparator;
 import game_utilities.RocketLauncher;
+import game_utilities.RocketTrail;
 import menu_panels.GameScreen;
 import menu_utilities.EightBitLabel;
 import menu_utilities.GameDisplay;
@@ -49,6 +48,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();	
+	private ConcurrentHashMap<Integer, Effect> effects = new ConcurrentHashMap<>();
 	
 	// === ACTION PRIORITIES ===
 	// 0 - Player Movement
@@ -56,17 +56,15 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	// 10 - Launcher Rotation
 	
 	private PriorityBlockingQueue<PlayerAction> outboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
-	private PriorityBlockingQueue<PlayerAction> inboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
-	
-	private PriorityBlockingQueue<GameEvent> inboundGameEventQueue = new PriorityBlockingQueue<>(11, null);
+	//private PriorityBlockingQueue<PlayerAction> inboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
+	//private PriorityBlockingQueue<GameEvent> inboundGameEventQueue = new PriorityBlockingQueue<>(11, null);
 	
 	private int mouseX, mouseY;
 	
 	// === PLAYER STATS ===
 	
-	private long reload_time = 3000; // reload time (ms)
-	
-	private int score = 0;
+	private long reload_time = 1800; // reload time (ms)
+	private Integer trailCount = -1;
 	
 	@SuppressWarnings("serial")
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
@@ -76,6 +74,12 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		cl = (CardLayout) clientPanel.getLayout();
 		screen = (GameScreen) clientPanel.getComponent(7);
 		gamePanel = screen.getGamePanel();
+		
+		gamePanel.setPlayers(players);
+		gamePanel.setLaunchers(launchers);
+		gamePanel.setRockets(rockets);
+		gamePanel.setEffects(effects);
+		//gamePanel.setUsername(username);
 		
 		// KEY BINDING STUFF HAPPENS HERE
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "MOVE_UP");
@@ -167,7 +171,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				players.get(username).cancelVelocity("RIGHT");
 				outboundEventQueue.add(playerAction);
 			}
-		});
+		});		
 	}
 	
 	public void addPlayers(ConcurrentHashMap<String, Player> newPlayers) {
@@ -177,14 +181,11 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			tempPlayer.setUsername(p.getUsername());
 			tempPlayer.setColor(p.getColor());
 			tempPlayer.setBlocks(blocks);
-			System.out.println("added players and map");
+			tempPlayer.setLives(p.getLives());
 			tempLauncher.setOwner(p.getUsername());
 			launchers.put(p.getUsername(), tempLauncher);
 			players.put(p.getUsername(), tempPlayer);			
 		}
-		gamePanel.setPlayers(players);
-		gamePanel.setLaunchers(launchers);
-		gamePanel.setRockets(rockets);
 	}
 	
 	public void addMap(ConcurrentHashMap<Integer, Block> m) {
@@ -200,7 +201,16 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	
 	public void stopGame() {
 		running = false;
-		Thread.currentThread().interrupt();
+		//Thread.currentThread().interrupt();
+	}
+	
+	public void resetGame() {
+		players.clear();
+		blocks.clear();
+		rockets.clear();
+		effects.clear();
+		trailCount = -1;
+		screen.reset();
 	}
 	
 	public boolean isStarted() {
@@ -212,21 +222,35 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			switch (t.getKey()) {
 			case "MISSILE_EXPLODES":
 				rockets.remove(t.getValue());
-				System.out.println("yeeted missile " + t.getValue() + " total: " + rockets.values().size());
 				break;
 			case "BLOCK_DESTROYED":
 				blocks.remove(t.getValue());
-				System.out.println("destroyed block " + t.getValue());
 				gamePanel.repaint();
 				break;
 			case "PLAYER_HIT":
-				System.out.println("player was hit: " + t.getValue());
-				screen.addLogMessage(t.getValue() + " WAS EXPLODED", players.get(t.getValue()).getColor());
+				players.get(t.getValue()).takeHit();
+				break;
+			case "PLAYER_ELIMINATED":
+				players.get(t.getValue()).die();
 				break;
 			case "LOG_MESSAGE":
 				EightBitLabel msg = (EightBitLabel) t.getValue();
 				screen.addLogMessage(msg);
 				break;
+			case "ADD_EFFECT":
+				Effect newEffect = (Effect) t.getValue();
+				effects.put(newEffect.getEffectNumber(), newEffect);
+				break;
+			case "ANNOUNCE":
+				
+				break;
+			case "GAME_END":
+				resetGame();
+				stopGame();
+				break;
+				default:
+					System.out.println("No case to handle GameEvent: " + t.getKey() + "(" + t.getValue() + ")");
+					break;
 			}
 		}
 	}
@@ -252,7 +276,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			Missile missile = new Missile(a.getEndX(), a.getEndY(), usr);
 			missile.setDirection(a.getMouseX(), a.getMouseY());
 			rockets.put(a.getMissileNumber(), missile);
-			System.out.println("new missile! " + a.getMissileNumber());
 			break;
 		}
 	}
@@ -268,7 +291,16 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			}
 			
 			for (Missile m : rockets.values()) {
-				m.move();
+				RocketTrail trail = new RocketTrail(m.x + 1, m.y + 1);
+				effects.put(trailCount, trail);
+				trailCount--;
+				m.move();				
+			}
+			
+			for (Entry<Integer, Effect> e : effects.entrySet()) {
+				if (e.getValue().isAnimated() && e.getValue().getFrameCount() >= e.getValue().getFrames()) {
+					effects.remove(e.getKey());
+				}
 			}
 			
 			PlayerAction r = new PlayerAction(client.getGameID(), username, "LAUNCHER_ROTATION", "speen");
@@ -311,16 +343,14 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	
 	@Override
 	public void mousePressed(MouseEvent e) {
-		if (reload_time <= 0) {
+		if (reload_time <= 0 && players.get(username).isAlive()) {
 			screen.setRandomLabel("reloading");
 			reload_time = 3000;
 			PlayerAction m = new PlayerAction(client.getGameID(), username, "ROCKET_FIRED", "The missile knows where it is at all times. It knows this because it knows where it isn't. By subtracting where it is from where it isn't, or where it isn't from where it is (whichever is greater), it obtains a difference, or deviation. The guidance subsystem uses deviations to generate corrective commands to drive the missile from a position where it is to a position where it isn't, and arriving at a position where it wasn't, it now is. Consequently, the position where it is, is now the position that it wasn't, and it follows that the position that it was, is now the position that it isn't.\r\n" + "In the event that the position that it is in is not the position that it wasn't, the system has acquired a variation, the variation being the difference between where the missile is, and where it wasn't. If variation is considered to be a significant factor, it too may be corrected by the GEA. However, the missile must also know where it was.\r\n" + "The missile guidance computer scenario works as follows. Because a variation has modified some of the information the missile has obtained, it is not sure just where it is. However, it is sure where it isn't, within reason, and it knows where it was. It now subtracts where it should be from where it wasn't, or vice-versa, and by differentiating this from the algebraic sum of where it shouldn't be, and where it was, it is able to obtain the deviation and its variation, which is called error.");
 			m.setPriority(1);
 			m.setMousePos(mouseX, mouseY);
-			//m.setLauncherEnd((int) players.get(username).getCenterX(), (int) players.get(username).getCenterY());
 			m.setLauncherEnd(launchers.get(username).getEndX(), launchers.get(username).getEndY());
 			outboundEventQueue.add(m);
-			screen.addLogMessage("LOL", Color.RED);
 		}
 	}
 	
@@ -328,7 +358,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	public void mouseMoved(MouseEvent e) {
 		mouseX = e.getX();
 		mouseY = e.getY();
-		if (running) {
+		if (running && players.get(username).isAlive()) {
 			launchers.get(username).rotate(mouseX, mouseY);
 		}
 	}

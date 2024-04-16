@@ -8,6 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import game_utilities.Block;
+import game_utilities.Effect;
 import game_utilities.Missile;
 import game_utilities.Player;
 import game_utilities.RocketLauncher;
@@ -16,7 +17,7 @@ public class GameDisplay extends JPanel {
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
-	//private CopyOnWriteArrayList<Missile> rockets = new CopyOnWriteArrayList<>();
+	private ConcurrentHashMap<Integer, Effect> effects = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	
 	private static final long serialVersionUID = 1L;
@@ -45,24 +46,37 @@ public class GameDisplay extends JPanel {
 		rockets = r;
 	}
 	
+	public void setEffects(ConcurrentHashMap<Integer, Effect> e) {
+		effects = e;
+	}
+	
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g;
-		for (Player p : players.values()) {
-			g2d.setColor(p.getColor());
-			g2d.fillRect(p.x, p.y, 20, 20);
-		}
-		for (RocketLauncher l : launchers.values()) {
-			l.draw(g);
-		}
-		for (Missile m : rockets.values()) {
-			m.draw(g);
-		}
 		for (Block b : blocks.values()) {
 			g2d.setColor(b.getColor());
 			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, b.getOpacity()));
 			g2d.fillRect(b.x, b.y, b.getBlockSize(), b.getBlockSize());
+		}
+		for (Missile m : rockets.values()) {
+			m.draw(g);
+		}
+		for (Player p : players.values()) {
+			if (p.isAlive()) {
+				p.draw(g);
+				launchers.get(p.getUsername()).draw(g);
+			}
+		}
+		for (Effect e : effects.values()) {
+			if (e.isAnimated()) {
+				if (e.getFrameCount() != e.getFrames()) {
+					e.animate();
+					e.draw(g);
+				}
+			} else {
+				e.draw(g);
+			}
 		}
 	}
 }

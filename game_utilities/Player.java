@@ -9,15 +9,20 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Player extends Rectangle implements Serializable {
+	private static final long serialVersionUID = 1370509841513275945L;
+
 	private String username;
 	
 	private int size = 20;
+	private int speed = 5;
+	
+	private int reloadTime = 1800;
 	
 	private int lives = 3;
-	private int speed = 5;
 	private boolean alive;
 	
 	private Color color;
+	private Color colorFromWhenTheyWereAlive;
 	
 	private LinkedHashMap<String, Integer> velocities = new LinkedHashMap<String, Integer>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
@@ -71,15 +76,23 @@ public class Player extends Rectangle implements Serializable {
 			if (block.isCollideable() && futureBounds.intersects(block.getBounds())) {return true;}
 		}
 		if (futureBounds.x < 0 || futureBounds.x > 900 - size) {return true;}
-        if (futureBounds.y < 0 || futureBounds.y > 865 - size) {return true;}
+        if (futureBounds.y < 0 || futureBounds.y > 900 - size) {return true;}
 		return false;
 	}
 	
-	public void die(String n) {
-		System.out.println(username + " was explodered by " + n);
-		//Reduce Lives by 1
-		//default lives == 1 therefore die(), lives = 0
-		//send back data that lives = 0
+	public void die() {
+		lives = 0;
+		colorFromWhenTheyWereAlive = color;
+		alive = false;
+		color = Color.GRAY;
+	}
+	
+	public void takeHit() {
+		lives--;
+		if (lives <= 0) {
+			alive = false;
+			die();
+		}
 	}
 	
 	public int getXVelocity() {
@@ -110,6 +123,10 @@ public class Player extends Rectangle implements Serializable {
 		return size;
 	}
 	
+	public Color getColorFromWhenTheyWereNotDeadAsInAlive() {
+		return colorFromWhenTheyWereAlive;
+	}
+	
 	public Color getColor() {
 		return color;
 	}
@@ -124,5 +141,17 @@ public class Player extends Rectangle implements Serializable {
 
 	public void setAlive(boolean alive) {
 		this.alive = alive;
+	}
+
+	public Color getColorFromWhenTheyWereAlive() {
+		return colorFromWhenTheyWereAlive;
+	}
+
+	public int getReloadTime() {
+		return reloadTime;
+	}
+
+	public void setReloadTime(int reloadTime) {
+		this.reloadTime = reloadTime;
 	}
 }

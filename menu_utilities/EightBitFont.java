@@ -6,6 +6,7 @@ import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
 
+@SuppressWarnings("serial")
 public class EightBitFont extends Font {
 	
 	private static Font eightBitFont = null;

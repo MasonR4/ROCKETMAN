@@ -12,8 +12,7 @@ import server_utilities.GameLobby;
 public class Missile extends Rectangle {
 	private double xVelocity = 0;
 	private double yVelocity = 0;
-	private int dmg;
-	private int MISSILE_SIZE = 8;
+	private int MISSILE_SIZE = 9;
 	private int speed = 12;
 	
 	private boolean exploded = false;
@@ -25,7 +24,6 @@ public class Missile extends Rectangle {
 	public Missile(int nx, int ny, String s) {
 		x = nx;
 		y = ny;
-		dmg = 10;
 		owner = s;
 		height = MISSILE_SIZE;
 		width = MISSILE_SIZE;
@@ -33,8 +31,11 @@ public class Missile extends Rectangle {
 	}
 	
 	public void draw(Graphics g) {
-		g.setColor(Color.RED);
-		g.fillRect(x, y, MISSILE_SIZE, MISSILE_SIZE);
+		g.setColor(new Color(35, 35, 35));
+		g.fillOval(x, y, MISSILE_SIZE, MISSILE_SIZE);
+		//g.setColor(Color.BLACK);
+		//g.drawOval(x, y, MISSILE_SIZE, MISSILE_SIZE);
+		//g.fillRect(x, y, MISSILE_SIZE, MISSILE_SIZE);
 	}
 	
 	public void setBlocks(ConcurrentHashMap<Integer, Block> b) {
@@ -54,7 +55,6 @@ public class Missile extends Rectangle {
 		for (Block block : blocks.values()) {
 			if (block.isCollideable() && block.contains(getCenterX(), getCenterY())) {
 				exploded = true;
-				System.out.println("collision with block " + block.getBlockNumber());
 				return block.getBlockNumber();
 			}
 		}
@@ -62,7 +62,7 @@ public class Missile extends Rectangle {
 	}
 	
 	public boolean checkBoundaryCollision() {
-	    if (getBounds().x < -5000 || getBounds().x > 5000 || getBounds().y < -5000 || getBounds().y > 5000) {
+	    if (getBounds().x < -1200 || getBounds().x > 1200 || getBounds().y < -1200 || getBounds().y > 1200) {
 	        exploded = true;
 	        return true;
 	    }
@@ -71,8 +71,7 @@ public class Missile extends Rectangle {
 	
 	public String checkPlayerCollision() {
 		for (Player p : players.values()) {
-			if (p.contains(getCenterX(), getCenterY()) && !p.getUsername().equals(owner)) {
-				System.out.println("chjgskhj with + " + p.getUsername());
+			if (p.isAlive() && p.contains(getCenterX(), getCenterY()) && !p.getUsername().equals(owner)) {
 				exploded = true;
 				return p.getUsername();
 			}

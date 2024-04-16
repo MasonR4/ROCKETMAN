@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
@@ -30,12 +29,11 @@ public class Server extends AbstractServer {
 	private ServerMenuScreenController serverMenuController;
 	
 	private ConcurrentHashMap<Integer, GameLobby> games = new ConcurrentHashMap<>();
-	private ConcurrentHashMap<Integer, ScheduledFuture<?>> runningGames = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, ExecutorService> execGames = new ConcurrentHashMap<>();
 	private int gameCount = 0;
 
 	private Database serverDatabase = new Database();
-	private static final MapCreator maps = new MapCreator();
+	private MapCreator maps = new MapCreator();
 	
 	private ArrayList<String> connectedPlayers = new ArrayList<String>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<>();
@@ -51,6 +49,10 @@ public class Server extends AbstractServer {
 	
 	public ConcurrentHashMap<Integer, Block> loadMap(String m) {
 		return maps.getMap(m);
+	}
+	
+	public ArrayList<String> getMapNames() {
+		return maps.getMapNames();
 	}
 	
 	public void setLog(JTextArea log) {
@@ -153,11 +155,6 @@ public class Server extends AbstractServer {
 	public void cancelGame(int id, boolean remove) {
 		if (games.get(id).isStarted()) {
 			games.get(id).stopGame();
-			ScheduledFuture<?> f = runningGames.get(id);
-			if (f != null) {
-				f.cancel(true);
-				runningGames.remove(id);
-			}
 		}
 		if (remove) { 
 			logMessage("[Info] Canceled Game " + id);
@@ -195,13 +192,23 @@ public class Server extends AbstractServer {
 		}
 	}
 	
+	// TODO make function to submit player stats to database
+	public void submitPlayerStatsToDB(String username, PlayerStatistics stats) {
+		boolean success = serverDatabase.insertPlayerStatistics(stats);
+	    if (success) {
+	        System.out.println("Player statistics inserted successfully for user: " + username);
+	    } else {
+	        System.out.println("Failed to insert player statistics for user: " + username);
+	    }
+	}
+	
 	@Override
 	protected void handleMessageFromClient(Object arg0, ConnectionToClient arg1) {
 		if (arg0 instanceof GenericRequest) {
 			String action = ((GenericRequest) arg0).getMsg();
 			System.out.println("server: received generic request: " + action); // DEBUG remove later
 			GenericRequest rq;
-			switch (action) { 			// PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
+			switch (action) { 	// PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
 			case "REQUEST_GAMES_INFO":
 				logMessage("[Client " + arg1.getId() + "] Requested games info");
 				rq = new GenericRequest("GAMES_INFO");
@@ -339,7 +346,9 @@ public class Server extends AbstractServer {
 					if (!games.get(gameID).isFull()) {
 						games.get(gameID).addPlayer(arg1, info);
 						try {
-							arg1.sendToClient(games.get(gameID).generateGameListing());
+							GameLobbyData lobbyInfo = games.get(gameID).generateGameListing();
+							lobbyInfo.setMaps(maps.getMapNames());
+							arg1.sendToClient(lobbyInfo);
 							serverMenuController.addGameListings(getAllGames());
 							logMessage("[Client " + arg1.getId() + "] Joined game " + gameID + " as " + username);
 							} catch (IOException CLIENT_VITALS_CANNOT_BE_CONFIRMED) {
@@ -373,26 +382,28 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof StartGameData) {
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
-			
-			if (!games.get(gid).isStarted()) {
-				if (games.get(gid).playersReady()) {
-					games.get(gid).startGame(info);
-					startGame(gid);
-				} else {
-					try {
-						GenericRequest nr = new GenericRequest("PLAYERS_NOT_READY");
-						nr.setData("All players must ready before starting match");
-						arg1.sendToClient(nr);
-					} catch (IOException CLIENT_UNTO_DUST) {
-						CLIENT_UNTO_DUST.printStackTrace();
+			if (info.isActuallyStarting()) {
+				if (!games.get(gid).isStarted()) {
+					if (games.get(gid).playersReady()) {
+						games.get(gid).startGame(info);
+						startGame(gid);
+					} else {
+						try {
+							GenericRequest nr = new GenericRequest("PLAYERS_NOT_READY");
+							nr.setData("All players must ready before starting match");
+							arg1.sendToClient(nr);
+						} catch (IOException CLIENT_UNTO_DUST) {
+							CLIENT_UNTO_DUST.printStackTrace();
+						}
 					}
 				}
+			} else {
+				games.get(gid).broadcastLobbySettings(info);
 			}
-
 		} else if (arg0 instanceof PlayerAction) {
 			PlayerAction a = (PlayerAction) arg0;
 			int gid = a.getGameID();
-			games.get(gid).addPlayerAction(a);
+			games.get(gid).handlePlayerAction(a);
 		}
 	} 
 }

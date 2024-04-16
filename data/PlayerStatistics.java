@@ -8,6 +8,7 @@ public class PlayerStatistics implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private String username;
+	private int score = 0;
 	
 	private boolean ready = false;
 	private boolean isHost = false;
@@ -15,7 +16,32 @@ public class PlayerStatistics implements Serializable {
 	// TODO when we get the database ready we will add variables here to store
 	private LinkedHashMap<String, Integer> statistics = new LinkedHashMap<String, Integer>();
 	
-	public PlayerStatistics() {}
+	public PlayerStatistics() {
+		statistics.put("wins", 0);
+		statistics.put("losses", 0);
+		statistics.put("eliminations", 0);
+		statistics.put("deaths", 0);
+		statistics.put("rocketsFired", 0);
+		statistics.put("blocksDestroyed", 0);
+	}
+	
+	public void incrementStat(String s) {
+		int total = statistics.get(s);
+		statistics.put(s, ++total);
+	}
+	
+	public void resetStats() {
+		statistics.put("wins", 0);
+		statistics.put("losses", 0);
+		statistics.put("eliminations", 0);
+		statistics.put("deaths", 0);
+		statistics.put("rocketsFired", 0);
+		statistics.put("blocksDestroyed", 0);
+	}
+	
+	public int getStat(String s) {
+		return statistics.get(s);
+	}
 	
 	public String getUsername() {
 		return username;
@@ -39,5 +65,13 @@ public class PlayerStatistics implements Serializable {
 	
 	public void setReady(boolean ready) {
 		this.ready = ready;
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void addScore(int score) {
+		this.score += score;
 	}
 }
