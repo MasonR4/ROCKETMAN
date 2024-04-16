@@ -96,5 +96,17 @@ public class Database {
         }
         return statistics;
     }
-	
+	public double[] getAverages (int[] stats) {
+		double[] averages = new double[2];
+		
+		// W/L Avg
+		averages[0] = stats[0]/stats[1];
+		
+		// KDA
+		averages[1] = stats[2]/stats[3];
+		
+		
+		
+		return averages;
+	}
 }
