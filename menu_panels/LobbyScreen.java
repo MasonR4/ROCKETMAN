@@ -224,7 +224,6 @@ public class LobbyScreen extends JPanel {
 		gameInfoPanel.remove(livesLeft);
 		gameInfoPanel.remove(reloadRight);
 		gameInfoPanel.remove(reloadLeft);
-		unreadyReadyButton();
 		repaint();
 		revalidate();
 		

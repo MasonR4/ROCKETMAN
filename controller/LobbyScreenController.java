@@ -61,10 +61,11 @@ public class LobbyScreenController implements ActionListener {
 	
 	public void addPlayerListing(ArrayList<PlayerJoinLeaveData> data) {
 		playerPanel.removeAll();
+		readyButton();
 		if (screen.hasHostControls()) {
 			screen.disableHostControls();
+			screen.setHostControls(false);
 		}
-		screen.setHostControls(false);
 		for (PlayerJoinLeaveData d : data) {
 			PlayerListingPanel p = new PlayerListingPanel(d.getUsername());
 			if (d.isReady()) {
@@ -80,10 +81,12 @@ public class LobbyScreenController implements ActionListener {
 					screen.setHostControls(true);
 				}
 			} else if (d.getUsername().equals(client.getUsername())) {
+				screen.disableHostControls();
 				p.setHost("You");
 			} else if (d.isHost()) {
 				p.setHost("Host");
 				screen.setDynamicLobbyInfo(d.getUsername(), data.size());
+				screen.disableHostControls();
 			}
 			playerPanel.add(p);
 		}

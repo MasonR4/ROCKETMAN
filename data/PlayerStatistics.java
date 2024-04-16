@@ -27,7 +27,16 @@ public class PlayerStatistics implements Serializable {
 	
 	public void incrementStat(String s) {
 		int total = statistics.get(s);
-		statistics.put(s, total++);
+		statistics.put(s, ++total);
+	}
+	
+	public void resetStats() {
+		statistics.put("wins", 0);
+		statistics.put("losses", 0);
+		statistics.put("eliminations", 0);
+		statistics.put("deaths", 0);
+		statistics.put("rocketsFired", 0);
+		statistics.put("blocksDestroyed", 0);
 	}
 	
 	public int getStat(String s) {

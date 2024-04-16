@@ -47,7 +47,7 @@ public class GameOverScreenController implements ActionListener {
 		String action = e.getActionCommand();
 		switch(action) {
 		case "GO_LOBBY":
-			System.out.println("leave lobby pressed");
+			
 			cl.show(clientPanel, "LOBBY");
 			break;
 		case "LEAVE":

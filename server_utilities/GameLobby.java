@@ -134,6 +134,11 @@ public class GameLobby implements Runnable {
 	public void startGame(StartGameData info) {
 		blocks.clear();
 		rockets.clear();
+		launchers.clear();
+		players.clear();
+		for (PlayerStatistics r : playerStats.values()) {
+			r.resetStats();
+		}
 		missileCounter = 0;
 		effectCounter = 0;
 		blocks.putAll(server.loadMap(info.getMap()));
