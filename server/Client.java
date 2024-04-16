@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import javax.swing.SwingUtilities;
 import controller.CreateAccountScreenController;
 import controller.FindGameScreenController;
+import controller.GameOverScreenController;
 import controller.GameScreenController;
 import controller.LobbyScreenController;
 import controller.LoginScreenController;
@@ -23,6 +24,7 @@ import data.StartGameData;
 import data.PlayerJoinLeaveData;
 import game_utilities.Block;
 import game_utilities.Player;
+import data.EndGameData;
 import data.GameEvent;
 import data.GameLobbyData;
 import ocsf.client.AbstractClient;
@@ -43,7 +45,7 @@ public class Client extends AbstractClient {
 	private LoginScreenController loginController;
 	private LobbyScreenController lobbyController;
 	private GameScreenController gameController;
-	
+	private GameOverScreenController gameOverController;
 	private MainMenuScreenController mainMenuController;
 	private ServerConnectionScreenController serverConnectionController;
 	private SplashScreenController splashController;
@@ -157,6 +159,8 @@ public class Client extends AbstractClient {
 			System.out.println("got lobby settings");
 			StartGameData s = (StartGameData) arg0;
 			lobbyController.updateGameLobbySettings(s);
+		} else if (arg0 instanceof EndGameData) {
+			// placeholder for receiving end of game data
 		}
 	}
 	
@@ -199,7 +203,11 @@ public class Client extends AbstractClient {
 	public void setGameController(GameScreenController c) {
 		gameController = c;
 	}
-
+	
+	public void setGameOverController(GameOverScreenController c) {
+		gameOverController = c;
+	}
+	
 	public String getUsername() {
 		return username;
 	}
