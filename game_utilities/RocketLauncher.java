@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 
 @SuppressWarnings("serial")
 public class RocketLauncher extends Rectangle {
@@ -28,7 +29,8 @@ public class RocketLauncher extends Rectangle {
 	// TODO fix rocket rotation
 	public void draw(Graphics g) {
 	    Graphics2D rocketGraphics = (Graphics2D) g.create();
-
+	    rocketGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    
 	    double rotationCenterY = y + (width / 4);
 
 	    rocketGraphics.rotate(Math.toRadians(angle), x, rotationCenterY);

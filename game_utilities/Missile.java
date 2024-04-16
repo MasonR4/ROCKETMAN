@@ -12,7 +12,6 @@ import server_utilities.GameLobby;
 public class Missile extends Rectangle {
 	private double xVelocity = 0;
 	private double yVelocity = 0;
-	private int dmg;
 	private int MISSILE_SIZE = 8;
 	private int speed = 12;
 	
@@ -25,7 +24,6 @@ public class Missile extends Rectangle {
 	public Missile(int nx, int ny, String s) {
 		x = nx;
 		y = ny;
-		dmg = 10;
 		owner = s;
 		height = MISSILE_SIZE;
 		width = MISSILE_SIZE;
@@ -54,7 +52,6 @@ public class Missile extends Rectangle {
 		for (Block block : blocks.values()) {
 			if (block.isCollideable() && block.contains(getCenterX(), getCenterY())) {
 				exploded = true;
-				System.out.println("collision with block " + block.getBlockNumber());
 				return block.getBlockNumber();
 			}
 		}
@@ -71,8 +68,7 @@ public class Missile extends Rectangle {
 	
 	public String checkPlayerCollision() {
 		for (Player p : players.values()) {
-			if (p.contains(getCenterX(), getCenterY()) && !p.getUsername().equals(owner)) {
-				System.out.println("chjgskhj with + " + p.getUsername());
+			if (p.isAlive() && p.contains(getCenterX(), getCenterY()) && !p.getUsername().equals(owner)) {
 				exploded = true;
 				return p.getUsername();
 			}

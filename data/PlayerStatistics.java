@@ -8,6 +8,7 @@ public class PlayerStatistics implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private String username;
+	private int score = 0;
 	
 	private boolean ready = false;
 	private boolean isHost = false;
@@ -56,5 +57,13 @@ public class PlayerStatistics implements Serializable {
 	
 	public void setReady(boolean ready) {
 		this.ready = ready;
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void addScore(int score) {
+		this.score += score;
 	}
 }

@@ -12,11 +12,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
-
 import data.Event;
 import data.GameEvent;
 import data.GameLobbyData;
@@ -27,6 +23,8 @@ import data.PlayerReadyData;
 import data.PlayerStatistics;
 import data.StartGameData;
 import game_utilities.Block;
+import game_utilities.DeathMarker;
+import game_utilities.Effect;
 import game_utilities.Missile;
 import game_utilities.Player;
 import game_utilities.RocketLauncher;
@@ -50,11 +48,12 @@ public class GameLobby implements Runnable {
 	private int gameID;
 
 	private Random random = new Random();
-
+	
 	private int missileCounter = 0;
+	private int effectCounter = 0;
 
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
-	private ConcurrentHashMap<String, PlayerStatistics> playerInfo = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, PlayerStatistics> playerStats = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, ConnectionToClient> playerConnections = new ConcurrentHashMap<>();
 
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
@@ -86,13 +85,13 @@ public class GameLobby implements Runnable {
 	}
 
 	public ArrayList<String> getPlayerUsernames() {
-		List<String> temp = playerInfo.keySet().stream().collect(Collectors.toList());
+		List<String> temp = playerStats.keySet().stream().collect(Collectors.toList());
 		return new ArrayList<>(temp);
 	}
 
 	public ArrayList<PlayerJoinLeaveData> getJoinedPlayerInfo() {
 		ArrayList<PlayerJoinLeaveData> joinedplayerInfo = new ArrayList<>();
-		for (Entry<String, PlayerStatistics> e : playerInfo.entrySet()) {
+		for (Entry<String, PlayerStatistics> e : playerStats.entrySet()) {
 			PlayerJoinLeaveData player = new PlayerJoinLeaveData(e.getKey());
 			player.setReady(e.getValue().isReady());
 			player.setHost(hostUsername.equals(e.getKey()));
@@ -122,10 +121,9 @@ public class GameLobby implements Runnable {
 				spawns.add((SpawnBlock) s);
 			}
 		}
-		for (Entry<String, PlayerStatistics> e : playerInfo.entrySet()) {
+		for (Entry<String, PlayerStatistics> e : playerStats.entrySet()) {
 			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
-			RocketLauncher newLauncher = new RocketLauncher((int) newPlayer.getCenterX(), (int) newPlayer.getCenterY(),
-					24, 6);
+			RocketLauncher newLauncher = new RocketLauncher((int) newPlayer.getCenterX(), (int) newPlayer.getCenterY(), 24, 6);
 			newPlayer.setUsername(e.getKey());
 			newPlayer.setBlocks(blocks);
 			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
@@ -162,10 +160,10 @@ public class GameLobby implements Runnable {
 	// TODO remove players from running games if they disconnect (low priority)
 	public void removePlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
 		playerCount -= 1;
-		playerInfo.remove(usr.getUsername());
+		playerStats.remove(usr.getUsername());
 		playerConnections.remove(usr.getUsername());
 		if (usr.getUsername().equals(hostUsername)) {
-			String[] usernames = playerInfo.keySet().toArray(new String[0]);
+			String[] usernames = playerStats.keySet().toArray(new String[0]);
 			if (usernames.length > 0) {
 				hostUsername = usernames[0];
 			}
@@ -186,19 +184,19 @@ public class GameLobby implements Runnable {
 		}
 		playerCount += 1;
 		playerConnections.put(usr.getUsername(), c);
-		playerInfo.put(usr.getUsername(), temp);
+		playerStats.put(usr.getUsername(), temp);
 		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
 
 	public void readyPlayer(PlayerReadyData r) {
 		String name = r.getUsername();
-		playerInfo.get(name).setReady(r.isReady());
+		playerStats.get(name).setReady(r.isReady());
 		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
 
 	public boolean playersReady() {
 		boolean playersReady = true;
-		for (PlayerStatistics p : playerInfo.values()) {
+		for (PlayerStatistics p : playerStats.values()) {
 			if (!p.isReady()) {
 				playersReady = false;
 			}
@@ -255,6 +253,7 @@ public class GameLobby implements Runnable {
 			rockets.put(missileCounter, missile);
 			a.setMissileNumber(missileCounter);
 			missileCounter++;
+			playerStats.get(a.getUsername()).incrementStat("rocketsFired");
 			break;
 		}
 		outboundEventQueue.add(a);
@@ -279,7 +278,6 @@ public class GameLobby implements Runnable {
 						p.getValue().getBlockSize());
 			}
 
-
 			for (Iterator<Map.Entry<Integer, Missile>> it = rockets.entrySet().iterator(); it.hasNext();) {
 				Map.Entry<Integer, Missile> entry = it.next();
 				Missile r = entry.getValue();
@@ -287,25 +285,36 @@ public class GameLobby implements Runnable {
 				if (!r.isExploded()) {
 					int col = r.checkBlockCollision();
 					String hit = r.checkPlayerCollision();
-					System.out.println(
-							"hit block: " + col + " hit player: " + hit + " missile number: " + entry.getKey());
 					GameEvent g = new GameEvent();
 					if (r.checkBoundaryCollision()) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
 						outboundEventQueue.add(g);
 					} else if (col > 0) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
-						System.out.println("BOOOM exploded missile " + entry.getKey());
 						g.addEvent("BLOCK_DESTROYED", col);
+						playerStats.get(r.getOwner()).incrementStat("blocksDestroyed");
+						playerStats.get(r.getOwner()).addScore(1);
 						blocks.remove(col);
 						outboundEventQueue.add(g);
 					} else if (!hit.isBlank()) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
-						System.out.println("BOOOM exploded missile " + entry.getKey());
-						System.out.println("PLAYER HIT BRUIH");
-						g.addEvent("PLAYER_HIT", hit);
+						players.get(hit).takeHit();
+						if (!players.get(hit).isAlive()) {
+							g.addEvent("PLAYER_ELIMINATED", hit);
+							DeathMarker d = new DeathMarker(players.get(hit).x, players.get(hit).y, hit);
+							d.setEffectNumber(effectCounter);
+							effectCounter++;
+							g.addEvent("ADD_EFFECT", d);
+							playerStats.get(r.getOwner()).incrementStat("eliminations");
+							playerStats.get(r.getOwner()).addScore(15);
+							playerStats.get(hit).incrementStat("deaths");
+						} else {
+							g.addEvent("PLAYER_HIT", hit);
+						}
+						
 						EightBitLabel msg = new EightBitLabel(r.getOwner() + " exploded " + hit, Font.PLAIN, 25f);
 						g.addEvent("LOG_MESSAGE", msg);
+						
 						outboundEventQueue.add(g);
 					}
 					if (r.isExploded()) {

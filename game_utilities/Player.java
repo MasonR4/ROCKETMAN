@@ -12,12 +12,13 @@ public class Player extends Rectangle implements Serializable {
 	private String username;
 	
 	private int size = 20;
+	private int speed = 5;
 	
 	private int lives = 3;
-	private int speed = 5;
 	private boolean alive;
 	
 	private Color color;
+	private Color colorFromWhenTheyWereAlive;
 	
 	private LinkedHashMap<String, Integer> velocities = new LinkedHashMap<String, Integer>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
@@ -75,11 +76,18 @@ public class Player extends Rectangle implements Serializable {
 		return false;
 	}
 	
-	public void die(String n) {
-		System.out.println(username + " was explodered by " + n);
-		//Reduce Lives by 1
-		//default lives == 1 therefore die(), lives = 0
-		//send back data that lives = 0
+	public void die() {
+		lives = 0;
+		colorFromWhenTheyWereAlive = color;
+		color = Color.GRAY;
+	}
+	
+	public void takeHit() {
+		lives--;
+		if (lives <= 0) {
+			alive = false;
+			die();
+		}
 	}
 	
 	public int getXVelocity() {
@@ -124,5 +132,9 @@ public class Player extends Rectangle implements Serializable {
 
 	public void setAlive(boolean alive) {
 		this.alive = alive;
+	}
+
+	public Color getColorFromWhenTheyWereAlive() {
+		return colorFromWhenTheyWereAlive;
 	}
 }

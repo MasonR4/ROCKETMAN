@@ -201,7 +201,7 @@ public class Server extends AbstractServer {
 			String action = ((GenericRequest) arg0).getMsg();
 			System.out.println("server: received generic request: " + action); // DEBUG remove later
 			GenericRequest rq;
-			switch (action) { 			// PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
+			switch (action) { 	// PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
 			case "REQUEST_GAMES_INFO":
 				logMessage("[Client " + arg1.getId() + "] Requested games info");
 				rq = new GenericRequest("GAMES_INFO");
