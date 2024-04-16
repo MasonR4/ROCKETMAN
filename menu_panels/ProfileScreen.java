@@ -23,8 +23,8 @@ public class ProfileScreen extends JPanel {
 	private EightBitLabel losses;
 	private EightBitLabel rocketsFiredLabel;
 	private EightBitLabel rocketsFired;
-	private EightBitLabel powerupsLabel;
-	private EightBitLabel powerups;
+	private EightBitLabel blocksDestroyedLabel;
+	private EightBitLabel blocksDestroyed;
 	private EightBitLabel info;
 	
 	private EightBitButton backButton;
@@ -57,8 +57,8 @@ public class ProfileScreen extends JPanel {
 		rocketsFiredLabel = new EightBitLabel ("Rockets Fired", Font.PLAIN, 50f);
 		rocketsFiredLabel.setBounds(800, 400, 300, 150);
 		
-		powerupsLabel = new EightBitLabel ("Power Ups Collected", Font.PLAIN, 50f);
-		powerupsLabel.setBounds(1100, 400, 500, 150);
+		blocksDestroyedLabel = new EightBitLabel ("Blocks Destroyed", Font.PLAIN, 50f);
+		blocksDestroyedLabel.setBounds(1100, 400, 500, 150);
 		
 		backButton = new EightBitButton("Back");
 		backButton.setBounds(675, 700, 250, 50);
@@ -68,14 +68,19 @@ public class ProfileScreen extends JPanel {
 		
 		wins = new EightBitLabel("", Font.BOLD, 50f);
 		wins.setBounds(80, 360, 300, 150);
-    losses = new EightBitLabel("", Font.BOLD, 50f);
-    losses.setBounds(275, 360, 300, 150);
-    elims = new EightBitLabel("", Font.BOLD, 50f);
-    elims.setBounds(500, 350, 300, 150);
-    rocketsFired = new EightBitLabel("", Font.BOLD, 50f);
-    rocketsFired.setBounds(800, 350, 300, 150);
-    powerups = new EightBitLabel("", Font.BOLD, 50f);
-    powerups.setBounds(1200, 350, 300, 150);
+		
+	    losses = new EightBitLabel("", Font.BOLD, 50f);
+	    losses.setBounds(275, 360, 300, 150);
+	    
+	    elims = new EightBitLabel("", Font.BOLD, 50f);
+	    elims.setBounds(500, 350, 300, 150);
+	    
+	    rocketsFired = new EightBitLabel("", Font.BOLD, 50f);
+	    rocketsFired.setBounds(800, 350, 300, 150);
+	    
+	    blocksDestroyed = new EightBitLabel("", Font.BOLD, 50f);
+	    blocksDestroyed.setBounds(1200, 350, 300, 150);
+	    
 		title = new EightBitLabel("ROCKETMAN PROFILE", Font.BOLD, 175f);
 		title.setBounds(95, 45, 1500, 150);
 		
@@ -96,8 +101,8 @@ public class ProfileScreen extends JPanel {
 		add(elims);
 		add(rocketsFiredLabel);
 		add(rocketsFired);
-		add(powerupsLabel);
-		add(powerups);
+		add(blocksDestroyedLabel);
+		add(blocksDestroyed);
 		add(backButton);
 		add(logoutButton);
 		
@@ -111,18 +116,19 @@ public class ProfileScreen extends JPanel {
 			}
 		}
 	}
+	
 	public void setInfoLabels(String usr) {
 		info.setText("ROCKETER TAG: " + usr);
 		int[] statistics = database.getStatistics(usr);
 		
 		wins.setText(""+statistics[0]);
 		
-    losses.setText("" + statistics[1]);
-        
-    elims.setText("" + statistics[2]);
-       
-    rocketsFired.setText("" + statistics[3]);
-       
-    powerups.setText("" + statistics[5]);
+	    losses.setText("" + statistics[1]);
+	        
+	    elims.setText("" + statistics[2]);
+	       
+	    rocketsFired.setText("" + statistics[3]);
+	       
+	    blocksDestroyed.setText("" + statistics[5]);
 	}
 }
