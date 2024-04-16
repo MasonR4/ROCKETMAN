@@ -23,7 +23,6 @@ public class PlayerStatistics implements Serializable {
 		statistics.put("deaths", 0);
 		statistics.put("rocketsFired", 0);
 		statistics.put("blocksDestroyed", 0);
-		statistics.put("powerupsCollected", 0);
 	}
 	
 	public void incrementStat(String s) {

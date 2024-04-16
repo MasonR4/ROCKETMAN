@@ -116,27 +116,26 @@ public class Database {
 	
 	public boolean insertPlayerStatistics(PlayerStatistics playerStats) {
 	    // SQL query to insert player statistics
-	    String insertQuery = "INSERT INTO statistics (username, wins, losses, eliminations, deaths, rocketsFired, blocksDestroyed) "
-	                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-	    
-	    try (PreparedStatement ps = conn.prepareStatement(insertQuery)) {
-	        ps.setString(1, playerStats.getUsername());
-	        ps.setInt(2, playerStats.getStat("wins"));
-	        ps.setInt(3, playerStats.getStat("losses"));
-	        ps.setInt(4, playerStats.getStat("eliminations"));
-	        ps.setInt(5, playerStats.getStat("deaths"));
-	        ps.setInt(6, playerStats.getStat("rocketsFired"));
-	        ps.setInt(7, playerStats.getStat("blocksDestroyed"));
-	        
-	        // Execute the insert query
-	        int rowsAffected = ps.executeUpdate();
-	        
-	        // Return true if the insert was successful
-	        return rowsAffected > 0;
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	        return false;
-	    }
+		String updateQuery = "UPDATE statistics SET wins = ?, losses = ?, eliminations = ?, deaths = ?, rocketsFired = ?, blocksDestroyed = ? WHERE username = ?";
+		try (PreparedStatement ps = conn.prepareStatement(updateQuery)) {
+		    ps.setInt(1, playerStats.getStat("wins"));
+		    ps.setInt(2, playerStats.getStat("losses"));
+		    ps.setInt(3, playerStats.getStat("eliminations"));
+		    ps.setInt(4, playerStats.getStat("deaths"));
+		    ps.setInt(5, playerStats.getStat("rocketsFired"));
+		    ps.setInt(6, playerStats.getStat("blocksDestroyed"));
+		    ps.setString(7, playerStats.getUsername());
+		    
+		    // Execute the update query
+		    int rowsAffected = ps.executeUpdate();
+		    
+		    // Return true if the update was successful
+		    return rowsAffected > 0;
+		} catch (SQLException e) {
+		    e.printStackTrace();
+		    return false;
+		}
+
 	}
 
 }
