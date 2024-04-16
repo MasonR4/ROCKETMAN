@@ -89,13 +89,17 @@ public class GameScreen extends JLayeredPane {
 		m.setForeground(color);
 		logPanel.add(m);
 		//logPanel.repaint();
+		//logScrollPane.repaint();
 		repaint();
+		revalidate();
 	}
 	
 	public void addLogMessage(EightBitLabel msg) {
 		logPanel.add(msg);
 		//logPanel.repaint();
+		//logScrollPane.repaint();
 		repaint();
+		revalidate();
 	}
 	
 	public void setController(ActionListener c) {

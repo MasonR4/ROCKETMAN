@@ -53,8 +53,8 @@ public class GameLobby implements Runnable {
 
 	private Random random = new Random();
 	
-	private String map;
-	private int playerLives;
+	private String map = "default";
+	private int playerLives = 3;
 	
 	private int missileCounter = 0;
 	private int effectCounter = 0;
@@ -66,10 +66,6 @@ public class GameLobby implements Runnable {
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
-
-	// TODO remove later if not needed
-	//private ConcurrentLinkedQueue<Event> inboundEventQueue = new ConcurrentLinkedQueue<>();
-	//private ConcurrentLinkedQueue<Event> outboundEventQueue = new ConcurrentLinkedQueue<>();
 
 	public GameLobby(String n, String hn, int mp, int gid, Server s) {
 		lobbyName = n;
@@ -249,13 +245,11 @@ public class GameLobby implements Runnable {
 		}
 	}
 	
-	// TODO remove if not needed later
 	public GameLobbyData generateGameListing() {
 		GameLobbyData tempInfo = new GameLobbyData(lobbyName, hostUsername, playerCount, playerCap, gameID);
 		tempInfo.setMaps(server.getMapNames());
 		return tempInfo;
 	}
-
 
 	public synchronized void handlePlayerAction(PlayerAction a) {
 		String usr = a.getUsername();
@@ -314,7 +308,7 @@ public class GameLobby implements Runnable {
 					} else if (col > 0) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
 						g.addEvent("BLOCK_DESTROYED", col);
-						Explosion e = new Explosion((int) r.getCenterX(), (int) r.getCenterY());
+						Explosion e = new Explosion(blocks.get(col).x, blocks.get(col).y);
 						g.addEvent("ADD_EFFECT", e);
 						effectCounter++;
 						playerStats.get(r.getOwner()).incrementStat("blocksDestroyed");
@@ -323,7 +317,7 @@ public class GameLobby implements Runnable {
 						updateClients(g);
 					} else if (!hit.isBlank()) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
-						Explosion e = new Explosion((int) r.getCenterX(), (int) r.getCenterY());
+						Explosion e = new Explosion(players.get(hit).x, players.get(hit).y);
 						g.addEvent("ADD_EFFECT", e);
 						players.get(hit).takeHit();
 						if (!players.get(hit).isAlive()) {

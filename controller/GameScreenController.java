@@ -79,7 +79,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.setLaunchers(launchers);
 		gamePanel.setRockets(rockets);
 		gamePanel.setEffects(effects);
-		gamePanel.setUsername(username);
+		//gamePanel.setUsername(username);
 		
 		// KEY BINDING STUFF HAPPENS HERE
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "MOVE_UP");
@@ -275,7 +275,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			}
 			
 			for (Missile m : rockets.values()) {
-				RocketTrail trail = new RocketTrail((int) m.getCenterX(), (int) m.getCenterY());
+				RocketTrail trail = new RocketTrail(m.x + 1, m.y + 1);
 				effects.put(trailCount, trail);
 				trailCount--;
 				m.move();				
