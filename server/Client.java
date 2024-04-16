@@ -164,6 +164,7 @@ public class Client extends AbstractClient {
 			lobbyController.updateGameLobbySettings(s);
 		} else if (arg0 instanceof EndGameData) {
 			EndGameData data = (EndGameData) arg0;
+			gameOverController.reset();
 			gameOverController.setEndGameStats(data);
 		}
 	}

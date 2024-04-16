@@ -62,10 +62,6 @@ public class LobbyScreenController implements ActionListener {
 	public void addPlayerListing(ArrayList<PlayerJoinLeaveData> data) {
 		playerPanel.removeAll();
 		readyButton();
-		//if (screen.hasHostControls()) {
-		//	screen.disableHostControls();
-		//	screen.setHostControls(false);
-		//}
 		for (PlayerJoinLeaveData d : data) {
 			PlayerListingPanel p = new PlayerListingPanel(d.getUsername());
 			if (d.isReady()) {
@@ -112,6 +108,10 @@ public class LobbyScreenController implements ActionListener {
 	}
 	
 	public void leaveGameLobby() {
+		if (screen.hasHostControls()) {
+			screen.disableHostControls();
+			screen.setHostControls(false);
+		}
 		cl.show(clientPanel, "FIND_GAME");
 	}
 	

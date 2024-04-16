@@ -12,6 +12,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import data.EndGameData;
 import data.PlayerStatistics;
@@ -76,8 +77,9 @@ public class GameOverScreen extends JPanel {
 	public void setEndGameStats(EndGameData e) {
 		int fill = 8;
 		int rank = 1;
+		
 		for (Entry<String, PlayerStatistics> stats : e.getStats().entrySet()) {
-			PlayerEndGameStatsBox statBox = new PlayerEndGameStatsBox(rank, stats.getValue(), e.getPlayers().get(stats.getKey()).getColor());
+			PlayerEndGameStatsBox statBox = new PlayerEndGameStatsBox(rank, stats.getValue(), e.getPlayers().get(stats.getKey()).getColorFromWhenTheyWereNotDeadAsInAlive());
 			statsBox.add(statBox);
 			rank++;
 		}
@@ -87,12 +89,20 @@ public class GameOverScreen extends JPanel {
 			filler.setOpaque(false);
 			statsBox.add(filler);
 		}
-		repaint();
+		System.out.println("added stat boxes for " + (rank - 1) + "players");
 		revalidate();
+		repaint();
 	}
 	
 	public void reset() {
-		statsBox.removeAll();
+		System.out.println("removed player stats");
+		SwingUtilities.invokeLater(() -> {
+			statsBox.removeAll();
+			statsScrollPane.repaint();
+			statsScrollPane.revalidate();
+			revalidate();
+			repaint();
+		});
 	}
 	
 	public void setController(ActionListener ac) {
