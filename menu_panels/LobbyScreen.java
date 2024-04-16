@@ -17,6 +17,7 @@ import menu_utilities.EightBitLabel;
 public class LobbyScreen extends JPanel {
 	
 	private String hostUsername;
+	private boolean hostControls = false;
 	private int playerCount;
 	private int maxPlayers;
 	
@@ -34,6 +35,8 @@ public class LobbyScreen extends JPanel {
 	private EightBitLabel lives;
 	private EightBitLabel reloadSpeedLabel;
 	private EightBitLabel reloadSpeed;
+	private EightBitLabel gameModeLabel;
+	private EightBitLabel gameMode;
 	
 	private EightBitButton readyButton;
 	private EightBitButton startGameButton;
@@ -257,6 +260,10 @@ public class LobbyScreen extends JPanel {
 		playerCountLabel.repaint();
 	}
 	
+	public String getHostUsername() {
+		return hostUsername;
+	}
+	
 	public void setController(ActionListener ac) {
 		controller = ac;
 		for (Component c : this.getComponents()) {
@@ -264,6 +271,14 @@ public class LobbyScreen extends JPanel {
 				((EightBitButton) c).addActionListener(controller);
 			}
 		}
+	}
+
+	public boolean hasHostControls() {
+		return hostControls;
+	}
+
+	public void setHostControls(boolean hostControls) {
+		this.hostControls = hostControls;
 	}
 	
 }

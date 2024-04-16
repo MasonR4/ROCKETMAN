@@ -23,17 +23,11 @@ public class GameDisplay extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Dimension SIZE = new Dimension(900, 900);
 	
-	private String username;
-	
 	public GameDisplay() {
 		setSize(SIZE);
 		setLayout(null);
 		setDoubleBuffered(true);
 		setBorder(BorderFactory.createEtchedBorder());
-	}
-	
-	public void setUsername(String s) {
-		username = s;
 	}
 	
 	public void setBlocks(ConcurrentHashMap<Integer, Block> m) {
@@ -75,7 +69,6 @@ public class GameDisplay extends JPanel {
 			}
 		}
 		for (Effect e : effects.values()) {
-			//g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, e.getOpacity()));
 			if (e.isAnimated()) {
 				if (e.getFrameCount() != e.getFrames()) {
 					e.animate();

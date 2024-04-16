@@ -382,21 +382,24 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof StartGameData) {
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
-			if (!games.get(gid).isStarted()) {
-				if (games.get(gid).playersReady()) {
-					games.get(gid).startGame(info);
-					startGame(gid);
-				} else {
-					try {
-						GenericRequest nr = new GenericRequest("PLAYERS_NOT_READY");
-						nr.setData("All players must ready before starting match");
-						arg1.sendToClient(nr);
-					} catch (IOException CLIENT_UNTO_DUST) {
-						CLIENT_UNTO_DUST.printStackTrace();
+			if (info.isActuallyStarting()) {
+				if (!games.get(gid).isStarted()) {
+					if (games.get(gid).playersReady()) {
+						games.get(gid).startGame(info);
+						startGame(gid);
+					} else {
+						try {
+							GenericRequest nr = new GenericRequest("PLAYERS_NOT_READY");
+							nr.setData("All players must ready before starting match");
+							arg1.sendToClient(nr);
+						} catch (IOException CLIENT_UNTO_DUST) {
+							CLIENT_UNTO_DUST.printStackTrace();
+						}
 					}
 				}
+			} else {
+				games.get(gid).broadcastLobbySettings(info);
 			}
-
 		} else if (arg0 instanceof PlayerAction) {
 			PlayerAction a = (PlayerAction) arg0;
 			int gid = a.getGameID();

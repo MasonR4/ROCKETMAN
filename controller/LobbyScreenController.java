@@ -5,8 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import data.GameLobbyData;
@@ -41,8 +39,8 @@ public class LobbyScreenController implements ActionListener {
 	
 	private EightBitLabel map;
 	private EightBitLabel lives;
-	private EightBitLabel reload;
-	private EightBitLabel time;
+	//private EightBitLabel reload;
+	//private EightBitLabel time;
 	
 	//private HashMap<String, Integer> reloadSpeeds = new HashMap<>();
 	// also set max time?
@@ -57,8 +55,8 @@ public class LobbyScreenController implements ActionListener {
 		playerPanel = screen.getPlayerPanel();
 		map = screen.getMapLabel();
 		lives = screen.getLivesLabel();
-		reload = screen.getReloadLabel();
-		time = screen.getTimeLabel();
+		//reload = screen.getReloadLabel();
+		//time = screen.getTimeLabel();
 	}
 	
 	public void addPlayerListing(ArrayList<PlayerJoinLeaveData> data) {
@@ -73,7 +71,10 @@ public class LobbyScreenController implements ActionListener {
 			if (d.getUsername().equals(client.getUsername()) && d.isHost()) {
 				p.setHost("Host (You)");
 				screen.setDynamicLobbyInfo(d.getUsername(), data.size());
-				screen.enableHostControls();
+				if (!screen.hasHostControls()) {
+					screen.enableHostControls();
+					screen.setHostControls(true);
+				}
 			} else if (d.getUsername().equals(client.getUsername())) {
 				p.setHost("You");
 			} else if (d.isHost()) {
@@ -85,10 +86,6 @@ public class LobbyScreenController implements ActionListener {
 		screen.updateLobbyInfo();
 		playerPanel.repaint();
 		playerPanel.revalidate();
-	}
-	
-	public void readyPlayer() {
-		
 	}
 	
 	public void readyButton() {
@@ -117,10 +114,30 @@ public class LobbyScreenController implements ActionListener {
 		cl.show(clientPanel, "GAME");
 	}
 	
+	public void sendGameLobbySettings(StartGameData s) {
+		try {
+			client.sendToServer(s);
+		} catch (IOException SETTINGS_REJECTION) {
+			SETTINGS_REJECTION.printStackTrace();
+		}
+	}
+	
+	public void updateGameLobbySettings(StartGameData s) {
+		if (!screen.getHostUsername().equals(client.getUsername())) {
+			map.setText(s.getMap()); 
+			if (s.getPlayerLives() == 1) {
+				lives.setText("Sudden Death");
+			} else {
+				lives.setText(Integer.toString(s.getPlayerLives()));
+			}
+			screen.repaint();
+		}
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
-		
+		StartGameData info;
 		switch (action) {
 		case "Ready":
 			if (client.isConnected()) {
@@ -148,12 +165,8 @@ public class LobbyScreenController implements ActionListener {
 			break;
 			
 		case "Start Game":
-			try {
-				StartGameData info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount);
-				client.sendToServer(info);
-			} catch (IOException SERVER_DECLINED_TO_START_GAME) {
-				SERVER_DECLINED_TO_START_GAME.printStackTrace();
-			}
+				info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, true);
+				sendGameLobbySettings(info);
 			break;
 			
 		case "Leave":
@@ -173,6 +186,8 @@ public class LobbyScreenController implements ActionListener {
 				selectedMap = 0;
 			}
 			map.setText(mapNames.get(selectedMap));
+			info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, false);
+			sendGameLobbySettings(info);
 			break;
 			
 		case "MAP-":
@@ -181,27 +196,33 @@ public class LobbyScreenController implements ActionListener {
 				selectedMap = mapNames.size() - 1;
 			}
 			map.setText(mapNames.get(selectedMap));
+			info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, false);
+			sendGameLobbySettings(info);
 			break;
 			
 		case "LIVES+":
 			livesCount++;
+			System.out.println("added lives");
 			if (livesCount > MAX_LIVES) {
 				livesCount = MAX_LIVES;
 			}
 			lives.setText(Integer.toString(livesCount));
+			info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, false);
+			sendGameLobbySettings(info);
 			break;
 			
 		case "LIVES-":
 			livesCount--;
+			System.out.println("removed lives");
 			if (livesCount <= MIN_LIVES) {
 				livesCount = MIN_LIVES;
 				lives.setText("Sudden Death");
 			} else {
 				lives.setText(Integer.toString(livesCount));
 			}
-			
+			info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, false);
+			sendGameLobbySettings(info);
+			break;
 		}
-		
 	}
-
 }

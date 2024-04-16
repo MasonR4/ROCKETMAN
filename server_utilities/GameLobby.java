@@ -53,6 +53,9 @@ public class GameLobby implements Runnable {
 
 	private Random random = new Random();
 	
+	private String map = "default";
+	private int playerLives = 3;
+	
 	private int missileCounter = 0;
 	private int effectCounter = 0;
 
@@ -63,10 +66,6 @@ public class GameLobby implements Runnable {
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
-
-	// TODO remove later if not needed
-	//private ConcurrentLinkedQueue<Event> inboundEventQueue = new ConcurrentLinkedQueue<>();
-	//private ConcurrentLinkedQueue<Event> outboundEventQueue = new ConcurrentLinkedQueue<>();
 
 	public GameLobby(String n, String hn, int mp, int gid, Server s) {
 		lobbyName = n;
@@ -116,47 +115,61 @@ public class GameLobby implements Runnable {
 	public boolean isStarted() {
 		return gameStarted;
 	}
-
-	public void startGame(StartGameData info) {
-		blocks.putAll(server.loadMap(info.getMap()));
-		CopyOnWriteArrayList<SpawnBlock> spawns = new CopyOnWriteArrayList<>();
-		for (Block s : blocks.values()) {
-			if (s instanceof SpawnBlock) {
-				spawns.add((SpawnBlock) s);
-			}
-		}
-		for (Entry<String, PlayerStatistics> e : playerStats.entrySet()) {
-			Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
-			RocketLauncher newLauncher = new RocketLauncher((int) newPlayer.getCenterX(), (int) newPlayer.getCenterY(), 24, 6);
-			newPlayer.setUsername(e.getKey());
-			newPlayer.setBlocks(blocks);
-			newPlayer.setLives(info.getPlayerLives());
-			newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
-			boolean spawned = false;
-			while (!spawned) {
-				int chosenSpawn = random.nextInt(spawns.size());
-				if (spawns.get(chosenSpawn).isOccupied()) {
-					spawned = false;
-				} else {
-					newPlayer.updatePosition((int) spawns.get(chosenSpawn).getCenterX(),
-							(int) spawns.get(chosenSpawn).getCenterY());
-					spawns.get(chosenSpawn).setOccupied(true);
-					spawned = true;
+	
+	public void broadcastLobbySettings(StartGameData info) {
+		map = info.getMap();
+		playerLives = info.getPlayerLives();
+		for (Entry<String, ConnectionToClient> e : playerConnections.entrySet()) {
+			if (!e.getKey().toString().equals(hostUsername)) {
+				System.out.println("host: " + hostUsername + " current user: " + e.getKey());
+				try {
+					e.getValue().sendToClient(info);
+				} catch (IOException blyad) {
+					
 				}
 			}
-			newLauncher.setOwner(newPlayer.getUsername());
-			launchers.put(newPlayer.getUsername(), newLauncher);
-			players.put(e.getKey(), newPlayer);
 		}
-
-		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
-		rq1.setData(players, "PLAYERS");
-		rq1.setData(blocks, "MAP");
-		updateClients(rq1);
-
-		gameStarted = true;
 	}
+	
+	public void startGame(StartGameData info) {
+			blocks.putAll(server.loadMap(info.getMap()));
+			CopyOnWriteArrayList<SpawnBlock> spawns = new CopyOnWriteArrayList<>();
+			for (Block s : blocks.values()) {
+				if (s instanceof SpawnBlock) {
+					spawns.add((SpawnBlock) s);
+				}
+			}
+			for (Entry<String, PlayerStatistics> e : playerStats.entrySet()) {
+				Player newPlayer = new Player(20, random.nextInt(50, 850), random.nextInt(50, 850));
+				RocketLauncher newLauncher = new RocketLauncher((int) newPlayer.getCenterX(), (int) newPlayer.getCenterY(), 24, 6);
+				newPlayer.setUsername(e.getKey());
+				newPlayer.setBlocks(blocks);
+				newPlayer.setLives(info.getPlayerLives());
+				newPlayer.setColor(new Color(random.nextInt(0, 255), random.nextInt(0, 255), random.nextInt(0, 255)));
+				boolean spawned = false;
+				while (!spawned) {
+					int chosenSpawn = random.nextInt(spawns.size());
+					if (spawns.get(chosenSpawn).isOccupied()) {
+						spawned = false;
+					} else {
+						newPlayer.updatePosition((int) spawns.get(chosenSpawn).getCenterX(),
+								(int) spawns.get(chosenSpawn).getCenterY());
+						spawns.get(chosenSpawn).setOccupied(true);
+						spawned = true;
+					}
+				}
+				newLauncher.setOwner(newPlayer.getUsername());
+				launchers.put(newPlayer.getUsername(), newLauncher);
+				players.put(e.getKey(), newPlayer);
+			}
 
+			GenericRequest rq1 = new GenericRequest("GAME_STARTED");
+			rq1.setData(players, "PLAYERS");
+			rq1.setData(blocks, "MAP");
+			updateClients(rq1);
+			gameStarted = true;
+	}
+	
 	public void stopGame() {
 		gameStarted = false;
 		Thread.currentThread().interrupt();
@@ -191,6 +204,12 @@ public class GameLobby implements Runnable {
 		playerConnections.put(usr.getUsername(), c);
 		playerStats.put(usr.getUsername(), temp);
 		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
+		try {
+			StartGameData settings = new StartGameData(gameID, map, playerLives, false);
+			playerConnections.get(usr.getUsername()).sendToClient(settings);
+		} catch (IOException No) {
+			
+		}
 	}
 
 	public void readyPlayer(PlayerReadyData r) {
@@ -226,13 +245,11 @@ public class GameLobby implements Runnable {
 		}
 	}
 	
-	// TODO remove if not needed later
 	public GameLobbyData generateGameListing() {
 		GameLobbyData tempInfo = new GameLobbyData(lobbyName, hostUsername, playerCount, playerCap, gameID);
 		tempInfo.setMaps(server.getMapNames());
 		return tempInfo;
 	}
-
 
 	public synchronized void handlePlayerAction(PlayerAction a) {
 		String usr = a.getUsername();
@@ -279,31 +296,28 @@ public class GameLobby implements Runnable {
 
 			for (Iterator<Map.Entry<Integer, Missile>> it = rockets.entrySet().iterator(); it.hasNext();) {
 				Map.Entry<Integer, Missile> entry = it.next();
-				Missile r = entry.getValue();
-				//RocketTrail trail = new RocketTrail((int) r.getCenterX(), (int) r.getCenterY());
-				//g.addEvent("ADD_EFFECT", trail);
-				r.move();
+				Missile r = entry.getValue();				
+				r.move();				
 				if (!r.isExploded()) {
 					int col = r.checkBlockCollision();
 					String hit = r.checkPlayerCollision();
 					GameEvent g = new GameEvent();
 					if (r.checkBoundaryCollision()) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
-						Explosion e = new Explosion((int) r.getCenterX(), (int) r.getCenterY());
-						g.addEvent("ADD_EFFECT", e);
 						updateClients(g);
 					} else if (col > 0) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
 						g.addEvent("BLOCK_DESTROYED", col);
-						Explosion e = new Explosion((int) r.getCenterX(), (int) r.getCenterY());
+						Explosion e = new Explosion(blocks.get(col).x, blocks.get(col).y);
 						g.addEvent("ADD_EFFECT", e);
+						effectCounter++;
 						playerStats.get(r.getOwner()).incrementStat("blocksDestroyed");
 						playerStats.get(r.getOwner()).addScore(1);
 						blocks.remove(col);
 						updateClients(g);
 					} else if (!hit.isBlank()) {
 						g.addEvent("MISSILE_EXPLODES", entry.getKey());
-						Explosion e = new Explosion((int) r.getCenterX(), (int) r.getCenterY());
+						Explosion e = new Explosion(players.get(hit).x, players.get(hit).y);
 						g.addEvent("ADD_EFFECT", e);
 						players.get(hit).takeHit();
 						if (!players.get(hit).isAlive()) {
@@ -311,8 +325,8 @@ public class GameLobby implements Runnable {
 							DeathMarker d = new DeathMarker(players.get(hit).x, players.get(hit).y, hit);
 							d.setEffectNumber(effectCounter);
 							d.setColor(players.get(hit).getColorFromWhenTheyWereNotDeadAsInAlive());
-							effectCounter++;
 							g.addEvent("ADD_EFFECT", d);
+							effectCounter++;
 							playerStats.get(r.getOwner()).incrementStat("eliminations");
 							playerStats.get(r.getOwner()).addScore(15);
 							playerStats.get(hit).incrementStat("deaths");
@@ -329,13 +343,13 @@ public class GameLobby implements Runnable {
 						it.remove();
 					}
 				}
-				//updateClients(g);
 			}
 
 			// TODO implement checks for game win state here
 			
 			if (remainingPlayers == 1 && playerCount > 1) {
-				
+				gameWon = true;
+				gameStarted = false;
 			}
 			
 			long endTime = System.currentTimeMillis();
@@ -365,9 +379,12 @@ public class GameLobby implements Runnable {
 			EndGameData gameStats = new EndGameData();
 			gameStats.setPlayers(players);
 			gameStats.setStats(playerStats);
-			updateClients(gameStats);
+			//updateClients(gameStats);
 			
-			// submit player list and connections to server to keep lobbies together
+			//Send back to lobby
+			GenericRequest btl = new GenericRequest("BACK_TO_LOBBY");
+			btl.setData(players, "PLAYERS");
+			updateClients(btl);
 		}
 	}
 }

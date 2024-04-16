@@ -39,6 +39,7 @@ public class ClientUI extends JFrame {
 	private LobbyScreenController lobbyScreenController;
 	private GameScreenController gameScreenController;
 	private ProfileScreenController profileScreenController;
+	private GameOverScreenController gameOverScreenController;
 
 	// menus
 	private ServerConnectionScreen serverConnectionScreen;
@@ -50,6 +51,7 @@ public class ClientUI extends JFrame {
 	private FindGameScreen findGameScreen;
 	private LobbyScreen lobbyScreen;
 	private GameScreen gameScreen;
+	private GameOverScreen gameOverScreen;
 
 	// layout
 	private JPanel containerPanel;
@@ -109,6 +111,7 @@ public class ClientUI extends JFrame {
 		findGameScreen = new FindGameScreen();
 		lobbyScreen = new LobbyScreen();
 		gameScreen = new GameScreen();
+		gameOverScreen = new GameOverScreen();
 		profileScreen = new ProfileScreen(client.getDatabase());
 		
 		// ADD THEM
@@ -121,6 +124,7 @@ public class ClientUI extends JFrame {
 		containerPanel.add(lobbyScreen, "LOBBY");
 		containerPanel.add(gameScreen, "GAME");
 		containerPanel.add(profileScreen, "PROFILE");
+		containerPanel.add(gameOverScreen, "GAME_OVER");
 
 		// WE ARE DECLARING A NUMBER OF CONTROLLERS
 		serverConnectionScreenController = new ServerConnectionScreenController(client, containerPanel, this);
@@ -132,6 +136,8 @@ public class ClientUI extends JFrame {
 		lobbyScreenController = new LobbyScreenController(client, containerPanel, this);
 		gameScreenController = new GameScreenController(client, containerPanel, this);
 		profileScreenController = new ProfileScreenController(client, containerPanel, this, client.getDatabase());
+		gameOverScreenController = new GameOverScreenController(client, containerPanel, this);
+		
 		
 		// ANNOYING EXTRA STEP
 		serverConnectionScreen.setController(serverConnectionScreenController);
@@ -145,6 +151,7 @@ public class ClientUI extends JFrame {
 		gameScreen.addMouseListener(gameScreenController);
 		gameScreen.addMouseMotionListener(gameScreenController);
 		profileScreen.setController(profileScreenController);
+		gameOverScreen.setController(gameOverScreenController);
 
 		// ANNOYING EXTRA EXTRA STEP
 		client.setSplashController(splashScreenController);
@@ -156,6 +163,7 @@ public class ClientUI extends JFrame {
 		client.setLobbyController(lobbyScreenController);
 		client.setGameController(gameScreenController);
 		client.setProfileScreenController(profileScreenController);
+		client.setGameOverController(gameOverScreenController);
 		
 		// pass a few default values
 		serverConnectionScreen.setDefaultConnectionInfo(configData.get("default_server"), configData.get("default_port"));
@@ -169,7 +177,7 @@ public class ClientUI extends JFrame {
 		// lol?
 		serverConnectionScreenController.actionPerformed(new ActionEvent(this, 0, "BYPASS_CONNECTION_AND_ATTEMPT_LOGIN"));
 
-		//CL.show(containerPanel, "LOBBY"); // TODO FOR DEBUGGING REMOVE LATER
+		//CL.show(containerPanel, "GAME_OVER"); // TODO FOR DEBUGGING REMOVE LATER
 	}
 
 	public void updateConfigData(String key, String value) {
