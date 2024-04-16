@@ -348,7 +348,8 @@ public class GameLobby implements Runnable {
 			// TODO implement checks for game win state here
 			
 			if (remainingPlayers == 1 && playerCount > 1) {
-				
+				gameWon = true;
+				gameStarted = false;
 			}
 			
 			long endTime = System.currentTimeMillis();
@@ -378,9 +379,12 @@ public class GameLobby implements Runnable {
 			EndGameData gameStats = new EndGameData();
 			gameStats.setPlayers(players);
 			gameStats.setStats(playerStats);
-			updateClients(gameStats);
+			//updateClients(gameStats);
 			
-			// submit player list and connections to server to keep lobbies together
+			//Send back to lobby
+			GenericRequest btl = new GenericRequest("BACK_TO_LOBBY");
+			btl.setData(players, "PLAYERS");
+			updateClients(btl);
 		}
 	}
 }
