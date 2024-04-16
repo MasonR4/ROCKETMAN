@@ -35,6 +35,7 @@ public class GameOverScreenController implements ActionListener {
 	}
 	
 	public void returnToLobby() {
+		client.fixTheReadyButtonNotSayingReady();
 		cl.show(clientPanel, "LOBBY");
 	}
 	
@@ -47,8 +48,7 @@ public class GameOverScreenController implements ActionListener {
 		String action = e.getActionCommand();
 		switch(action) {
 		case "GO_LOBBY":
-			
-			cl.show(clientPanel, "LOBBY");
+			returnToLobby();
 			break;
 		case "LEAVE":
 			// TODO leave game from end game screen

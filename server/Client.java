@@ -229,6 +229,10 @@ public class Client extends AbstractClient {
 		gameID = g;
 	}
 	
+	public void fixTheReadyButtonNotSayingReady() {
+		lobbyController.readyButton();
+	}
+	
 	protected void connectionClosed() {
 		System.out.println("connection terminated");
 	}

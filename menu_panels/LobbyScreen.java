@@ -190,7 +190,7 @@ public class LobbyScreen extends JPanel {
 		add(readyButton);
 		add(leaveButton);
 	}
-	
+	 
 	public void enableHostControls() {
 		startGameButton.addActionListener(controller);
 		mapRight.addActionListener(controller);

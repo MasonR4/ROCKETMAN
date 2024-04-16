@@ -141,7 +141,7 @@ public class GameLobby implements Runnable {
 		}
 		missileCounter = 0;
 		effectCounter = 0;
-		blocks.putAll(server.loadMap(info.getMap()));
+		blocks.putAll(server.loadMap(info.getMap())); 
 		CopyOnWriteArrayList<SpawnBlock> spawns = new CopyOnWriteArrayList<>();
 		for (Block s : blocks.values()) {
 			if (s instanceof SpawnBlock) {
@@ -188,6 +188,12 @@ public class GameLobby implements Runnable {
 		playerCount -= 1;
 		playerStats.remove(usr.getUsername());
 		playerConnections.remove(usr.getUsername());
+		if (gameStarted) {
+			GameEvent g = new GameEvent();
+			EightBitLabel leftMessage = new EightBitLabel(usr + " left the match", Font.PLAIN, 25f);
+			g.addEvent("LOG_MESSAGE", leftMessage);
+			updateClients(g);
+		}
 		if (usr.getUsername().equals(hostUsername)) {
 			String[] usernames = playerStats.keySet().toArray(new String[0]);
 			if (usernames.length > 0) {
