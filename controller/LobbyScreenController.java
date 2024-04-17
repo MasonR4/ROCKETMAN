@@ -131,7 +131,7 @@ public class LobbyScreenController implements ActionListener {
 		}
 	}
 	
-	public void updateGameLobbySettings(StartGameData s) {
+	public void updateGameLobbySettings(MatchSettings s) {
 		if (!screen.getHostUsername().equals(client.getUsername())) {
 			map.setText(s.getMap()); 
 			if (s.getPlayerLives() == 1) {

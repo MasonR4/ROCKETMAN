@@ -48,7 +48,7 @@ public class RocketLauncher extends Rectangle {
     }
 		
     public void rotate(int mouseX, int mouseY) {
-        double deltaX = mouseX - x;
+        double deltaX = (mouseX - x) - 340;
         double deltaY = mouseY - y;
         
         this.angle = Math.toDegrees(Math.atan2(deltaY, deltaX));

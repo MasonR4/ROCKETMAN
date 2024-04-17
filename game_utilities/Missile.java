@@ -96,7 +96,7 @@ public class Missile extends Rectangle {
 	}
 	
 	public void setDirection(int mouseX, int mouseY) {
-		int xDistance = mouseX - x;
+		int xDistance = (mouseX - x) - 340;
 		int yDistance = mouseY - y;
 		
 		double length = Math.sqrt(xDistance * xDistance + yDistance * yDistance);

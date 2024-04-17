@@ -19,7 +19,6 @@ import server.Client;
 public class FindGameScreenController implements ActionListener {
 	
 	private Client client;
-	//private ClientUI clientUI;
 	
 	private JPanel clientPanel;
 	private JPanel gamesPanel;

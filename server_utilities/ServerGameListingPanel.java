@@ -28,7 +28,7 @@ public class ServerGameListingPanel extends JPanel {
 	private EightBitLabel playerCountLabel;
 	private EightBitLabel hostedBy;
 	
-	private JButton joinButton;
+	private JButton spectateButton;
 	
 	private static Dimension size = new Dimension(712, 100);
 	private ActionListener controller;
@@ -54,17 +54,15 @@ public class ServerGameListingPanel extends JPanel {
 		playerCountLabel = new EightBitLabel(Integer.toString(playerCount) + "/" + Integer.toString(maxPlayers), Font.PLAIN, 20f);
 		playerCountLabel.setBounds(450, 25, 40, 40);
 		
-		joinButton = new JButton("Spectate");
-		// TODO spectate match?!?!?!?! 
-		// just draw the packets from each player on the screen before broadcasting them lul
-		joinButton.setToolTipText("maybe add this later");
-		joinButton.setEnabled(false);
-		joinButton.setBounds(550, 25, 150, 50);
+		spectateButton = new JButton("Spectate");
+		spectateButton.setToolTipText("not implemented :(");
+		spectateButton.setEnabled(false);
+		spectateButton.setBounds(550, 25, 150, 50);
 		
 		add(lobbyName);
 		add(hostedBy);
 		add(playerCountLabel);
-		add(joinButton);
+		add(spectateButton);
 	}
 	
 	public void setController(ActionListener ac) {
