@@ -63,7 +63,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	
 	// === PLAYER STATS ===
 	
-	private long reload_time = 1800; // reload time (ms)
+	private long reload_time = 1200; // reload time (ms)
 	private Integer trailCount = -1;
 	
 	@SuppressWarnings("serial")

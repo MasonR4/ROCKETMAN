@@ -388,6 +388,9 @@ public class GameLobby implements Runnable {
 			for (Entry<String, Player> e : players.entrySet()) {
 				if (e.getValue().isAlive()) {
 					playerStats.get(e.getKey()).addScore(100);
+					playerStats.get(e.getKey()).incrementStat("wins");
+				} else {
+					playerStats.get(e.getKey()).incrementStat("losses");
 				}
 			}
 			for (Entry<String, PlayerStatistics> e : playerStats.entrySet()) {
