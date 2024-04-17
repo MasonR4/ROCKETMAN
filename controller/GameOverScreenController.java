@@ -3,10 +3,12 @@ package controller;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JPanel;
 
 import data.EndGameData;
+import data.PlayerJoinLeaveData;
 import game.ClientUI;
 import menu_panels.GameOverScreen;
 import server.Client;
@@ -52,6 +54,14 @@ public class GameOverScreenController implements ActionListener {
 			break;
 		case "LEAVE":
 			// TODO leave game from end game screen
+			PlayerJoinLeaveData leaveData = new PlayerJoinLeaveData(client.getUsername());
+			leaveData.setJoining(false);
+			leaveData.setGameID(client.getGameID());
+			try {
+				client.sendToServer(leaveData);
+			} catch (IOException LEAVING_FAILED_YOU_ARE_TRAPPED) {
+				LEAVING_FAILED_YOU_ARE_TRAPPED.printStackTrace();
+			}
 			break;
 		}
 	}

@@ -186,25 +186,26 @@ public class GameLobby implements Runnable {
 	// TODO remove players from running games if they disconnect (low priority)
 	public void removePlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
 		playerCount -= 1;
-		playerStats.remove(usr.getUsername());
-		playerConnections.remove(usr.getUsername());
-		if (usr.getUsername().equals(hostUsername)) {
-			String[] usernames = playerStats.keySet().toArray(new String[0]);
-			if (usernames.length > 0) {
-				hostUsername = usernames[0];
-			}
-		}
-		if (playerCount <= 0) {
-			gameStarted = false;
-			server.cancelGame(gameID, true);
-		}
-		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 		if (gameStarted) {
 			GameEvent g = new GameEvent();
 			EightBitLabel leftMessage = new EightBitLabel(usr.getUsername() + " left the match", Font.PLAIN, 25f);
 			g.addEvent("LOG_MESSAGE", leftMessage);
 			updateClients(g);
+		} else {
+			playerStats.remove(usr.getUsername());
+			playerConnections.remove(usr.getUsername());
+			if (usr.getUsername().equals(hostUsername)) {
+				String[] usernames = playerStats.keySet().toArray(new String[0]);
+				if (usernames.length > 0) {
+					hostUsername = usernames[0];
+				}
+			}
+			if (playerCount <= 0) {
+				gameStarted = false;
+				server.cancelGame(gameID, true);
+			}
 		}
+		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
 
 	public void addPlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {

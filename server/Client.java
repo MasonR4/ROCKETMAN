@@ -149,6 +149,7 @@ public class Client extends AbstractClient {
 			GameLobbyData info = (GameLobbyData) arg0;
 			gameID = info.getGameID();
 			findGameController.changeToGameLobbyMenu();
+			fixTheReadyButtonNotSayingReady();
 			lobbyController.setMapNames(info.getMaps());
 			lobbyController.joinGameLobby(info);
 		} else if (arg0 instanceof PlayerJoinLeaveData) {

@@ -61,7 +61,6 @@ public class LobbyScreenController implements ActionListener {
 	
 	public void addPlayerListing(ArrayList<PlayerJoinLeaveData> data) {
 		playerPanel.removeAll();
-		//readyButton();
 		for (PlayerJoinLeaveData d : data) {
 			PlayerListingPanel p = new PlayerListingPanel(d.getUsername());
 			if (d.isReady()) {

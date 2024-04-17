@@ -56,14 +56,11 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	// 10 - Launcher Rotation
 	
 	private PriorityBlockingQueue<PlayerAction> outboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
-	//private PriorityBlockingQueue<PlayerAction> inboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
-	//private PriorityBlockingQueue<GameEvent> inboundGameEventQueue = new PriorityBlockingQueue<>(11, null);
-	
 	private int mouseX, mouseY;
 	
 	// === PLAYER STATS ===
 	
-	private long reload_time = 1200; // reload time (ms)
+	private long reload_time = 500; // reload time (ms)
 	private Integer trailCount = -1;
 	
 	@SuppressWarnings("serial")
@@ -79,7 +76,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.setLaunchers(launchers);
 		gamePanel.setRockets(rockets);
 		gamePanel.setEffects(effects);
-		//gamePanel.setUsername(username);
 		
 		// KEY BINDING STUFF HAPPENS HERE
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "MOVE_UP");
