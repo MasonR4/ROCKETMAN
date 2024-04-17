@@ -192,7 +192,6 @@ public class Server extends AbstractServer {
 		}
 	}
 	
-	// TODO make function to submit player stats to database
 	public void submitPlayerStatsToDB(String username, PlayerStatistics stats) {
 		boolean success = serverDatabase.insertPlayerStatistics(stats);
 	    if (success) {
@@ -206,7 +205,6 @@ public class Server extends AbstractServer {
 	protected void handleMessageFromClient(Object arg0, ConnectionToClient arg1) {
 		if (arg0 instanceof GenericRequest) {
 			String action = ((GenericRequest) arg0).getMsg();
-			System.out.println("server: received generic request: " + action); // DEBUG remove later
 			GenericRequest rq;
 			switch (action) { 	// PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
 			case "REQUEST_GAMES_INFO":
