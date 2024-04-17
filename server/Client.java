@@ -36,7 +36,7 @@ public class Client extends AbstractClient {
 		
 	private int gameID = -1;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
-	private Database database;
+	//private Database database;
 	
 	// controllers for each menu
 	// possible that we won't need all of them in the client class
@@ -54,7 +54,7 @@ public class Client extends AbstractClient {
 	
 	public Client() {
 		super("localhost", 8300);
-		database = new Database();
+		//database = new Database();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -76,7 +76,7 @@ public class Client extends AbstractClient {
 				username = (String) ((GenericRequest) arg0).getData();
 				createAccountController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
-				profileController.setScreenInfoLabels();
+				//profileController.setScreenInfoLabels();
 				break;
 				
 			case "ACCOUNT_CREATION_FAILED":
@@ -87,7 +87,7 @@ public class Client extends AbstractClient {
 				username = (String) ((GenericRequest) arg0).getData();
 				loginController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
-				profileController.setScreenInfoLabels();
+				//profileController.setScreenInfoLabels();
 				break;
 				
 			case "INVALID_LOGIN":
@@ -141,6 +141,9 @@ public class Client extends AbstractClient {
 			case "BACK_TO_LOBBY":
 				gameOverController.returnToLobby();
 				break;
+			case "PLAYER_STATS":
+				int[] s = (int[]) ((GenericRequest) arg0).getData();
+				profileController.setScreenInfoLabels(s);
 			} 
 		} else if (arg0 instanceof GameLobbyData) {
 			GameLobbyData info = (GameLobbyData) arg0;
@@ -236,7 +239,8 @@ public class Client extends AbstractClient {
 	protected void connectionClosed() {
 		System.out.println("connection terminated");
 	}
-	public Database getDatabase() {
-        return database;
-    }
+	
+//	public Database getDatabase() {
+//        return database;
+//    }
  }

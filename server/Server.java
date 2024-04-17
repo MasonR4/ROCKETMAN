@@ -236,6 +236,17 @@ public class Server extends AbstractServer {
 					CLIENT_ALREADY_GONE.printStackTrace();
 				}
 				break;
+			case "GET_STATISTICS":
+				String u = (String) ((GenericRequest) arg0).getData();
+				int[] stats = serverDatabase.getStatistics(u);
+				rq = new GenericRequest("PLAYER_STATS");
+				rq.setData(stats);
+				try {
+					arg1.sendToClient(rq);
+				} catch (IOException no) {
+					
+				}
+				break;
 			}
 			
 		} else if (arg0 instanceof LoginData) {

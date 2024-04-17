@@ -67,9 +67,14 @@ public class Database {
 	        e.printStackTrace();
 	        return false;
 	    }
+	    
 	}
 
-
+//	private void putStatsForNewPlayers(String username) {
+//	    String insertStats = "INSERT INTO statistics(" + username + ", 0, 0, 0, 0, 0, 0,)";
+//	    
+//	}
+	
 	// Close the database connection when it's no longer needed
 	public void closeConnection() {
 		try {
