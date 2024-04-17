@@ -38,11 +38,6 @@ public class GameDisplay extends JPanel {
 		setLayout(null);
 		setDoubleBuffered(true);
 		setBorder(BorderFactory.createEtchedBorder());
-//		try {
-//			setCursor(this);
-//		} catch (IOException CURSOR_IS_KILL) {
-//			CURSOR_IS_KILL.printStackTrace();
-//		}
 	}
 	
 	public void setBlocks(ConcurrentHashMap<Integer, Block> m) {
@@ -63,17 +58,6 @@ public class GameDisplay extends JPanel {
 	
 	public void setEffects(ConcurrentHashMap<Integer, Effect> e) {
 		effects = e;
-	}
-	
-	public void setCursor(JPanel panel) throws IOException {
-        BufferedImage originalImage = ImageIO.read(new File("assets/crosshair1.png"));
-        Image resizedImage = originalImage.getScaledInstance(6, 6, Image.SCALE_SMOOTH);
-        BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D graphics2D = cursorImg.createGraphics();
-        graphics2D.drawImage(resizedImage, 0, 0, null);
-        graphics2D.dispose();
-        Cursor cursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "custom cursor");
-        panel.setCursor(cursor);
 	}
 	
 	@Override

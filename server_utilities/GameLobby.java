@@ -255,7 +255,6 @@ public class GameLobby implements Runnable {
 				c.sendToClient(data);
 			} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
 				CLIENT_DOESNT_LIKE_YOU.printStackTrace();
-				server.logMessage("could not update client " + c.getId());
 			}
 		}
 	}
