@@ -23,13 +23,13 @@ public class ProfileScreenController implements ActionListener {
 	
 	private CardLayout cl;
 	
-	public ProfileScreenController(Client c, JPanel p, ClientUI ui, Database db) {
+	public ProfileScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
 		clientPanel = p;
 		clientUI = ui;
 		
 		cl = (CardLayout) clientPanel.getLayout();
-		screen = new ProfileScreen(db); // Pass the database object to ProfileScreen
+		//screen = new ProfileScreen(); // Pass the database object to ProfileScreen
 		screen = (ProfileScreen) clientPanel.getComponent(8);
 	}
 	
@@ -51,9 +51,9 @@ public class ProfileScreenController implements ActionListener {
 		}
 	}
 	
-	public void setScreenInfoLabels() {
-		screen.setInfoLabels(client.getUsername()); 
-		
+	public void setScreenInfoLabels(int[] stats) {
+		screen.setInfoLabels(stats, client.getUsername()); 
+		cl.show(clientPanel, "PROFILE");
 	}
 	
 	

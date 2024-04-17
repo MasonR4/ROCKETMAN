@@ -32,12 +32,12 @@ public class ProfileScreen extends JPanel {
 	
 	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
 	private ActionListener controller;
-	private Database database;
+	//private Database database;
 	
-	public ProfileScreen(Database db) {
+	public ProfileScreen() {
 		setSize(DEFAULT_SIZE);
 		setLayout(null);
-		database = db; // Set the database object
+		//database = db; // Set the database object
 		
 		title = new EightBitLabel("ROCKETMAN PROFILE", Font.BOLD, 125f);
 		title.setBounds(150, 45, 1500, 150);
@@ -117,9 +117,8 @@ public class ProfileScreen extends JPanel {
 		}
 	}
 	
-	public void setInfoLabels(String usr) {
-		info.setText("ROCKETER TAG: " + usr);
-		int[] statistics = database.getStatistics(usr);
+	public void setInfoLabels(int[] statistics, String usr) {
+		info.setText("ROCKETER TAG: " +usr);
 		
 		wins.setText(""+statistics[0]);
 		
