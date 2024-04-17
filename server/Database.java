@@ -121,7 +121,7 @@ public class Database {
 	
 	public boolean insertPlayerStatistics(PlayerStatistics playerStats) {
 	    // SQL query to insert player statistics
-		String updateQuery = "UPDATE statistics SET wins = ?, losses = ?, eliminations = ?, deaths = ?, rocketsFired = ?, blocksDestroyed = ? WHERE username = ?";
+	    String updateQuery = "UPDATE statistics SET wins = wins + ?, losses = losses + ?, eliminations = eliminations + ?, deaths = deaths + ?, rocketsFired = rocketsFired + ?, blocksDestroyed = blocksDestroyed + ? WHERE username = ?";
 		try (PreparedStatement ps = conn.prepareStatement(updateQuery)) {
 		    ps.setInt(1, playerStats.getStat("wins"));
 		    ps.setInt(2, playerStats.getStat("losses"));
