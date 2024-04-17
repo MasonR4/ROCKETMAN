@@ -40,6 +40,8 @@ public class ProfileScreenController implements ActionListener {
 		switch(action) {
 		case "Back":
 			cl.show(clientPanel, "MAIN");
+			screen.revalidate();
+			screen.repaint();
 			break;
 			
 		case "Logout":
@@ -51,6 +53,7 @@ public class ProfileScreenController implements ActionListener {
 	
 	public void setScreenInfoLabels() {
 		screen.setInfoLabels(client.getUsername()); 
+		
 	}
 	
 	
