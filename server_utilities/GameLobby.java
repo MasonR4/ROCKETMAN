@@ -188,12 +188,6 @@ public class GameLobby implements Runnable {
 		playerCount -= 1;
 		playerStats.remove(usr.getUsername());
 		playerConnections.remove(usr.getUsername());
-		if (gameStarted) {
-			GameEvent g = new GameEvent();
-			EightBitLabel leftMessage = new EightBitLabel(usr + " left the match", Font.PLAIN, 25f);
-			g.addEvent("LOG_MESSAGE", leftMessage);
-			updateClients(g);
-		}
 		if (usr.getUsername().equals(hostUsername)) {
 			String[] usernames = playerStats.keySet().toArray(new String[0]);
 			if (usernames.length > 0) {
@@ -205,6 +199,12 @@ public class GameLobby implements Runnable {
 			server.cancelGame(gameID, true);
 		}
 		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
+		if (gameStarted) {
+			GameEvent g = new GameEvent();
+			EightBitLabel leftMessage = new EightBitLabel(usr.getUsername() + " left the match", Font.PLAIN, 25f);
+			g.addEvent("LOG_MESSAGE", leftMessage);
+			updateClients(g);
+		}
 	}
 
 	public void addPlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
@@ -358,10 +358,8 @@ public class GameLobby implements Runnable {
 					}
 				}
 			}
-
-			// TODO implement checks for game win state here
 			
-			if (remainingPlayers == 1 && playerCount > 1) {
+			if (remainingPlayers == 1) {
 				gameWon = true;
 				gameStarted = false;
 			}
@@ -382,11 +380,7 @@ public class GameLobby implements Runnable {
 			}
 		}
 		
-		// TODO if game is won, collect all the data here and send it to clients
-		// also submit player scores and stats to database
-		
 		if (gameWon) {
-			
 			GameEvent g = new GameEvent();
 			g.addEvent("GAME_END", "gg");
 			updateClients(g);
@@ -407,11 +401,6 @@ public class GameLobby implements Runnable {
 			gameStats.setPlayers(players);
 			gameStats.setStats(playerStats);
 			updateClients(gameStats);
-			
-			//Send back to lobby
-			//GenericRequest btl = new GenericRequest("BACK_TO_LOBBY");
-			//btl.setData(players, "PLAYERS");
-			//updateClients(btl);
 		}
 	}
 }
