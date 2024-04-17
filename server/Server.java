@@ -134,7 +134,7 @@ public class Server extends AbstractServer {
 	protected void serverStopped() {
 		connectedPlayerCount = 0;
 		connectedPlayers.clear();
-		database.closeConnection();
+		//database.closeConnection();
 		logMessage("[Server] Server Stopped");
 		serverStatus.setText("STOPPED");
 		serverStatus.setForeground(Color.RED);

@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import javax.swing.SwingConstants;
+
 import data.EndGameData;
 import data.Event;
 import data.GameEvent;
@@ -183,7 +185,7 @@ public class GameLobby implements Runnable {
 		Thread.currentThread().interrupt();
 	}
 
-	// TODO remove players from running games if they disconnect (low priority)
+	// TODO fix players leaving matches softlocking the lobby (i cannot think of any good reason why this happens but it does)
 	public void removePlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
 		playerCount -= 1;
 		if (gameStarted) {
@@ -334,6 +336,12 @@ public class GameLobby implements Runnable {
 						Explosion e = new Explosion(players.get(hit).x, players.get(hit).y);
 						g.addEvent("ADD_EFFECT", e);
 						players.get(hit).takeHit();
+						playerStats.get(r.getOwner()).incrementStat("eliminations");
+						playerStats.get(r.getOwner()).addScore(50);
+						playerStats.get(hit).incrementStat("deaths");
+						EightBitLabel msg = new EightBitLabel("<html><font color='" + String.format("#%06X", (players.get(r.getOwner()).getColor().getRGB() & 0xFFFFFF)) + "'>" + r.getOwner() +"</font><font color='black'> exploded </font><font color ='" + String.format("#%06X", (players.get(hit).getColor().getRGB() & 0xFFFFFF)) + "'>" + hit + "</font>", Font.PLAIN, 25f);
+						msg.setHorizontalAlignment(SwingConstants.LEFT);
+						g.addEvent("LOG_MESSAGE", msg);
 						if (!players.get(hit).isAlive()) {
 							g.addEvent("PLAYER_ELIMINATED", hit);
 							DeathMarker d = new DeathMarker(players.get(hit).x, players.get(hit).y, hit);
@@ -341,15 +349,16 @@ public class GameLobby implements Runnable {
 							d.setColor(players.get(hit).getColorFromWhenTheyWereNotDeadAsInAlive());
 							g.addEvent("ADD_EFFECT", d);
 							effectCounter++;
-							playerStats.get(r.getOwner()).incrementStat("eliminations");
-							playerStats.get(r.getOwner()).addScore(50);
-							playerStats.get(hit).incrementStat("deaths");
+							
+							
+							EightBitLabel msg2 = new EightBitLabel("<html><font color='" + String.format("#%06X", (players.get(hit).getColor().getRGB() & 0xFFFFFF)) + "'>" + hit +"</font><font color='black'> WAS ELIMINATED BY </font><font color ='" + String.format("#%06X", (players.get(r.getOwner()).getColor().getRGB() & 0xFFFFFF)) + "'>" + r.getOwner() + "</font><font color ='black'>!</font>", Font.PLAIN, 25f);
+							msg2.setHorizontalAlignment(SwingConstants.LEFT);
+							g.addEvent("LOG_MESSAGE", msg2);
+							
 						} else {
 							g.addEvent("PLAYER_HIT", hit);
 						}
 						
-						EightBitLabel msg = new EightBitLabel(r.getOwner() + " exploded " + hit, Font.PLAIN, 25f);
-						g.addEvent("LOG_MESSAGE", msg);
 						
 						updateClients(g);
 					}

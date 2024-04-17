@@ -1,20 +1,10 @@
 package menu_utilities;
 import java.awt.AlphaComposite;
-import java.awt.Cursor;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import game_utilities.Block;
@@ -37,7 +27,7 @@ public class GameDisplay extends JPanel {
 		setSize(SIZE);
 		setLayout(null);
 		setDoubleBuffered(true);
-		setBorder(BorderFactory.createEtchedBorder());
+		setBorder(BorderFactory.createLineBorder(Color.BLACK, 5));
 	}
 	
 	public void setBlocks(ConcurrentHashMap<Integer, Block> m) {

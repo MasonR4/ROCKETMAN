@@ -26,7 +26,7 @@ public class RocketLauncher extends Rectangle {
         width = w;
         height = h;
     }
-	// TODO fix rocket rotation
+    
     public void draw(Graphics g) {
         Graphics2D rocketGraphics = (Graphics2D) g.create();
         rocketGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
