@@ -126,7 +126,7 @@ public class ProfileScreen extends JPanel {
 	        
 	    elims.setText("" + statistics[2]);
 	       
-	    rocketsFired.setText("" + statistics[3]);
+	    rocketsFired.setText("" + statistics[4]);
 	       
 	    blocksDestroyed.setText("" + statistics[5]);
 	}
