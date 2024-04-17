@@ -311,16 +311,11 @@ public class Server extends AbstractServer {
 	                GenericRequest rq = new GenericRequest("ACCOUNT_CREATION_FAILED");
 	                rq.setData("Username already exists");
 	                arg1.sendToClient(rq);
-	                serverLog.append("[Client " + arg1.getId() + "] Failed to create acc)ount '" + username + "'\n");
+	                serverLog.append("[Client " + arg1.getId() + "] Failed to create account '" + username + "'\n");
 	            } catch (IOException e) {
 	                e.printStackTrace();
 	            }
 	        }
-		} else if (arg0 instanceof PlayerStatistics) {
-			// TODO query database for playerdata
-			// may change this to a genericRequest that receives only username from the client
-			// and sends PlayerData back
-			
 		} else if (arg0 instanceof GameLobbyData) {
 			System.out.println("server: received gamelobbydata"); // DEBUG
 			GameLobbyData info = (GameLobbyData) arg0;

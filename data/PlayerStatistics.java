@@ -13,7 +13,6 @@ public class PlayerStatistics implements Serializable {
 	private boolean ready = false;
 	private boolean isHost = false;
 	
-	// TODO when we get the database ready we will add variables here to store
 	private LinkedHashMap<String, Integer> statistics = new LinkedHashMap<String, Integer>();
 	
 	public PlayerStatistics() {

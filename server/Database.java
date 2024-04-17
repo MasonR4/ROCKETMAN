@@ -62,7 +62,7 @@ public class Database {
 	        ps.setString(1, username);
 	        ps.setString(2, password);
 	        int affectedRows = ps.executeUpdate();
-	        return affectedRows > 0;
+	        return affectedRows > 0 && putStatsForNewPlayers(username);
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	        return false;
@@ -70,10 +70,17 @@ public class Database {
 	    
 	}
 
-//	private void putStatsForNewPlayers(String username) {
-//	    String insertStats = "INSERT INTO statistics(" + username + ", 0, 0, 0, 0, 0, 0,)";
-//	    
-//	}
+	private boolean putStatsForNewPlayers(String username) {
+	    String insertStats = "INSERT INTO statistics VALUES('" + username + "', 0, 0, 0, 0, 0, 0)";
+	    try (PreparedStatement ps = conn.prepareStatement(insertStats)) {
+	    	int affectedRows = ps.executeUpdate();
+	    	System.out.println("added new stats to player");
+	    	return affectedRows > 0;
+	    } catch (SQLException gg) {
+	    	gg.printStackTrace();
+	    	return false;
+	    }
+	}
 	
 	// Close the database connection when it's no longer needed
 	public void closeConnection() {

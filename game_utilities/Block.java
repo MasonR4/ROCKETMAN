@@ -29,9 +29,6 @@ public abstract class Block extends Rectangle implements Serializable {
 	protected Color color;
 	protected float opacity;
 	
-	// TODO add sprites 
-	// private ArrayList<BufferedImage> sprites = new ArrayList<BufferedImage>();
-	
 	public Block(int x, int y, int r, int c) {
 		xPos = x;
 		yPos = y;
