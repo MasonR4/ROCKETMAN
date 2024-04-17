@@ -388,7 +388,7 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof StartGameData) {
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
-			if (info.isActuallyStarting()) {
+			if (info.isActuallyStarting() && games.get(gid).getPlayerCount() >= 2) {
 				if (!games.get(gid).isStarted()) {
 					if (games.get(gid).playersReady()) {
 						games.get(gid).startGame(info);
