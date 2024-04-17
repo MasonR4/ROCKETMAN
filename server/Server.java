@@ -134,7 +134,7 @@ public class Server extends AbstractServer {
 	protected void serverStopped() {
 		connectedPlayerCount = 0;
 		connectedPlayers.clear();
-		// TODO save player data to database upon server stopping
+		database.closeConnection();
 		logMessage("[Server] Server Stopped");
 		serverStatus.setText("STOPPED");
 		serverStatus.setForeground(Color.RED);
@@ -148,13 +148,16 @@ public class Server extends AbstractServer {
 	public void startGame(int id) {
 		System.out.println("started game " + id);
 		ExecutorService executor = Executors.newSingleThreadExecutor();
-		execGames.put(id, executor);
 		executor.submit(games.get(id));
+		execGames.put(id, executor);
 	}
 	
 	public void cancelGame(int id, boolean remove) {
 		if (games.get(id).isStarted()) {
 			games.get(id).stopGame();
+			if (execGames.get(id) != null) {
+				execGames.get(id).shutdown();
+			}
 		}
 		if (remove) { 
 			logMessage("[Info] Canceled Game " + id);
@@ -393,8 +396,8 @@ public class Server extends AbstractServer {
 						startGame(gid);
 					} else {
 						try {
-							GenericRequest nr = new GenericRequest("PLAYERS_NOT_READY");
-							nr.setData("All players must ready before starting match");
+							GenericRequest nr = new GenericRequest("START_ERROR");
+							nr.setData("Players not ready");
 							arg1.sendToClient(nr);
 						} catch (IOException CLIENT_UNTO_DUST) {
 							CLIENT_UNTO_DUST.printStackTrace();
@@ -402,8 +405,18 @@ public class Server extends AbstractServer {
 					}
 				}
 			} else {
-				games.get(gid).broadcastLobbySettings(info);
+				try {
+					GenericRequest nr = new GenericRequest("START_ERROR");
+					nr.setData("Need at least 2 players");
+					arg1.sendToClient(nr);
+				} catch (IOException CLIENT_UNTO_DUST) {
+					CLIENT_UNTO_DUST.printStackTrace();
+				}
 			}
+		} else if (arg0 instanceof MatchSettings) {
+			MatchSettings settings = (MatchSettings) arg0;
+			int gid = settings.getGameID();
+			games.get(gid).broadcastLobbySettings(settings);			
 		} else if (arg0 instanceof PlayerAction) {
 			PlayerAction a = (PlayerAction) arg0;
 			int gid = a.getGameID();

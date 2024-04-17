@@ -19,6 +19,7 @@ import data.Event;
 import data.GameEvent;
 import data.GameLobbyData;
 import data.GenericRequest;
+import data.MatchSettings;
 import data.PlayerAction;
 import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
@@ -116,12 +117,11 @@ public class GameLobby implements Runnable {
 		return gameStarted;
 	}
 	
-	public void broadcastLobbySettings(StartGameData info) {
+	public void broadcastLobbySettings(MatchSettings info) {
 		map = info.getMap();
 		playerLives = info.getPlayerLives();
 		for (Entry<String, ConnectionToClient> e : playerConnections.entrySet()) {
 			if (!e.getKey().toString().equals(hostUsername)) {
-				System.out.println("host: " + hostUsername + " current user: " + e.getKey());
 				try {
 					e.getValue().sendToClient(info);
 				} catch (IOException blyad) {

@@ -53,7 +53,6 @@ public class GameOverScreenController implements ActionListener {
 			returnToLobby();
 			break;
 		case "LEAVE":
-			// TODO leave game from end game screen
 			PlayerJoinLeaveData leaveData = new PlayerJoinLeaveData(client.getUsername());
 			leaveData.setJoining(false);
 			leaveData.setGameID(client.getGameID());

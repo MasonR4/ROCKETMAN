@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import data.GameLobbyData;
+import data.MatchSettings;
 import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
 import data.StartGameData;
@@ -96,6 +97,10 @@ public class LobbyScreenController implements ActionListener {
 		screen.unreadyReadyButton();
 	}
 	
+	public void setReadyLabel(String msg) {
+		screen.setReadyLabel(msg);
+	}
+	
 	public void joinGameLobby(GameLobbyData info) {
 		SwingUtilities.invokeLater(() -> screen.setLobbyInfo(info.getHostName(), info.getPlayerCount(), info.getMaxPlayers()));
 		SwingUtilities.invokeLater(() -> screen.updateLobbyInfo());
@@ -118,7 +123,7 @@ public class LobbyScreenController implements ActionListener {
 		cl.show(clientPanel, "GAME");
 	}
 	
-	public void sendGameLobbySettings(StartGameData s) {
+	public void sendGameLobbySettings(MatchSettings s) {
 		try {
 			client.sendToServer(s);
 		} catch (IOException SETTINGS_REJECTION) {
@@ -141,7 +146,7 @@ public class LobbyScreenController implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
-		StartGameData info;
+		MatchSettings info;
 		switch (action) {
 		case "Ready":
 			if (client.isConnected()) {
@@ -169,8 +174,12 @@ public class LobbyScreenController implements ActionListener {
 			break;
 			
 		case "Start Game":
-				info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, true);
-				sendGameLobbySettings(info);
+				StartGameData start = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, true);
+				try {
+					client.sendToServer(start);
+				} catch (IOException CANT_START) {
+					CANT_START.printStackTrace();
+				}
 			break;
 			
 		case "Leave":
@@ -190,7 +199,7 @@ public class LobbyScreenController implements ActionListener {
 				selectedMap = 0;
 			}
 			map.setText(mapNames.get(selectedMap));
-			info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, false);
+			info = new MatchSettings(client.getGameID(), mapNames.get(selectedMap), livesCount);
 			sendGameLobbySettings(info);
 			break;
 			
@@ -200,7 +209,7 @@ public class LobbyScreenController implements ActionListener {
 				selectedMap = mapNames.size() - 1;
 			}
 			map.setText(mapNames.get(selectedMap));
-			info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, false);
+			info = new MatchSettings(client.getGameID(), mapNames.get(selectedMap), livesCount);
 			sendGameLobbySettings(info);
 			break;
 			
@@ -211,7 +220,7 @@ public class LobbyScreenController implements ActionListener {
 				livesCount = MAX_LIVES;
 			}
 			lives.setText(Integer.toString(livesCount));
-			info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, false);
+			info = new MatchSettings(client.getGameID(), mapNames.get(selectedMap), livesCount);
 			sendGameLobbySettings(info);
 			break;
 			
@@ -224,7 +233,7 @@ public class LobbyScreenController implements ActionListener {
 			} else {
 				lives.setText(Integer.toString(livesCount));
 			}
-			info = new StartGameData(client.getGameID(), mapNames.get(selectedMap), livesCount, false);
+			info = new MatchSettings(client.getGameID(), mapNames.get(selectedMap), livesCount);
 			sendGameLobbySettings(info);
 			break;
 		}

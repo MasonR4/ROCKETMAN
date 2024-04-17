@@ -74,8 +74,9 @@ public class LobbyScreen extends JPanel {
 		playerCountLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		playerCountLabel.setBounds(1000, 40, 400, 20);
 		
-		readyStatusLabel = new EightBitLabel("", Font.PLAIN, 32f);
+		readyStatusLabel = new EightBitLabel("", Font.PLAIN, 22f);
 		readyStatusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		readyStatusLabel.setBounds(1200, 815, 250, 20);
 		readyStatusLabel.setForeground(Color.RED);
 		
 		
@@ -210,8 +211,8 @@ public class LobbyScreen extends JPanel {
 		gameInfoPanel.add(reloadRight);
 		gameInfoPanel.add(reloadLeft);
 		add(startGameButton);
-		repaint();
 		revalidate();
+		repaint();
 	}
 	
 	public void disableHostControls() {
@@ -224,9 +225,8 @@ public class LobbyScreen extends JPanel {
 		gameInfoPanel.remove(livesLeft);
 		gameInfoPanel.remove(reloadRight);
 		gameInfoPanel.remove(reloadLeft);
-		repaint();
 		revalidate();
-		
+		repaint();		
 	}
 	
 	public void unreadyReadyButton() {
@@ -237,6 +237,12 @@ public class LobbyScreen extends JPanel {
 	public void readyReadyButton() {
 		readyButton.setText("Ready");
 		readyButton.repaint();
+	}
+	
+	public void setReadyLabel(String msg) {
+		readyStatusLabel.setText(msg);
+		revalidate();
+		repaint();
 	}
 	
 	public JPanel getPlayerPanel() {

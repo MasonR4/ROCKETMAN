@@ -76,7 +76,6 @@ public class Client extends AbstractClient {
 				username = (String) ((GenericRequest) arg0).getData();
 				createAccountController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
-				//profileController.setScreenInfoLabels();
 				break;
 				
 			case "ACCOUNT_CREATION_FAILED":
@@ -87,7 +86,6 @@ public class Client extends AbstractClient {
 				username = (String) ((GenericRequest) arg0).getData();
 				loginController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
-				//profileController.setScreenInfoLabels();
 				break;
 				
 			case "INVALID_LOGIN":
@@ -113,7 +111,11 @@ public class Client extends AbstractClient {
 			case "CONFIRM_UNREADY":
 				lobbyController.readyButton();
 				break;
-			
+				
+			case "START_ERROR":
+				lobbyController.setReadyLabel((String) ((GenericRequest) arg0).getData());
+				break;
+				
 			case "CONFIRM_LEAVE_GAME":
 				gameID = -1;
 				try {
@@ -169,6 +171,7 @@ public class Client extends AbstractClient {
 		} else if (arg0 instanceof EndGameData) {
 			EndGameData data = (EndGameData) arg0;
 			gameOverController.reset();
+			lobbyController.setReadyLabel("");
 			gameOverController.setEndGameStats(data);
 		}
 	}
