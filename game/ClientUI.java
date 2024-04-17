@@ -56,7 +56,7 @@ public class ClientUI extends JFrame {
 	// layout
 	private JPanel containerPanel;
 
-	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 930);
+	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 938);
 	private static final CardLayout CL = new CardLayout();
 	private static final String DEFAULT_MENU = "SERVER_CONNECTION";
 
