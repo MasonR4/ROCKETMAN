@@ -1,10 +1,16 @@
 package server_utilities;
 
+import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.imageio.ImageIO;
+
 import game_utilities.Block;
 import game_utilities.BreakableBlock;
 import game_utilities.SpawnBlock;
@@ -259,6 +265,7 @@ public class MapCreator implements Serializable {
 	public ConcurrentHashMap<Integer, Block> getMap(String m) {
 		ConcurrentHashMap<Integer, Block> map = new ConcurrentHashMap<>();
 		int[][] blocks = maps.get(m);
+		String brickTexture = "D:\\GitHub Projects\\ROCKETMAN\\brick.png"; // Load once and reuse
 		for (int i = 0; i < GRID_SIZE; i++) {
 			for (int o = 0; o < GRID_SIZE; o++) {
 				int xPos = o * BLOCK_SIZE;
@@ -283,6 +290,15 @@ public class MapCreator implements Serializable {
 			}
 		}
 		return map;
+	}
+	
+	private BufferedImage loadTexture(String resourcePath) {
+	    try {
+	        return ImageIO.read(getClass().getResourceAsStream(resourcePath));
+	    } catch (IOException e) {
+	        System.err.println("Unable to load texture: " + e.getMessage());
+	        return null;
+	    }
 	}
 	
 	public ArrayList<String> getMapNames() {

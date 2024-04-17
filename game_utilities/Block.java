@@ -4,7 +4,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+
+import javax.imageio.ImageIO;
 
 public abstract class Block extends Rectangle implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -28,6 +33,8 @@ public abstract class Block extends Rectangle implements Serializable {
 	
 	protected Color color;
 	protected float opacity;
+	
+	protected BufferedImage texture;
 	
 	// TODO add sprites 
 	// private ArrayList<BufferedImage> sprites = new ArrayList<BufferedImage>();
@@ -124,5 +131,5 @@ public abstract class Block extends Rectangle implements Serializable {
 
 	public int getBlockNumber() {
 		return number;
-	}	
+	}
 }
