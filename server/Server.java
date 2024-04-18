@@ -134,7 +134,6 @@ public class Server extends AbstractServer {
 	protected void serverStopped() {
 		connectedPlayerCount = 0;
 		connectedPlayers.clear();
-		//database.closeConnection();
 		logMessage("[Server] Server Stopped");
 		serverStatus.setText("STOPPED");
 		serverStatus.setForeground(Color.RED);
@@ -226,17 +225,36 @@ public class Server extends AbstractServer {
 			case "CLIENT_DISCONNECTING":
 				String username = (String) ((GenericRequest) arg0).getData();
 				try {
+					connectedPlayerCount--;
+					if (!username.isBlank()) {
+						
+						connectedPlayers.remove(username);
+						logMessage("[Client " + arg1.getId() + "] Disconnected and logged out as " + username);
+					}
+					SwingUtilities.invokeLater(() -> serverMenuController.addGameListings(getAllGames()));
 					GenericRequest rq2 = new GenericRequest("CONFIRM_DISCONNECT_AND_EXIT");
 					arg1.sendToClient(rq2);
 					arg1.close();
-					connectedPlayers.remove(username);
-					connectedPlayerCount -= 1;
-					logMessage("[Client " + arg1.getId() + "] Logged out as " + username);
-					SwingUtilities.invokeLater(() -> serverMenuController.addGameListings(getAllGames()));
 				} catch (IOException CLIENT_ALREADY_GONE) {
 					CLIENT_ALREADY_GONE.printStackTrace();
 				}
 				break;
+				
+			case "CLIENT_LOGOUT":
+				String username2 = (String) ((GenericRequest) arg0).getData();
+				if (connectedPlayers.contains(username2)) {
+					connectedPlayers.remove(username2);
+					logMessage("[Client " + arg1.getId() + "] Logged out as " + username2);
+					connectedPlayerCount--;
+					GenericRequest rq3 = new GenericRequest("CONFIRM_LOGOUT");
+					try {
+						arg1.sendToClient(rq3);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				break;
+				
 			case "GET_STATISTICS":
 				String u = (String) ((GenericRequest) arg0).getData();
 				int[] stats = serverDatabase.getStatistics(u);
@@ -282,7 +300,7 @@ public class Server extends AbstractServer {
 	        } else {
 	        	try {
                     GenericRequest rq = new GenericRequest("INVALID_LOGIN");
-                    rq.setData("Incorrect username or password");
+                    rq.setData("User already logged in");
                     arg1.sendToClient(rq);
                     serverLog.append("[Client " + arg1.getId() + "] Failed login attempt\n");
                 } catch (IOException e) {

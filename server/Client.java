@@ -51,11 +51,9 @@ public class Client extends AbstractClient {
 	private ServerConnectionScreenController serverConnectionController;
 	private SplashScreenController splashController;
 	private ProfileScreenController profileController;
-	//private ExecutorService executor = Executors.newCachedThreadPool();
 	
 	public Client() {
 		super("localhost", 8300);
-		//database = new Database();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -136,10 +134,24 @@ public class Client extends AbstractClient {
 				executor.execute(gameController);
 				break;
 			case "FORCE_DISCONNECT":
-				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
+				try {
+					closeConnection();
+					SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated("Server closed"));
+				} catch (IOException e) {
+
+				}
 				break;
 			case "CONFIRM_DISCONNECT_AND_EXIT":
-				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
+				try {
+					closeConnection();
+					SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated("Logged out Successfully"));
+				} catch (IOException e) {
+
+				}
+				break;
+			case "CONFIRM_LOGOUT":
+				username = "";
+				splashController.showThis();
 				break;
 			case "BACK_TO_LOBBY":
 				gameOverController.returnToLobby();
@@ -220,6 +232,10 @@ public class Client extends AbstractClient {
 		gameOverController = c;
 	}
 	
+	public void setUsername(String s) {
+		username = s;
+	}
+	
 	public String getUsername() {
 		return username;
 	}
@@ -243,8 +259,4 @@ public class Client extends AbstractClient {
 	protected void connectionClosed() {
 		System.out.println("connection terminated");
 	}
-	
-//	public Database getDatabase() {
-//        return database;
-//    }
  }

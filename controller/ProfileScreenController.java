@@ -33,6 +33,11 @@ public class ProfileScreenController implements ActionListener {
 		screen = (ProfileScreen) clientPanel.getComponent(8);
 	}
 	
+	public void setScreenInfoLabels(int[] stats) {
+		screen.setInfoLabels(stats, client.getUsername()); 
+		cl.show(clientPanel, "PROFILE");
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
@@ -45,16 +50,9 @@ public class ProfileScreenController implements ActionListener {
 			break;
 			
 		case "Logout":
-			//cl.show(clientPanel, "PROFILE");
+			clientUI.logoutProcedure();
 			break;
 		
 		}
-	}
-	
-	public void setScreenInfoLabels(int[] stats) {
-		screen.setInfoLabels(stats, client.getUsername()); 
-		cl.show(clientPanel, "PROFILE");
-	}
-	
-	
+	}	
 }
