@@ -4,16 +4,14 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionListener;
-
 import javax.swing.JPanel;
-
 import menu_utilities.EightBitButton;
 import menu_utilities.EightBitLabel;
-import server.Database;
 
 
 public class ProfileScreen extends JPanel {
 	
+	private static final long serialVersionUID = 1282319019099873811L;
 	private EightBitLabel title;
 	private EightBitLabel winsLabel;
 	private EightBitLabel wins;

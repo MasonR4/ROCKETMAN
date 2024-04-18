@@ -14,7 +14,8 @@ import javax.swing.text.AbstractDocument;
 import menu_utilities.*;
 
 public class CreateAccountScreen extends JPanel {
-	
+	private static final long serialVersionUID = 1616294608624308351L;
+
 	private EightBitLabel title;
 	
 	private EightBitLabel usernameLabel;

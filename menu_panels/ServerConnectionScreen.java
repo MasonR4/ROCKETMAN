@@ -13,6 +13,8 @@ import menu_utilities.*;
 
 public class ServerConnectionScreen extends JPanel {
 	
+	private static final long serialVersionUID = -4138189611600111207L;
+
 	private EightBitLabel title;
 	
 	private EightBitButton connectButton;

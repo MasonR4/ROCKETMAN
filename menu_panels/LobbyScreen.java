@@ -29,12 +29,12 @@ public class LobbyScreen extends JPanel {
 	private EightBitLabel gameInfoTitleLabel;
 	private EightBitLabel mapLabel;
 	private EightBitLabel map;
-	private EightBitLabel timeLabel;
-	private EightBitLabel time;
+//	private EightBitLabel timeLabel;
+//	private EightBitLabel time;
 	private EightBitLabel livesLabel;
 	private EightBitLabel lives;
-	private EightBitLabel reloadSpeedLabel;
-	private EightBitLabel reloadSpeed;
+//	private EightBitLabel reloadSpeedLabel;
+//	private EightBitLabel reloadSpeed;
 	private EightBitLabel gameModeLabel;
 	private EightBitLabel gameMode;
 	
@@ -44,12 +44,12 @@ public class LobbyScreen extends JPanel {
 	
 	private EightBitButton mapRight;
 	private EightBitButton mapLeft;
-	private EightBitButton timeRight;
-	private EightBitButton timeLeft;
+//	private EightBitButton timeRight;
+//	private EightBitButton timeLeft;
 	private EightBitButton livesRight;
 	private EightBitButton livesLeft;
-	private EightBitButton reloadRight;
-	private EightBitButton reloadLeft;
+//	private EightBitButton reloadRight;
+//	private EightBitButton reloadLeft;
 	
 	private JPanel gameInfoPanel;
 	private JPanel playersPanel;

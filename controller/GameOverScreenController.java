@@ -16,7 +16,7 @@ import server.Client;
 
 public class GameOverScreenController implements ActionListener {
 	private Client client;
-	private ClientUI clientUI;
+//	private ClientUI clientUI;
 	
 	private GameOverScreen screen;
 	private JPanel clientPanel;
@@ -26,7 +26,7 @@ public class GameOverScreenController implements ActionListener {
 	public GameOverScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
 		clientPanel = p;
-		clientUI = ui;
+//		clientUI = ui;
 		
 		cl = (CardLayout) clientPanel.getLayout();		
 		screen = (GameOverScreen) clientPanel.getComponent(9);

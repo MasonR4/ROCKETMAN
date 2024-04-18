@@ -16,7 +16,7 @@ public class MainMenuScreen extends JPanel {
 	
 	private EightBitButton playButton;
 	private EightBitButton profileButton;
-	private EightBitButton optionsButton;
+//	private EightBitButton optionsButton;
 	private EightBitButton quitButton;
 	
 	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);

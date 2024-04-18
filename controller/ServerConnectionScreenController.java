@@ -5,10 +5,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
 import game.ClientUI;
 import menu_panels.LoginScreen;
 import menu_panels.ServerConnectionScreen;
