@@ -3,16 +3,10 @@ package controller;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-
 import javax.swing.JPanel;
-
-import data.GenericRequest;
 import game.ClientUI;
-import menu_panels.FindGameScreen;
 import menu_panels.ProfileScreen;
 import server.Client;
-import server.Database;
 
 public class ProfileScreenController implements ActionListener {
 

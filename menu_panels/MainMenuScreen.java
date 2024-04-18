@@ -16,7 +16,7 @@ public class MainMenuScreen extends JPanel {
 	
 	private EightBitButton playButton;
 	private EightBitButton profileButton;
-	private EightBitButton optionsButton;
+//	private EightBitButton optionsButton;
 	private EightBitButton quitButton;
 	
 	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
@@ -35,16 +35,16 @@ public class MainMenuScreen extends JPanel {
 		profileButton = new EightBitButton("Profile");
 		profileButton.setBounds(675, 575, 250, 50);
 		
-		optionsButton = new EightBitButton("Options");
-		optionsButton.setBounds(675, 650, 250, 50);
+		//optionsButton = new EightBitButton("Options");
+		//optionsButton.setBounds(675, 650, 250, 50);
 		
 		quitButton = new EightBitButton("Quit");
-		quitButton.setBounds(675, 725, 250, 50);
+		quitButton.setBounds(675, 650, 250, 50);
 		
 		add(title);
 		add(playButton);
 		add(profileButton);
-		add(optionsButton);
+		//add(optionsButton);
 		add(quitButton);
 	}
 	

@@ -7,15 +7,11 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.util.Map.Entry;
-
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-
-import com.mysql.fabric.xmlrpc.Client;
-
 import data.EndGameData;
 import data.PlayerStatistics;
 import menu_utilities.EightBitButton;
@@ -30,7 +26,7 @@ public class GameOverScreen extends JPanel {
 	private JScrollPane statsScrollPane;
 	
 	private EightBitLabel title;
-	private EightBitLabel gameMode;
+//	private EightBitLabel gameMode;
 	private EightBitLabel playerTitleLabel;
 	
 	private EightBitButton leaveButton;

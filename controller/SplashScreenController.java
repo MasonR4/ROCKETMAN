@@ -1,16 +1,11 @@
 package controller;
 
 import java.awt.CardLayout;
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-
-import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import data.GenericRequest;
-import menu_panels.SplashScreen;
 import server.Client;
 
 public class SplashScreenController implements ActionListener {
@@ -18,7 +13,7 @@ public class SplashScreenController implements ActionListener {
 	private Client client;
 	
 	private JPanel clientPanel;
-	private SplashScreen screenPanel; 
+//	private SplashScreen screenPanel; 
 	
 	private CardLayout cl;
 	
@@ -27,7 +22,7 @@ public class SplashScreenController implements ActionListener {
 		clientPanel = p;
 		
 		cl = (CardLayout) clientPanel.getLayout();
-		screenPanel = (SplashScreen) p.getComponent(1); 
+//		screenPanel = (SplashScreen) p.getComponent(1); 
 	}
 	
 	public void showThis() {
