@@ -279,10 +279,12 @@ public class GameLobby implements Runnable {
 		switch (type) {
 		case "MOVE":
 			players.get(usr).updatePosition(a.getX(), a.getY());
+			launchers.get(usr).moveLauncher((int) players.get(usr).x, (int) players.get(usr).y, 20);
 			players.get(usr).setVelocity(a.getAction());
 			break;
 		case "CANCEL_MOVE":
 			players.get(usr).updatePosition(a.getX(), a.getY());
+			launchers.get(usr).moveLauncher((int) players.get(usr).x, (int) players.get(usr).y, 20);
 			players.get(usr).cancelVelocity(a.getAction());
 			break;
 		case "LAUNCHER_ROTATION":

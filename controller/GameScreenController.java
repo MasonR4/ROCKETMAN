@@ -1,6 +1,7 @@
 package controller;
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -14,6 +15,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import data.GameEvent;
 import data.PlayerAction;
@@ -41,7 +43,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	private GameDisplay gamePanel;
 	private JPanel clientPanel;
 	
-	private EightBitLabel announcement;
+	private JTextField chat;
 	
 	private final long TARGET_DELTA = 16;
 	
@@ -56,6 +58,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	// === ACTION PRIORITIES ===
 	// 0 - Player Movement
 	// 1 - Rocket Fired
+	// 2 - Chat Message
 	// 10 - Launcher Rotation
 	
 	private PriorityBlockingQueue<PlayerAction> outboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
@@ -80,11 +83,15 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.setRockets(rockets);
 		gamePanel.setEffects(effects);
 		
+		
+		chat = screen.getChat();
+		chat.setFocusable(false);
+		
 		// KEY BINDING STUFF HAPPENS HERE
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "MOVE_UP");
 		gamePanel.getActionMap().put("MOVE_UP", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				if (players.get(username).getVelocity("UP") == 0) {
+				if (players.get(username).getVelocity("UP") == 0 && !chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "UP");
 					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
 					playerAction.setPriority(0);
@@ -96,17 +103,19 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "CANCEL_MOVE_UP");
 		gamePanel.getActionMap().put("CANCEL_MOVE_UP", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "UP");
-				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
-				playerAction.setPriority(0);
-				players.get(username).cancelVelocity("UP");
-				outboundEventQueue.add(playerAction);
+				if (!chat.isFocusOwner()) {
+					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "UP");
+					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPriority(0);
+					players.get(username).cancelVelocity("UP");
+					outboundEventQueue.add(playerAction);
+				}
 			}
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "MOVE_LEFT");
 		gamePanel.getActionMap().put("MOVE_LEFT", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				if (players.get(username).getVelocity("LEFT") == 0) {
+				if (players.get(username).getVelocity("LEFT") == 0 && !chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "LEFT");
 					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
 					playerAction.setPriority(0);
@@ -118,19 +127,19 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "CANCEL_MOVE_LEFT");
 		gamePanel.getActionMap().put("CANCEL_MOVE_LEFT", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "LEFT");
-				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
-				playerAction.setPriority(0);
-				players.get(username).cancelVelocity("LEFT");
-				outboundEventQueue.add(playerAction);
+				if (!chat.isFocusOwner()) {
+					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "LEFT");
+					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPriority(0);
+					players.get(username).cancelVelocity("LEFT");
+					outboundEventQueue.add(playerAction);
+				}
 			}
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "MOVE_DOWN");
 		gamePanel.getActionMap().put("MOVE_DOWN", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				if (players.get(username).getVelocity("DOWN") == 0) {
-					
-				
+				if (players.get(username).getVelocity("DOWN") == 0 && !chat.isFocusOwner()) {
 				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "DOWN");
 				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
 				playerAction.setPriority(0);
@@ -142,17 +151,19 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, true), "CANCEL_MOVE_DOWN");
 		gamePanel.getActionMap().put("CANCEL_MOVE_DOWN", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "DOWN");
-				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
-				playerAction.setPriority(0);
-				players.get(username).cancelVelocity("DOWN");
-				outboundEventQueue.add(playerAction);
+				if (!chat.isFocusOwner()) {
+					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "DOWN");
+					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPriority(0);
+					players.get(username).cancelVelocity("DOWN");
+					outboundEventQueue.add(playerAction);
+				}
 			}
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "MOVE_RIGHT");
 		gamePanel.getActionMap().put("MOVE_RIGHT", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				if (players.get(username).getVelocity("RIGHT") == 0) {
+				if (players.get(username).getVelocity("RIGHT") == 0 && !chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "RIGHT");
 					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
 					playerAction.setPriority(0);
@@ -164,13 +175,35 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "CANCEL_MOVE_RIGHT");
 		gamePanel.getActionMap().put("CANCEL_MOVE_RIGHT", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "RIGHT");
-				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
-				playerAction.setPriority(0);
-				players.get(username).cancelVelocity("RIGHT");
-				outboundEventQueue.add(playerAction);
+				if (!chat.isFocusOwner()) {
+					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "RIGHT");
+					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPriority(0);
+					players.get(username).cancelVelocity("RIGHT");
+					outboundEventQueue.add(playerAction);
+				}
 			}
 		});		
+		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), "CHATTING");
+		gamePanel.getActionMap().put("CHATTING", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (chat.isFocusOwner()) {
+					String msg = chat.getText();
+					if (!msg.isBlank()) {
+						PlayerAction chatting = new PlayerAction(client.getGameID(), username, "CHAT_MESSAGE", "<html><font color ='" + String.format("#%06X", players.get(username).getColor().getRGB() & 0xFFFFFF) + "'>" + username + "</font><font color = 'black'>: " + msg + "</font>");
+						outboundEventQueue.add(chatting);
+						chat.setText("Press Enter to chat...");
+						chat.setForeground(Color.GRAY);
+						chat.setFocusable(false);
+					}
+				} else if (!chat.isFocusOwner()) {
+					chat.setForeground(Color.BLACK);
+					chat.setText("");
+					chat.setFocusable(true);
+					chat.requestFocusInWindow();
+				}
+			}
+		});
 	}
 	
 	public void addPlayers(ConcurrentHashMap<String, Player> newPlayers) {
@@ -276,6 +309,9 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			Missile missile = new Missile(a.getEndX(), a.getEndY(), usr);
 			missile.setDirection(a.getMouseX(), a.getMouseY());
 			rockets.put(a.getMissileNumber(), missile);
+			break;
+		case "CHAT_MESSAGE":
+			screen.addLogMessage(a.getAction());
 			break;
 		}
 	}

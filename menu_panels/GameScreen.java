@@ -3,22 +3,17 @@ package menu_panels;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.LinkedHashMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-
-import game_utilities.Player;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import menu_utilities.EightBitButton;
 import menu_utilities.EightBitLabel;
 import menu_utilities.GameDisplay;
 
@@ -29,11 +24,13 @@ public class GameScreen extends JLayeredPane {
 	private EightBitLabel username;
 	private EightBitLabel randomLabel;
 	
+	private JTextField chat;
+	
 	private JPanel logPanel;
 	private JScrollPane logScrollPane;
 	
 	private static final long serialVersionUID = 1L;
-	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
+	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 930);
 	
 	ActionListener controller;
 	
@@ -48,6 +45,7 @@ public class GameScreen extends JLayeredPane {
 		username.setBounds(10, 200, 200, 50);
 		
 		randomLabel = new EightBitLabel("this is a label", Font.PLAIN, 25f);
+
 		randomLabel.setBounds(10, 220, 200, 50);
 		
 		gamePanel = new GameDisplay();
@@ -56,11 +54,9 @@ public class GameScreen extends JLayeredPane {
 		
 		logPanel = new JPanel();
 		logPanel.setLayout(new BoxLayout(logPanel, BoxLayout.PAGE_AXIS));
-		logPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 		logScrollPane = new JScrollPane(logPanel);
 		logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		logScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		logScrollPane.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 		logScrollPane.setBounds(1240, 450, 360, 400);
 		logScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		logScrollPane.getVerticalScrollBar().addAdjustmentListener(e -> {
@@ -69,14 +65,25 @@ public class GameScreen extends JLayeredPane {
 			}
 		});
 		
+		chat = new JTextField(32);
+		chat.setFont(username.getFont());
+		chat.setText("Press Enter to chat...");
+		chat.setForeground(Color.GRAY);
+		chat.setBounds(1245, 860, 300, 20);
+		
 		add(gamePanel, 1);
 		add(username);
 		add(randomLabel);
-		add(logScrollPane);
+		add(logScrollPane, 2);
+		add(chat);
 	}
 	
 	public GameDisplay getGamePanel() {
 		return gamePanel;
+	}
+	
+	public JTextField getChat() {
+		return chat;
 	}
 	
 	public void setUsername(String msg) {
@@ -93,9 +100,9 @@ public class GameScreen extends JLayeredPane {
 		revalidate();
 	}
 	
-	public void addLogMessage(String msg, Color color) {
-		EightBitLabel m = new EightBitLabel(msg, Font.BOLD, 25f);
-		m.setForeground(color);
+	public void addLogMessage(String msg) {
+		EightBitLabel m = new EightBitLabel(msg, Font.PLAIN, 25f);
+		m.setHorizontalAlignment(SwingConstants.LEFT);
 		logPanel.add(m);
 	}
 	
