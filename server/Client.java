@@ -180,7 +180,7 @@ public class Client extends AbstractClient {
 			EndGameData data = (EndGameData) arg0;
 			gameOverController.reset();
 			lobbyController.setReadyLabel("");
-			gameOverController.setEndGameStats(data);
+			gameOverController.setEndGameStats(data, username);
 			gameController.stopGame();
 			gameController.resetGame();
 		}

@@ -340,7 +340,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				running = false;
 			}
 		}
-		// TODO end of game client side stuff happen here
 	}
 	
 	@Override

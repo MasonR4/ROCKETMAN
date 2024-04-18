@@ -14,6 +14,8 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import com.mysql.fabric.xmlrpc.Client;
+
 import data.EndGameData;
 import data.PlayerStatistics;
 import menu_utilities.EightBitButton;
@@ -45,9 +47,9 @@ public class GameOverScreen extends JPanel {
 		title = new EightBitLabel("GAME END", Font.BOLD, 222f);
 		title.setBounds(375, 45, 850, 150);
 		
-		playerTitleLabel = new EightBitLabel("Players", Font.PLAIN, 60f);
+		playerTitleLabel = new EightBitLabel("Player Statistics", Font.PLAIN, 60f);
 		playerTitleLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-		playerTitleLabel.setBounds(700, 325, 200, 50);
+		playerTitleLabel.setBounds(550, 300, 500, 50);
 		
 		statsBox = new JPanel();
 		statsBox.setLayout(new GridLayout(2, 4, 5, 5));
@@ -74,13 +76,15 @@ public class GameOverScreen extends JPanel {
 		add(playerTitleLabel);
 	}
 	
-	public void setEndGameStats(EndGameData e) {
+	public void setEndGameStats(EndGameData e, String username) {
 		int fill = 8;
 		int rank = 1;
 		
 		for (Entry<String, PlayerStatistics> stats : e.getStats().entrySet()) {
 			PlayerEndGameStatsBox statBox = new PlayerEndGameStatsBox(rank, stats.getValue(), e.getPlayers().get(stats.getKey()).getColor());
-			System.out.println("added " + stats.getKey());
+			if (stats.getKey().equals(username)) {
+				statBox.isYou();
+			}
 			SwingUtilities.invokeLater(() -> {
 				statsBox.add(statBox);
 			});
@@ -94,7 +98,6 @@ public class GameOverScreen extends JPanel {
 				statsBox.add(filler);
 			});
 		}
-		System.out.println("added stat boxes for " + (rank - 1) + "players");
 		SwingUtilities.invokeLater(() -> {
 			statsBox.revalidate();
 			statsBox.repaint();

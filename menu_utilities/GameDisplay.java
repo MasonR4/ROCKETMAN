@@ -1,11 +1,19 @@
 package menu_utilities;
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -36,6 +44,11 @@ public class GameDisplay extends JPanel {
 		announcement.setHorizontalAlignment(SwingConstants.CENTER);
 		announcement.setBounds(50, 300, 800, 200);
 		add(announcement);
+		try {
+			setCursor(this);
+		} catch (IOException youshouldnthaveaddedthecursorbackafteritbrokethefirst4timesIDIOT) {
+			
+		}
 	}
 	
 	public void setBlocks(ConcurrentHashMap<Integer, Block> m) {
@@ -60,6 +73,16 @@ public class GameDisplay extends JPanel {
 	
 	public void setAnnouncement(String s) {
 		announcement.setText(s);
+	}
+	
+	public void setCursor(JPanel panel) throws IOException {
+		BufferedImage cursorImg = ImageIO.read(new File("assets/crosshair.png"));
+        int xCenter = cursorImg.getWidth() / 2;
+        int yCenter = cursorImg.getHeight() / 2;
+
+        Cursor cursor = Toolkit.getDefaultToolkit().createCustomCursor(
+                cursorImg, new Point(xCenter, yCenter), "center hotspot cursor");
+        panel.setCursor(cursor);
 	}
 	
 	@Override

@@ -10,6 +10,8 @@ import menu_utilities.*;
 
 public class MainMenuScreen extends JPanel {
 	
+	private static final long serialVersionUID = -120559750408550653L;
+
 	private EightBitLabel title;
 	
 	private EightBitButton playButton;

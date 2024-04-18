@@ -32,8 +32,8 @@ public class GameOverScreenController implements ActionListener {
 		screen = (GameOverScreen) clientPanel.getComponent(9);
 	}
 
-	public void setEndGameStats(EndGameData e) {
-		screen.setEndGameStats(e);
+	public void setEndGameStats(EndGameData e, String s) {
+		screen.setEndGameStats(e, s);
 		SwingUtilities.invokeLater(() -> {
 			cl.show(clientPanel, "GAME_OVER");
 		});
