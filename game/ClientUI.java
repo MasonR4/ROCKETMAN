@@ -56,7 +56,7 @@ public class ClientUI extends JFrame {
 	// layout
 	private JPanel containerPanel;
 
-	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 930);
+	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 938);
 	private static final CardLayout CL = new CardLayout();
 	private static final String DEFAULT_MENU = "SERVER_CONNECTION";
 
@@ -112,7 +112,7 @@ public class ClientUI extends JFrame {
 		lobbyScreen = new LobbyScreen();
 		gameScreen = new GameScreen();
 		gameOverScreen = new GameOverScreen();
-		profileScreen = new ProfileScreen(client.getDatabase());
+		profileScreen = new ProfileScreen();
 		
 		// ADD THEM
 		containerPanel.add(serverConnectionScreen, "SERVER_CONNECTION");
@@ -135,7 +135,7 @@ public class ClientUI extends JFrame {
 		findGameScreenController = new FindGameScreenController(client, containerPanel, this);
 		lobbyScreenController = new LobbyScreenController(client, containerPanel, this);
 		gameScreenController = new GameScreenController(client, containerPanel, this);
-		profileScreenController = new ProfileScreenController(client, containerPanel, this, client.getDatabase());
+		profileScreenController = new ProfileScreenController(client, containerPanel, this);
 		gameOverScreenController = new GameOverScreenController(client, containerPanel, this);
 		
 		
@@ -177,7 +177,7 @@ public class ClientUI extends JFrame {
 		// lol?
 		serverConnectionScreenController.actionPerformed(new ActionEvent(this, 0, "BYPASS_CONNECTION_AND_ATTEMPT_LOGIN"));
 
-		//CL.show(containerPanel, "GAME_OVER"); // TODO FOR DEBUGGING REMOVE LATER
+		//CL.show(containerPanel, "GAME"); // TODO FOR DEBUGGING REMOVE LATER
 	}
 
 	public void updateConfigData(String key, String value) {
@@ -202,6 +202,16 @@ public class ClientUI extends JFrame {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public void logoutProcedure() {
+		GenericRequest l = new GenericRequest("CLIENT_LOGOUT");
+		l.setData(client.getUsername());
+		try {
+			client.sendToServer(l);
+		} catch (IOException bruh) {
+			bruh.printStackTrace();
 		}
 	}
 	

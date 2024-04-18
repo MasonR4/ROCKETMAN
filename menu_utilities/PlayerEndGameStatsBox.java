@@ -15,6 +15,8 @@ public class PlayerEndGameStatsBox extends JPanel {
 	private EightBitLabel name;
 	private EightBitLabel number;
 	
+	private EightBitLabel you;
+	
 	private Color color;
 	
 	private EightBitLabel elimLabel;
@@ -97,6 +99,10 @@ public class PlayerEndGameStatsBox extends JPanel {
 		deaths.setHorizontalAlignment(SwingConstants.RIGHT);
 		deaths.setBounds(200, 210, 80, 20);
 		
+		you = new EightBitLabel("", Font.PLAIN, 40f);
+		you.setHorizontalAlignment(SwingConstants.CENTER);
+		you.setBounds(130, 300, 60, 60);
+		
 		add(name);
 		add(number);
 		add(scoreLabel);
@@ -109,5 +115,10 @@ public class PlayerEndGameStatsBox extends JPanel {
 		add(rocketsFired);
 		add(deathsLabel);
 		add(deaths);
+		add(you);
+	}
+	
+	public void isYou() {
+		you.setText("YOU");
 	}
 }

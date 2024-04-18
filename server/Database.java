@@ -62,14 +62,26 @@ public class Database {
 	        ps.setString(1, username);
 	        ps.setString(2, password);
 	        int affectedRows = ps.executeUpdate();
-	        return affectedRows > 0;
+	        return affectedRows > 0 && putStatsForNewPlayers(username);
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	        return false;
 	    }
+	    
 	}
 
-
+	private boolean putStatsForNewPlayers(String username) {
+	    String insertStats = "INSERT INTO statistics VALUES('" + username + "', 0, 0, 0, 0, 0, 0)";
+	    try (PreparedStatement ps = conn.prepareStatement(insertStats)) {
+	    	int affectedRows = ps.executeUpdate();
+	    	System.out.println("added new stats to player");
+	    	return affectedRows > 0;
+	    } catch (SQLException gg) {
+	    	gg.printStackTrace();
+	    	return false;
+	    }
+	}
+	
 	// Close the database connection when it's no longer needed
 	public void closeConnection() {
 		try {
@@ -116,7 +128,7 @@ public class Database {
 	
 	public boolean insertPlayerStatistics(PlayerStatistics playerStats) {
 	    // SQL query to insert player statistics
-		String updateQuery = "UPDATE statistics SET wins = ?, losses = ?, eliminations = ?, deaths = ?, rocketsFired = ?, blocksDestroyed = ? WHERE username = ?";
+	    String updateQuery = "UPDATE statistics SET wins = wins + ?, losses = losses + ?, eliminations = eliminations + ?, deaths = deaths + ?, rocketsFired = rocketsFired + ?, blocksDestroyed = blocksDestroyed + ? WHERE username = ?";
 		try (PreparedStatement ps = conn.prepareStatement(updateQuery)) {
 		    ps.setInt(1, playerStats.getStat("wins"));
 		    ps.setInt(2, playerStats.getStat("losses"));

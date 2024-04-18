@@ -134,7 +134,6 @@ public class Server extends AbstractServer {
 	protected void serverStopped() {
 		connectedPlayerCount = 0;
 		connectedPlayers.clear();
-		// TODO save player data to database upon server stopping
 		logMessage("[Server] Server Stopped");
 		serverStatus.setText("STOPPED");
 		serverStatus.setForeground(Color.RED);
@@ -148,13 +147,16 @@ public class Server extends AbstractServer {
 	public void startGame(int id) {
 		System.out.println("started game " + id);
 		ExecutorService executor = Executors.newSingleThreadExecutor();
-		execGames.put(id, executor);
 		executor.submit(games.get(id));
+		execGames.put(id, executor);
 	}
 	
 	public void cancelGame(int id, boolean remove) {
 		if (games.get(id).isStarted()) {
 			games.get(id).stopGame();
+			if (execGames.get(id) != null) {
+				execGames.get(id).shutdown();
+			}
 		}
 		if (remove) { 
 			logMessage("[Info] Canceled Game " + id);
@@ -192,7 +194,6 @@ public class Server extends AbstractServer {
 		}
 	}
 	
-	// TODO make function to submit player stats to database
 	public void submitPlayerStatsToDB(String username, PlayerStatistics stats) {
 		boolean success = serverDatabase.insertPlayerStatistics(stats);
 	    if (success) {
@@ -206,7 +207,6 @@ public class Server extends AbstractServer {
 	protected void handleMessageFromClient(Object arg0, ConnectionToClient arg1) {
 		if (arg0 instanceof GenericRequest) {
 			String action = ((GenericRequest) arg0).getMsg();
-			System.out.println("server: received generic request: " + action); // DEBUG remove later
 			GenericRequest rq;
 			switch (action) { 	// PROLIFIC user of SWITCH STATEMENTS 500 years eternal imprisonment
 			case "REQUEST_GAMES_INFO":
@@ -225,15 +225,45 @@ public class Server extends AbstractServer {
 			case "CLIENT_DISCONNECTING":
 				String username = (String) ((GenericRequest) arg0).getData();
 				try {
+					connectedPlayerCount--;
+					if (!username.isBlank()) {
+						
+						connectedPlayers.remove(username);
+						logMessage("[Client " + arg1.getId() + "] Disconnected and logged out as " + username);
+					}
+					SwingUtilities.invokeLater(() -> serverMenuController.addGameListings(getAllGames()));
 					GenericRequest rq2 = new GenericRequest("CONFIRM_DISCONNECT_AND_EXIT");
 					arg1.sendToClient(rq2);
 					arg1.close();
-					connectedPlayers.remove(username);
-					connectedPlayerCount -= 1;
-					logMessage("[Client " + arg1.getId() + "] Logged out as " + username);
-					SwingUtilities.invokeLater(() -> serverMenuController.addGameListings(getAllGames()));
 				} catch (IOException CLIENT_ALREADY_GONE) {
 					CLIENT_ALREADY_GONE.printStackTrace();
+				}
+				break;
+				
+			case "CLIENT_LOGOUT":
+				String username2 = (String) ((GenericRequest) arg0).getData();
+				if (connectedPlayers.contains(username2)) {
+					connectedPlayers.remove(username2);
+					logMessage("[Client " + arg1.getId() + "] Logged out as " + username2);
+					connectedPlayerCount--;
+					GenericRequest rq3 = new GenericRequest("CONFIRM_LOGOUT");
+					try {
+						arg1.sendToClient(rq3);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				break;
+				
+			case "GET_STATISTICS":
+				String u = (String) ((GenericRequest) arg0).getData();
+				int[] stats = serverDatabase.getStatistics(u);
+				rq = new GenericRequest("PLAYER_STATS");
+				rq.setData(stats);
+				try {
+					arg1.sendToClient(rq);
+				} catch (IOException no) {
+					
 				}
 				break;
 			}
@@ -270,7 +300,7 @@ public class Server extends AbstractServer {
 	        } else {
 	        	try {
                     GenericRequest rq = new GenericRequest("INVALID_LOGIN");
-                    rq.setData("Incorrect username or password");
+                    rq.setData("User already logged in");
                     arg1.sendToClient(rq);
                     serverLog.append("[Client " + arg1.getId() + "] Failed login attempt\n");
                 } catch (IOException e) {
@@ -300,16 +330,11 @@ public class Server extends AbstractServer {
 	                GenericRequest rq = new GenericRequest("ACCOUNT_CREATION_FAILED");
 	                rq.setData("Username already exists");
 	                arg1.sendToClient(rq);
-	                serverLog.append("[Client " + arg1.getId() + "] Failed to create acc)ount '" + username + "'\n");
+	                serverLog.append("[Client " + arg1.getId() + "] Failed to create account '" + username + "'\n");
 	            } catch (IOException e) {
 	                e.printStackTrace();
 	            }
 	        }
-		} else if (arg0 instanceof PlayerStatistics) {
-			// TODO query database for playerdata
-			// may change this to a genericRequest that receives only username from the client
-			// and sends PlayerData back
-			
 		} else if (arg0 instanceof GameLobbyData) {
 			System.out.println("server: received gamelobbydata"); // DEBUG
 			GameLobbyData info = (GameLobbyData) arg0;
@@ -382,15 +407,15 @@ public class Server extends AbstractServer {
 		} else if (arg0 instanceof StartGameData) {
 			StartGameData info = (StartGameData) arg0;
 			int gid = info.getGameID();
-			if (info.isActuallyStarting()) {
+			if (info.isActuallyStarting() && games.get(gid).getPlayerCount() >= 2) {
 				if (!games.get(gid).isStarted()) {
 					if (games.get(gid).playersReady()) {
 						games.get(gid).startGame(info);
 						startGame(gid);
 					} else {
 						try {
-							GenericRequest nr = new GenericRequest("PLAYERS_NOT_READY");
-							nr.setData("All players must ready before starting match");
+							GenericRequest nr = new GenericRequest("START_ERROR");
+							nr.setData("Players not ready");
 							arg1.sendToClient(nr);
 						} catch (IOException CLIENT_UNTO_DUST) {
 							CLIENT_UNTO_DUST.printStackTrace();
@@ -398,8 +423,18 @@ public class Server extends AbstractServer {
 					}
 				}
 			} else {
-				games.get(gid).broadcastLobbySettings(info);
+				try {
+					GenericRequest nr = new GenericRequest("START_ERROR");
+					nr.setData("Need at least 2 players");
+					arg1.sendToClient(nr);
+				} catch (IOException CLIENT_UNTO_DUST) {
+					CLIENT_UNTO_DUST.printStackTrace();
+				}
 			}
+		} else if (arg0 instanceof MatchSettings) {
+			MatchSettings settings = (MatchSettings) arg0;
+			int gid = settings.getGameID();
+			games.get(gid).broadcastLobbySettings(settings);			
 		} else if (arg0 instanceof PlayerAction) {
 			PlayerAction a = (PlayerAction) arg0;
 			int gid = a.getGameID();

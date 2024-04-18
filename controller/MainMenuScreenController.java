@@ -45,8 +45,13 @@ public class MainMenuScreenController implements ActionListener {
 			break;
 			
 		case "Profile":
-			cl.show(clientPanel, "PROFILE");
-			// client.sendToServer(requestPlayerData(username));
+			GenericRequest rq = new GenericRequest("GET_STATISTICS");
+			rq.setData(client.getUsername());
+			try {
+				client.sendToServer(rq);
+			} catch (IOException NO_STATS_FOR_YOU) {
+				NO_STATS_FOR_YOU.printStackTrace();
+			}
 			break;
 			
 		case "Options":

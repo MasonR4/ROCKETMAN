@@ -19,7 +19,6 @@ import server.Client;
 public class FindGameScreenController implements ActionListener {
 	
 	private Client client;
-	//private ClientUI clientUI;
 	
 	private JPanel clientPanel;
 	private JPanel gamesPanel;
@@ -33,9 +32,7 @@ public class FindGameScreenController implements ActionListener {
 	
 	public FindGameScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
-		clientPanel = p;
-		//clientUI = ui;
-		
+		clientPanel = p;		
 		cl = (CardLayout) clientPanel.getLayout();
 		screen = (FindGameScreen) clientPanel.getComponent(5);
 		newGameScreen = screen.getGameCreationPanel();
@@ -94,7 +91,7 @@ public class FindGameScreenController implements ActionListener {
 						}
 					}
 				} else {
-					newGameScreen.setError("Max Players must be between 2 & 4");
+					newGameScreen.setError("Max Players must be between 2 & 8");
 				}
 			}
 			break;

@@ -39,6 +39,7 @@ public class LoginScreenController implements ActionListener {
 		switch(action) {
 		case "Login":
 			LoginData loginInfo = new LoginData(username, password);
+			screen.clearFields();
 			try {
 				client.sendToServer(loginInfo);
 			} catch (IOException SERVER_HATES_UR_LOGIN_LOL) {

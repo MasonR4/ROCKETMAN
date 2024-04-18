@@ -1,6 +1,6 @@
 package controller;
 
-import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -12,8 +12,10 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 import javax.swing.AbstractAction;
+import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import data.GameEvent;
 import data.PlayerAction;
@@ -28,10 +30,12 @@ import game_utilities.RocketTrail;
 import menu_panels.GameScreen;
 import menu_utilities.EightBitLabel;
 import menu_utilities.GameDisplay;
+import menu_utilities.PlayerHealthDisplay;
 import server.Client;
 
 public class GameScreenController implements MouseListener, MouseMotionListener, ActionListener, Runnable {
 	private volatile boolean running = false;
+	private volatile boolean gameWon = false;
 	
 	private Client client;
 	private String username;
@@ -39,31 +43,33 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	private GameScreen screen;
 	private GameDisplay gamePanel;
 	private JPanel clientPanel;
+	private JPanel healthPanel;
+	
+	private JTextField chat;
 	
 	private final long TARGET_DELTA = 16;
 	
-	private CardLayout cl;
+	//private CardLayout cl;
 	
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();	
 	private ConcurrentHashMap<Integer, Effect> effects = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, PlayerHealthDisplay> healthBars = new ConcurrentHashMap<>();
 	
 	// === ACTION PRIORITIES ===
 	// 0 - Player Movement
 	// 1 - Rocket Fired
+	// 2 - Chat Message
 	// 10 - Launcher Rotation
 	
 	private PriorityBlockingQueue<PlayerAction> outboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
-	//private PriorityBlockingQueue<PlayerAction> inboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
-	//private PriorityBlockingQueue<GameEvent> inboundGameEventQueue = new PriorityBlockingQueue<>(11, null);
-	
 	private int mouseX, mouseY;
 	
 	// === PLAYER STATS ===
 	
-	private long reload_time = 1800; // reload time (ms)
+	private long reload_time = 500; // reload time (ms)
 	private Integer trailCount = -1;
 	
 	@SuppressWarnings("serial")
@@ -71,7 +77,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		client = c;
 		clientPanel = p;
 		
-		cl = (CardLayout) clientPanel.getLayout();
+		//cl = (CardLayout) clientPanel.getLayout();
 		screen = (GameScreen) clientPanel.getComponent(7);
 		gamePanel = screen.getGamePanel();
 		
@@ -79,13 +85,17 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.setLaunchers(launchers);
 		gamePanel.setRockets(rockets);
 		gamePanel.setEffects(effects);
-		//gamePanel.setUsername(username);
+		
+		healthPanel = screen.getHealthPanel();
+		
+		chat = screen.getChat();
+		chat.setFocusable(false);
 		
 		// KEY BINDING STUFF HAPPENS HERE
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "MOVE_UP");
 		gamePanel.getActionMap().put("MOVE_UP", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				if (players.get(username).getVelocity("UP") == 0) {
+				if (players.get(username).getVelocity("UP") == 0 && !chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "UP");
 					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
 					playerAction.setPriority(0);
@@ -97,17 +107,19 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "CANCEL_MOVE_UP");
 		gamePanel.getActionMap().put("CANCEL_MOVE_UP", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "UP");
-				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
-				playerAction.setPriority(0);
-				players.get(username).cancelVelocity("UP");
-				outboundEventQueue.add(playerAction);
+				if (!chat.isFocusOwner()) {
+					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "UP");
+					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPriority(0);
+					players.get(username).cancelVelocity("UP");
+					outboundEventQueue.add(playerAction);
+				}
 			}
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "MOVE_LEFT");
 		gamePanel.getActionMap().put("MOVE_LEFT", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				if (players.get(username).getVelocity("LEFT") == 0) {
+				if (players.get(username).getVelocity("LEFT") == 0 && !chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "LEFT");
 					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
 					playerAction.setPriority(0);
@@ -119,19 +131,19 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "CANCEL_MOVE_LEFT");
 		gamePanel.getActionMap().put("CANCEL_MOVE_LEFT", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "LEFT");
-				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
-				playerAction.setPriority(0);
-				players.get(username).cancelVelocity("LEFT");
-				outboundEventQueue.add(playerAction);
+				if (!chat.isFocusOwner()) {
+					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "LEFT");
+					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPriority(0);
+					players.get(username).cancelVelocity("LEFT");
+					outboundEventQueue.add(playerAction);
+				}
 			}
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "MOVE_DOWN");
 		gamePanel.getActionMap().put("MOVE_DOWN", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				if (players.get(username).getVelocity("DOWN") == 0) {
-					
-				
+				if (players.get(username).getVelocity("DOWN") == 0 && !chat.isFocusOwner()) {
 				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "DOWN");
 				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
 				playerAction.setPriority(0);
@@ -143,17 +155,19 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, true), "CANCEL_MOVE_DOWN");
 		gamePanel.getActionMap().put("CANCEL_MOVE_DOWN", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "DOWN");
-				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
-				playerAction.setPriority(0);
-				players.get(username).cancelVelocity("DOWN");
-				outboundEventQueue.add(playerAction);
+				if (!chat.isFocusOwner()) {
+					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "DOWN");
+					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPriority(0);
+					players.get(username).cancelVelocity("DOWN");
+					outboundEventQueue.add(playerAction);
+				}
 			}
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "MOVE_RIGHT");
 		gamePanel.getActionMap().put("MOVE_RIGHT", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				if (players.get(username).getVelocity("RIGHT") == 0) {
+				if (players.get(username).getVelocity("RIGHT") == 0 && !chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "RIGHT");
 					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
 					playerAction.setPriority(0);
@@ -165,27 +179,54 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "CANCEL_MOVE_RIGHT");
 		gamePanel.getActionMap().put("CANCEL_MOVE_RIGHT", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "RIGHT");
-				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
-				playerAction.setPriority(0);
-				players.get(username).cancelVelocity("RIGHT");
-				outboundEventQueue.add(playerAction);
+				if (!chat.isFocusOwner()) {
+					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "RIGHT");
+					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPriority(0);
+					players.get(username).cancelVelocity("RIGHT");
+					outboundEventQueue.add(playerAction);
+				}
 			}
 		});		
+		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), "CHATTING");
+		gamePanel.getActionMap().put("CHATTING", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (chat.isFocusOwner()) {
+					String msg = chat.getText();
+					if (!msg.isBlank()) {
+						PlayerAction chatting = new PlayerAction(client.getGameID(), username, "CHAT_MESSAGE", "<html><font color ='" + String.format("#%06X", players.get(username).getColor().getRGB() & 0xFFFFFF) + "'>" + username + "</font><font color = 'black'>: " + msg + "</font>");
+						outboundEventQueue.add(chatting);
+						chat.setText("Press Enter to chat...");
+						chat.setForeground(Color.GRAY);
+						chat.setFocusable(false);
+					}
+				} else if (!chat.isFocusOwner()) {
+					chat.setForeground(Color.BLACK);
+					chat.setText("");
+					chat.setFocusable(true);
+					chat.requestFocusInWindow();
+				}
+			}
+		});
 	}
 	
 	public void addPlayers(ConcurrentHashMap<String, Player> newPlayers) {
 		for (Player p : newPlayers.values()) {
 			Player tempPlayer = new Player(p.getBlockSize(), p.x, p.y);
 			RocketLauncher tempLauncher = new RocketLauncher((int) p.getCenterX(), (int) p.getCenterY(), 24, 6);
+			PlayerHealthDisplay pHealth = new PlayerHealthDisplay(p.getUsername(), p.getLives(), p.getColor());
+			healthBars.put(p.getUsername(), pHealth);
+			healthPanel.add(pHealth);
 			tempPlayer.setUsername(p.getUsername());
 			tempPlayer.setColor(p.getColor());
 			tempPlayer.setBlocks(blocks);
 			tempPlayer.setLives(p.getLives());
 			tempLauncher.setOwner(p.getUsername());
 			launchers.put(p.getUsername(), tempLauncher);
-			players.put(p.getUsername(), tempPlayer);			
+			players.put(p.getUsername(), tempPlayer);		
 		}
+		healthPanel.add(Box.createVerticalStrut(440 - (newPlayers.size() * 45)));
+		healthPanel.repaint();
 	}
 	
 	public void addMap(ConcurrentHashMap<Integer, Block> m) {
@@ -201,15 +242,17 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	
 	public void stopGame() {
 		running = false;
-		//Thread.currentThread().interrupt();
 	}
 	
 	public void resetGame() {
+		gameWon = false;
 		players.clear();
 		blocks.clear();
 		rockets.clear();
 		effects.clear();
+		healthBars.clear();
 		trailCount = -1;
+		gamePanel.setAnnouncement("");
 		screen.reset();
 	}
 	
@@ -229,9 +272,15 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				break;
 			case "PLAYER_HIT":
 				players.get(t.getValue()).takeHit();
+				healthBars.get(t.getValue()).loseHealth();
 				break;
 			case "PLAYER_ELIMINATED":
 				players.get(t.getValue()).die();
+				healthBars.get(t.getValue()).loseHealth();
+				healthBars.get(t.getValue()).die();
+				if(t.getValue().equals(username)) {
+					gamePanel.setAnnouncement("<html><font color='#750d0d'>YOU DIED</font>");
+				}
 				break;
 			case "LOG_MESSAGE":
 				EightBitLabel msg = (EightBitLabel) t.getValue();
@@ -242,11 +291,11 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				effects.put(newEffect.getEffectNumber(), newEffect);
 				break;
 			case "ANNOUNCE":
-				
+				String anonce = (String) t.getValue();
+				gamePanel.setAnnouncement(anonce);
 				break;
 			case "GAME_END":
-				resetGame();
-				stopGame();
+				gameWon = true;
 				break;
 				default:
 					System.out.println("No case to handle GameEvent: " + t.getKey() + "(" + t.getValue() + ")");
@@ -277,12 +326,15 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			missile.setDirection(a.getMouseX(), a.getMouseY());
 			rockets.put(a.getMissileNumber(), missile);
 			break;
+		case "CHAT_MESSAGE":
+			screen.addLogMessage(a.getAction());
+			break;
 		}
 	}
 	
 	@Override
 	public void run() {
-		while (running && !Thread.currentThread().isInterrupted()) {
+		while (running) {
 			long startTime = System.currentTimeMillis();
 			
 			for (Player p : players.values()) {
@@ -308,7 +360,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			outboundEventQueue.add(r);
 			
 			try {
-				if (!outboundEventQueue.isEmpty()) {
+				if (!outboundEventQueue.isEmpty() && !gameWon) {
 					for (PlayerAction a : outboundEventQueue) {
 						synchronized(client) {
 							client.sendToServer(a);
@@ -320,6 +372,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			
 			}
 			
+			screen.repaint();
 			gamePanel.repaint();
 			
 			long endTime = System.currentTimeMillis();

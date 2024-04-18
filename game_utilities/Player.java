@@ -84,11 +84,11 @@ public class Player extends Rectangle implements Serializable {
 		lives = 0;
 		colorFromWhenTheyWereAlive = color;
 		alive = false;
-		color = Color.GRAY;
 	}
 	
 	public void takeHit() {
 		lives--;
+		colorFromWhenTheyWereAlive = color;
 		if (lives <= 0) {
 			alive = false;
 			die();

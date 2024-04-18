@@ -30,6 +30,10 @@ public class SplashScreenController implements ActionListener {
 		screenPanel = (SplashScreen) p.getComponent(1); 
 	}
 	
+	public void showThis() {
+		cl.show(clientPanel, "SPLASH");
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
@@ -54,7 +58,5 @@ public class SplashScreenController implements ActionListener {
 			cl.show(clientPanel, "SERVER_CONNECTION");
 			break;
 		}
-		
 	}
-
 }

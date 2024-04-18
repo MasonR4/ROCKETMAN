@@ -10,15 +10,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
-
+import javax.swing.SwingConstants;
 import data.EndGameData;
-import data.Event;
 import data.GameEvent;
 import data.GameLobbyData;
 import data.GenericRequest;
+import data.MatchSettings;
 import data.PlayerAction;
 import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
@@ -26,12 +25,10 @@ import data.PlayerStatistics;
 import data.StartGameData;
 import game_utilities.Block;
 import game_utilities.DeathMarker;
-import game_utilities.Effect;
 import game_utilities.Explosion;
 import game_utilities.Missile;
 import game_utilities.Player;
 import game_utilities.RocketLauncher;
-import game_utilities.RocketTrail;
 import game_utilities.SpawnBlock;
 import menu_utilities.EightBitLabel;
 import ocsf.server.ConnectionToClient;
@@ -116,12 +113,11 @@ public class GameLobby implements Runnable {
 		return gameStarted;
 	}
 	
-	public void broadcastLobbySettings(StartGameData info) {
+	public void broadcastLobbySettings(MatchSettings info) {
 		map = info.getMap();
 		playerLives = info.getPlayerLives();
 		for (Entry<String, ConnectionToClient> e : playerConnections.entrySet()) {
 			if (!e.getKey().toString().equals(hostUsername)) {
-				System.out.println("host: " + hostUsername + " current user: " + e.getKey());
 				try {
 					e.getValue().sendToClient(info);
 				} catch (IOException blyad) {
@@ -136,12 +132,18 @@ public class GameLobby implements Runnable {
 		rockets.clear();
 		launchers.clear();
 		players.clear();
-		for (PlayerStatistics r : playerStats.values()) {
-			r.resetStats();
+		playerStats.clear();
+		for (String name : playerConnections.keySet()) {
+			PlayerStatistics tempStats = new PlayerStatistics();
+			tempStats.setUsername(name);
+			if (name.equals(hostUsername)) {
+				tempStats.setHost();
+			}
+			playerStats.put(name, tempStats);
 		}
 		missileCounter = 0;
 		effectCounter = 0;
-		blocks.putAll(server.loadMap(info.getMap()));
+		blocks.putAll(server.loadMap(info.getMap())); 
 		CopyOnWriteArrayList<SpawnBlock> spawns = new CopyOnWriteArrayList<>();
 		for (Block s : blocks.values()) {
 			if (s instanceof SpawnBlock) {
@@ -183,20 +185,27 @@ public class GameLobby implements Runnable {
 		Thread.currentThread().interrupt();
 	}
 
-	// TODO remove players from running games if they disconnect (low priority)
+	// TODO fix players leaving matches softlocking the lobby (i cannot think of any good reason why this happens but it does)
 	public void removePlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
 		playerCount -= 1;
-		playerStats.remove(usr.getUsername());
-		playerConnections.remove(usr.getUsername());
-		if (usr.getUsername().equals(hostUsername)) {
-			String[] usernames = playerStats.keySet().toArray(new String[0]);
-			if (usernames.length > 0) {
-				hostUsername = usernames[0];
+		if (gameStarted) {
+			GameEvent g = new GameEvent();
+			EightBitLabel leftMessage = new EightBitLabel(usr.getUsername() + " left the match", Font.PLAIN, 25f);
+			g.addEvent("LOG_MESSAGE", leftMessage);
+			updateClients(g);
+		} else {
+			playerStats.remove(usr.getUsername());
+			playerConnections.remove(usr.getUsername());
+			if (usr.getUsername().equals(hostUsername)) {
+				String[] usernames = playerStats.keySet().toArray(new String[0]);
+				if (usernames.length > 0) {
+					hostUsername = usernames[0];
+				}
 			}
-		}
-		if (playerCount <= 0) {
-			gameStarted = false;
-			server.cancelGame(gameID, true);
+			if (playerCount <= 0) {
+				gameStarted = false;
+				server.cancelGame(gameID, true);
+			}
 		}
 		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
@@ -248,7 +257,6 @@ public class GameLobby implements Runnable {
 				c.sendToClient(data);
 			} catch (IOException CLIENT_DOESNT_LIKE_YOU) {
 				CLIENT_DOESNT_LIKE_YOU.printStackTrace();
-				server.logMessage("could not update client " + c.getId());
 			}
 		}
 	}
@@ -265,10 +273,12 @@ public class GameLobby implements Runnable {
 		switch (type) {
 		case "MOVE":
 			players.get(usr).updatePosition(a.getX(), a.getY());
+			launchers.get(usr).moveLauncher((int) players.get(usr).x, (int) players.get(usr).y, 20);
 			players.get(usr).setVelocity(a.getAction());
 			break;
 		case "CANCEL_MOVE":
 			players.get(usr).updatePosition(a.getX(), a.getY());
+			launchers.get(usr).moveLauncher((int) players.get(usr).x, (int) players.get(usr).y, 20);
 			players.get(usr).cancelVelocity(a.getAction());
 			break;
 		case "LAUNCHER_ROTATION":
@@ -328,6 +338,12 @@ public class GameLobby implements Runnable {
 						Explosion e = new Explosion(players.get(hit).x, players.get(hit).y);
 						g.addEvent("ADD_EFFECT", e);
 						players.get(hit).takeHit();
+						playerStats.get(r.getOwner()).incrementStat("eliminations");
+						playerStats.get(r.getOwner()).addScore(50);
+						playerStats.get(hit).incrementStat("deaths");
+						EightBitLabel msg = new EightBitLabel("<html><font color='" + String.format("#%06X", (players.get(r.getOwner()).getColor().getRGB() & 0xFFFFFF)) + "'>" + r.getOwner() +"</font><font color='black'> exploded </font><font color ='" + String.format("#%06X", (players.get(hit).getColor().getRGB() & 0xFFFFFF)) + "'>" + hit + "</font>", Font.PLAIN, 25f);
+						msg.setHorizontalAlignment(SwingConstants.LEFT);
+						g.addEvent("LOG_MESSAGE", msg);
 						if (!players.get(hit).isAlive()) {
 							g.addEvent("PLAYER_ELIMINATED", hit);
 							DeathMarker d = new DeathMarker(players.get(hit).x, players.get(hit).y, hit);
@@ -335,15 +351,14 @@ public class GameLobby implements Runnable {
 							d.setColor(players.get(hit).getColorFromWhenTheyWereNotDeadAsInAlive());
 							g.addEvent("ADD_EFFECT", d);
 							effectCounter++;
-							playerStats.get(r.getOwner()).incrementStat("eliminations");
-							playerStats.get(r.getOwner()).addScore(50);
-							playerStats.get(hit).incrementStat("deaths");
+							EightBitLabel msg2 = new EightBitLabel("<html><font color='" + String.format("#%06X", (players.get(hit).getColor().getRGB() & 0xFFFFFF)) + "'>" + hit +"</font><font color='black'> WAS ELIMINATED BY </font><font color ='" + String.format("#%06X", (players.get(r.getOwner()).getColor().getRGB() & 0xFFFFFF)) + "'>" + r.getOwner() + "</font><font color ='black'>!</font>", Font.PLAIN, 25f);
+							msg2.setHorizontalAlignment(SwingConstants.LEFT);
+							g.addEvent("LOG_MESSAGE", msg2);
+							
 						} else {
 							g.addEvent("PLAYER_HIT", hit);
 						}
 						
-						EightBitLabel msg = new EightBitLabel(r.getOwner() + " exploded " + hit, Font.PLAIN, 25f);
-						g.addEvent("LOG_MESSAGE", msg);
 						
 						updateClients(g);
 					}
@@ -352,10 +367,8 @@ public class GameLobby implements Runnable {
 					}
 				}
 			}
-
-			// TODO implement checks for game win state here
 			
-			if (remainingPlayers == 1 && playerCount > 1) {
+			if (remainingPlayers == 1) {
 				gameWon = true;
 				gameStarted = false;
 			}
@@ -376,18 +389,18 @@ public class GameLobby implements Runnable {
 			}
 		}
 		
-		// TODO if game is won, collect all the data here and send it to clients
-		// also submit player scores and stats to database
-		
 		if (gameWon) {
-			
+			String winner = "your mom";
 			GameEvent g = new GameEvent();
 			g.addEvent("GAME_END", "gg");
-			updateClients(g);
 			
 			for (Entry<String, Player> e : players.entrySet()) {
 				if (e.getValue().isAlive()) {
+					winner = e.getKey();
 					playerStats.get(e.getKey()).addScore(100);
+					playerStats.get(e.getKey()).incrementStat("wins");
+				} else {
+					playerStats.get(e.getKey()).incrementStat("losses");
 				}
 			}
 			for (Entry<String, PlayerStatistics> e : playerStats.entrySet()) {
@@ -395,17 +408,21 @@ public class GameLobby implements Runnable {
 				server.submitPlayerStatsToDB(e.getKey(), e.getValue());
 			}
 			
+			g.addEvent("ANNOUNCE", "<html><font color ='" + String.format("#%06X", (players.get(winner).getColor().getRGB() & 0xFFFFFF)) + "'>" + winner + " wins!");
+			updateClients(g);
 			updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
+			
+			Thread.currentThread();
+			try {
+				Thread.sleep(3000); 
+			} catch (InterruptedException j) {
+				
+			}
 			
 			EndGameData gameStats = new EndGameData();
 			gameStats.setPlayers(players);
 			gameStats.setStats(playerStats);
 			updateClients(gameStats);
-			
-			//Send back to lobby
-			//GenericRequest btl = new GenericRequest("BACK_TO_LOBBY");
-			//btl.setData(players, "PLAYERS");
-			//updateClients(btl);
 		}
 	}
 }

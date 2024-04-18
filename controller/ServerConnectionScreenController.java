@@ -48,10 +48,10 @@ public class ServerConnectionScreenController implements ActionListener {
 		clientUI = c;
 	}
 	
-	public void connectionTerminated() {
+	public void connectionTerminated(String msg) {
 		clientUI.disconnectProcedure();
 		cl.show(clientPanel, "SERVER_CONNECTION");
-		screenPanel.setError("Server Closed");
+		screenPanel.setError(msg);
 	}
 	
 	@Override

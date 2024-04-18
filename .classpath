@@ -6,8 +6,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path=""/>
-	<classpathentry kind="lib" path="D:/GitHub Projects/ROCKETMAN/mysql-connector-java-5.1.40-bin.jar"/>
-	<classpathentry kind="lib" path="D:/GitHub Projects/ROCKETMAN/ocsf.jar"/>
+	<classpathentry kind="lib" path="V:/Eclipse-Workspace/ROCKETMAN/mysql-connector-java-5.1.40-bin.jar"/>
+	<classpathentry kind="lib" path="V:/Eclipse-Workspace/ROCKETMAN/ocsf.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path=""/>
 </classpath>

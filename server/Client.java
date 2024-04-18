@@ -18,6 +18,7 @@ import controller.ProfileScreenController;
 import controller.ServerConnectionScreenController;
 import controller.SplashScreenController;
 import data.GenericRequest;
+import data.MatchSettings;
 import data.PlayerAction;
 import data.PlayerStatistics;
 import data.StartGameData;
@@ -36,7 +37,6 @@ public class Client extends AbstractClient {
 		
 	private int gameID = -1;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
-	private Database database;
 	
 	// controllers for each menu
 	// possible that we won't need all of them in the client class
@@ -50,11 +50,9 @@ public class Client extends AbstractClient {
 	private ServerConnectionScreenController serverConnectionController;
 	private SplashScreenController splashController;
 	private ProfileScreenController profileController;
-	//private ExecutorService executor = Executors.newCachedThreadPool();
 	
 	public Client() {
 		super("localhost", 8300);
-		database = new Database();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -76,7 +74,6 @@ public class Client extends AbstractClient {
 				username = (String) ((GenericRequest) arg0).getData();
 				createAccountController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
-				profileController.setScreenInfoLabels();
 				break;
 				
 			case "ACCOUNT_CREATION_FAILED":
@@ -87,7 +84,6 @@ public class Client extends AbstractClient {
 				username = (String) ((GenericRequest) arg0).getData();
 				loginController.actionPerformed(new ActionEvent(0, 0, action));
 				findGameController.setScreenInfoLabels();
-				profileController.setScreenInfoLabels();
 				break;
 				
 			case "INVALID_LOGIN":
@@ -113,7 +109,11 @@ public class Client extends AbstractClient {
 			case "CONFIRM_UNREADY":
 				lobbyController.readyButton();
 				break;
-			
+				
+			case "START_ERROR":
+				lobbyController.setReadyLabel((String) ((GenericRequest) arg0).getData());
+				break;
+				
 			case "CONFIRM_LEAVE_GAME":
 				gameID = -1;
 				try {
@@ -133,19 +133,34 @@ public class Client extends AbstractClient {
 				executor.execute(gameController);
 				break;
 			case "FORCE_DISCONNECT":
-				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
+				try {
+					closeConnection();
+					SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated("Server closed"));
+				} catch (IOException e) {
+
+				}
 				break;
 			case "CONFIRM_DISCONNECT_AND_EXIT":
-				SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated());
+				try {
+					closeConnection();
+					SwingUtilities.invokeLater(() -> serverConnectionController.connectionTerminated("Logged out Successfully"));
+				} catch (IOException e) {
+
+				}
 				break;
-			case "BACK_TO_LOBBY":
-				gameOverController.returnToLobby();
+			case "CONFIRM_LOGOUT":
+				username = "";
+				splashController.showThis();
 				break;
+			case "PLAYER_STATS":
+				int[] s = (int[]) ((GenericRequest) arg0).getData();
+				profileController.setScreenInfoLabels(s);
 			} 
 		} else if (arg0 instanceof GameLobbyData) {
 			GameLobbyData info = (GameLobbyData) arg0;
 			gameID = info.getGameID();
 			findGameController.changeToGameLobbyMenu();
+			fixTheReadyButtonNotSayingReady();
 			lobbyController.setMapNames(info.getMaps());
 			lobbyController.joinGameLobby(info);
 		} else if (arg0 instanceof PlayerJoinLeaveData) {
@@ -158,13 +173,16 @@ public class Client extends AbstractClient {
 		} else if (arg0 instanceof GameEvent) {
 			GameEvent event = (GameEvent) arg0;
 			gameController.handleGameEvent(event);
-		} else if (arg0 instanceof StartGameData) {
-			System.out.println("got lobby settings");
-			StartGameData s = (StartGameData) arg0;
+		} else if (arg0 instanceof MatchSettings) {
+			MatchSettings s = (MatchSettings) arg0;
 			lobbyController.updateGameLobbySettings(s);
 		} else if (arg0 instanceof EndGameData) {
 			EndGameData data = (EndGameData) arg0;
-			gameOverController.setEndGameStats(data);
+			gameOverController.reset();
+			lobbyController.setReadyLabel("");
+			gameOverController.setEndGameStats(data, username);
+			gameController.stopGame();
+			gameController.resetGame();
 		}
 	}
 	
@@ -212,6 +230,10 @@ public class Client extends AbstractClient {
 		gameOverController = c;
 	}
 	
+	public void setUsername(String s) {
+		username = s;
+	}
+	
 	public String getUsername() {
 		return username;
 	}
@@ -228,10 +250,11 @@ public class Client extends AbstractClient {
 		gameID = g;
 	}
 	
+	public void fixTheReadyButtonNotSayingReady() {
+		lobbyController.readyButton();
+	}
+	
 	protected void connectionClosed() {
 		System.out.println("connection terminated");
 	}
-	public Database getDatabase() {
-        return database;
-    }
  }
