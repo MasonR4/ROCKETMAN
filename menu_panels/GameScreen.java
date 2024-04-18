@@ -13,7 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import menu_utilities.EightBitButton;
 import menu_utilities.EightBitLabel;
 import menu_utilities.GameDisplay;
 
@@ -28,6 +27,8 @@ public class GameScreen extends JLayeredPane {
 	
 	private JPanel logPanel;
 	private JScrollPane logScrollPane;
+	
+	private JPanel healthPanel;
 	
 	private static final long serialVersionUID = 1L;
 	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 930);
@@ -45,7 +46,6 @@ public class GameScreen extends JLayeredPane {
 		username.setBounds(10, 200, 200, 50);
 		
 		randomLabel = new EightBitLabel("this is a label", Font.PLAIN, 25f);
-
 		randomLabel.setBounds(10, 220, 200, 50);
 		
 		gamePanel = new GameDisplay();
@@ -57,7 +57,7 @@ public class GameScreen extends JLayeredPane {
 		logScrollPane = new JScrollPane(logPanel);
 		logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		logScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		logScrollPane.setBounds(1240, 450, 360, 400);
+		logScrollPane.setBounds(1240, 450, 350, 400);
 		logScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		logScrollPane.getVerticalScrollBar().addAdjustmentListener(e -> {
 			if (!e.getValueIsAdjusting()) {
@@ -69,13 +69,18 @@ public class GameScreen extends JLayeredPane {
 		chat.setFont(username.getFont());
 		chat.setText("Press Enter to chat...");
 		chat.setForeground(Color.GRAY);
-		chat.setBounds(1245, 860, 300, 20);
+		chat.setBounds(1245, 860, 330, 20);
+		
+		healthPanel = new JPanel();
+		healthPanel.setLayout(new BoxLayout(healthPanel, BoxLayout.Y_AXIS));
+		healthPanel.setBounds(1240, 5, 330, 440);
 		
 		add(gamePanel, 1);
 		add(username);
 		add(randomLabel);
 		add(logScrollPane, 2);
 		add(chat);
+		add(healthPanel);
 	}
 	
 	public GameDisplay getGamePanel() {
@@ -92,6 +97,10 @@ public class GameScreen extends JLayeredPane {
 	
 	public void setRandomLabel(String msg) {
 		randomLabel.setText(msg);
+	}
+	
+	public JPanel getHealthPanel() {
+		return healthPanel;
 	}
 	
 	public void reset() {

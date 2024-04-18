@@ -1,6 +1,5 @@
 package controller;
 
-import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 import javax.swing.AbstractAction;
+import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -30,6 +30,7 @@ import game_utilities.RocketTrail;
 import menu_panels.GameScreen;
 import menu_utilities.EightBitLabel;
 import menu_utilities.GameDisplay;
+import menu_utilities.PlayerHealthDisplay;
 import server.Client;
 
 public class GameScreenController implements MouseListener, MouseMotionListener, ActionListener, Runnable {
@@ -42,18 +43,20 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	private GameScreen screen;
 	private GameDisplay gamePanel;
 	private JPanel clientPanel;
+	private JPanel healthPanel;
 	
 	private JTextField chat;
 	
 	private final long TARGET_DELTA = 16;
 	
-	private CardLayout cl;
+	//private CardLayout cl;
 	
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();	
 	private ConcurrentHashMap<Integer, Effect> effects = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, PlayerHealthDisplay> healthBars = new ConcurrentHashMap<>();
 	
 	// === ACTION PRIORITIES ===
 	// 0 - Player Movement
@@ -74,7 +77,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		client = c;
 		clientPanel = p;
 		
-		cl = (CardLayout) clientPanel.getLayout();
+		//cl = (CardLayout) clientPanel.getLayout();
 		screen = (GameScreen) clientPanel.getComponent(7);
 		gamePanel = screen.getGamePanel();
 		
@@ -83,6 +86,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		gamePanel.setRockets(rockets);
 		gamePanel.setEffects(effects);
 		
+		healthPanel = screen.getHealthPanel();
 		
 		chat = screen.getChat();
 		chat.setFocusable(false);
@@ -210,14 +214,19 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		for (Player p : newPlayers.values()) {
 			Player tempPlayer = new Player(p.getBlockSize(), p.x, p.y);
 			RocketLauncher tempLauncher = new RocketLauncher((int) p.getCenterX(), (int) p.getCenterY(), 24, 6);
+			PlayerHealthDisplay pHealth = new PlayerHealthDisplay(p.getUsername(), p.getLives(), p.getColor());
+			healthBars.put(p.getUsername(), pHealth);
+			healthPanel.add(pHealth);
 			tempPlayer.setUsername(p.getUsername());
 			tempPlayer.setColor(p.getColor());
 			tempPlayer.setBlocks(blocks);
 			tempPlayer.setLives(p.getLives());
 			tempLauncher.setOwner(p.getUsername());
 			launchers.put(p.getUsername(), tempLauncher);
-			players.put(p.getUsername(), tempPlayer);			
+			players.put(p.getUsername(), tempPlayer);		
 		}
+		healthPanel.add(Box.createVerticalStrut(440 - (newPlayers.size() * 45)));
+		healthPanel.repaint();
 	}
 	
 	public void addMap(ConcurrentHashMap<Integer, Block> m) {
@@ -241,6 +250,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		blocks.clear();
 		rockets.clear();
 		effects.clear();
+		healthBars.clear();
 		trailCount = -1;
 		gamePanel.setAnnouncement("");
 		screen.reset();
@@ -262,9 +272,15 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				break;
 			case "PLAYER_HIT":
 				players.get(t.getValue()).takeHit();
+				healthBars.get(t.getValue()).loseHealth();
 				break;
 			case "PLAYER_ELIMINATED":
 				players.get(t.getValue()).die();
+				healthBars.get(t.getValue()).loseHealth();
+				healthBars.get(t.getValue()).die();
+				if(t.getValue().equals(username)) {
+					gamePanel.setAnnouncement("<html><font color='#750d0d'>YOU DIED</font>");
+				}
 				break;
 			case "LOG_MESSAGE":
 				EightBitLabel msg = (EightBitLabel) t.getValue();

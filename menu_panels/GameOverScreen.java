@@ -109,7 +109,6 @@ public class GameOverScreen extends JPanel {
 	}
 	
 	public void reset() {
-		System.out.println("removed player stats");
 		SwingUtilities.invokeLater(() -> {
 			statsBox.removeAll();
 			statsScrollPane.repaint();

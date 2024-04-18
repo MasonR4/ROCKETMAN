@@ -18,6 +18,8 @@ import menu_utilities.TextFieldFilters;
 
 public class LoginScreen extends JPanel {
 	
+	private static final long serialVersionUID = -4914689214145321285L;
+
 	private EightBitLabel title;
 	
 	private EightBitLabel usernameLabel;

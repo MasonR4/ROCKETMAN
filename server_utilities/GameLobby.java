@@ -10,14 +10,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
-
 import javax.swing.SwingConstants;
-
 import data.EndGameData;
-import data.Event;
 import data.GameEvent;
 import data.GameLobbyData;
 import data.GenericRequest;
@@ -29,12 +25,10 @@ import data.PlayerStatistics;
 import data.StartGameData;
 import game_utilities.Block;
 import game_utilities.DeathMarker;
-import game_utilities.Effect;
 import game_utilities.Explosion;
 import game_utilities.Missile;
 import game_utilities.Player;
 import game_utilities.RocketLauncher;
-import game_utilities.RocketTrail;
 import game_utilities.SpawnBlock;
 import menu_utilities.EightBitLabel;
 import ocsf.server.ConnectionToClient;
