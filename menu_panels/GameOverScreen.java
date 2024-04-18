@@ -79,19 +79,30 @@ public class GameOverScreen extends JPanel {
 		int rank = 1;
 		
 		for (Entry<String, PlayerStatistics> stats : e.getStats().entrySet()) {
-			PlayerEndGameStatsBox statBox = new PlayerEndGameStatsBox(rank, stats.getValue(), e.getPlayers().get(stats.getKey()).getColorFromWhenTheyWereNotDeadAsInAlive());
-			statsBox.add(statBox);
+			PlayerEndGameStatsBox statBox = new PlayerEndGameStatsBox(rank, stats.getValue(), e.getPlayers().get(stats.getKey()).getColor());
+			System.out.println("added " + stats.getKey());
+			SwingUtilities.invokeLater(() -> {
+				statsBox.add(statBox);
+			});
 			rank++;
 		}
 		for (int i = 0; i < (fill - rank) + 1; i++) {
 			JPanel filler = new JPanel();
 			filler.setPreferredSize(new Dimension(290, 390));
 			filler.setOpaque(false);
-			statsBox.add(filler);
+			SwingUtilities.invokeLater(() -> {
+				statsBox.add(filler);
+			});
 		}
 		System.out.println("added stat boxes for " + (rank - 1) + "players");
-		revalidate();
-		repaint();
+		SwingUtilities.invokeLater(() -> {
+			statsBox.revalidate();
+			statsBox.repaint();
+			statsScrollPane.revalidate();
+			statsScrollPane.repaint();
+			revalidate();
+			repaint();
+		});
 	}
 	
 	public void reset() {

@@ -32,6 +32,7 @@ import server.Client;
 
 public class GameScreenController implements MouseListener, MouseMotionListener, ActionListener, Runnable {
 	private volatile boolean running = false;
+	private volatile boolean gameWon = false;
 	
 	private Client client;
 	private String username;
@@ -39,6 +40,8 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	private GameScreen screen;
 	private GameDisplay gamePanel;
 	private JPanel clientPanel;
+	
+	private EightBitLabel announcement;
 	
 	private final long TARGET_DELTA = 16;
 	
@@ -197,15 +200,16 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	
 	public void stopGame() {
 		running = false;
-		//Thread.currentThread().interrupt();
 	}
 	
 	public void resetGame() {
+		gameWon = false;
 		players.clear();
 		blocks.clear();
 		rockets.clear();
 		effects.clear();
 		trailCount = -1;
+		gamePanel.setAnnouncement("");
 		screen.reset();
 	}
 	
@@ -238,11 +242,11 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				effects.put(newEffect.getEffectNumber(), newEffect);
 				break;
 			case "ANNOUNCE":
-				
+				String anonce = (String) t.getValue();
+				gamePanel.setAnnouncement(anonce);
 				break;
 			case "GAME_END":
-				resetGame();
-				stopGame();
+				gameWon = true;
 				break;
 				default:
 					System.out.println("No case to handle GameEvent: " + t.getKey() + "(" + t.getValue() + ")");
@@ -278,7 +282,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	
 	@Override
 	public void run() {
-		while (running && !Thread.currentThread().isInterrupted()) {
+		while (running) {
 			long startTime = System.currentTimeMillis();
 			
 			for (Player p : players.values()) {
@@ -304,7 +308,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			outboundEventQueue.add(r);
 			
 			try {
-				if (!outboundEventQueue.isEmpty()) {
+				if (!outboundEventQueue.isEmpty() && !gameWon) {
 					for (PlayerAction a : outboundEventQueue) {
 						synchronized(client) {
 							client.sendToServer(a);
@@ -316,6 +320,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			
 			}
 			
+			screen.repaint();
 			gamePanel.repaint();
 			
 			long endTime = System.currentTimeMillis();
@@ -335,6 +340,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 				running = false;
 			}
 		}
+		// TODO end of game client side stuff happen here
 	}
 	
 	@Override

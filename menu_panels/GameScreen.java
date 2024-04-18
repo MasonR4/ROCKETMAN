@@ -41,10 +41,10 @@ public class GameScreen extends JLayeredPane {
 		setSize(DEFAULT_SIZE);
 		setLayout(null);
 		
-		username = new EightBitLabel("", Font.PLAIN, 25f);
+		username = new EightBitLabel("i put the username here", Font.PLAIN, 25f);
 		username.setBounds(10, 200, 200, 50);
 		
-		randomLabel = new EightBitLabel("", Font.PLAIN, 25f);
+		randomLabel = new EightBitLabel("this is a label", Font.PLAIN, 25f);
 		randomLabel.setBounds(10, 220, 200, 50);
 		
 		gamePanel = new GameDisplay();
@@ -53,9 +53,11 @@ public class GameScreen extends JLayeredPane {
 		
 		logPanel = new JPanel();
 		logPanel.setLayout(new BoxLayout(logPanel, BoxLayout.PAGE_AXIS));
+		logPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 		logScrollPane = new JScrollPane(logPanel);
 		logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		logScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		logScrollPane.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 		logScrollPane.setBounds(1240, 450, 360, 400);
 		logScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		logScrollPane.getVerticalScrollBar().addAdjustmentListener(e -> {
@@ -92,14 +94,10 @@ public class GameScreen extends JLayeredPane {
 		EightBitLabel m = new EightBitLabel(msg, Font.BOLD, 25f);
 		m.setForeground(color);
 		logPanel.add(m);
-		repaint();
-		revalidate();
 	}
 	
 	public void addLogMessage(EightBitLabel msg) {
 		logPanel.add(msg);
-		repaint();
-		revalidate();
 	}
 	
 	public void setController(ActionListener c) {

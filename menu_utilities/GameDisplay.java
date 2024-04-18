@@ -2,11 +2,13 @@ package menu_utilities;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import game_utilities.Block;
 import game_utilities.Effect;
 import game_utilities.Missile;
@@ -23,11 +25,17 @@ public class GameDisplay extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Dimension SIZE = new Dimension(900, 900);
 	
+	private EightBitLabel announcement;
+	
 	public GameDisplay() {
 		setSize(SIZE);
 		setLayout(null);
 		setDoubleBuffered(true);
 		setBorder(BorderFactory.createLineBorder(Color.BLACK, 5));
+		announcement = new EightBitLabel("", Font.PLAIN, 75f);
+		announcement.setHorizontalAlignment(SwingConstants.CENTER);
+		announcement.setBounds(50, 300, 800, 200);
+		add(announcement);
 	}
 	
 	public void setBlocks(ConcurrentHashMap<Integer, Block> m) {
@@ -48,6 +56,10 @@ public class GameDisplay extends JPanel {
 	
 	public void setEffects(ConcurrentHashMap<Integer, Effect> e) {
 		effects = e;
+	}
+	
+	public void setAnnouncement(String s) {
+		announcement.setText(s);
 	}
 	
 	@Override

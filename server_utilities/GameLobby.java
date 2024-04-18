@@ -138,8 +138,14 @@ public class GameLobby implements Runnable {
 		rockets.clear();
 		launchers.clear();
 		players.clear();
-		for (PlayerStatistics r : playerStats.values()) {
-			r.resetStats();
+		playerStats.clear();
+		for (String name : playerConnections.keySet()) {
+			PlayerStatistics tempStats = new PlayerStatistics();
+			tempStats.setUsername(name);
+			if (name.equals(hostUsername)) {
+				tempStats.setHost();
+			}
+			playerStats.put(name, tempStats);
 		}
 		missileCounter = 0;
 		effectCounter = 0;
@@ -349,8 +355,6 @@ public class GameLobby implements Runnable {
 							d.setColor(players.get(hit).getColorFromWhenTheyWereNotDeadAsInAlive());
 							g.addEvent("ADD_EFFECT", d);
 							effectCounter++;
-							
-							
 							EightBitLabel msg2 = new EightBitLabel("<html><font color='" + String.format("#%06X", (players.get(hit).getColor().getRGB() & 0xFFFFFF)) + "'>" + hit +"</font><font color='black'> WAS ELIMINATED BY </font><font color ='" + String.format("#%06X", (players.get(r.getOwner()).getColor().getRGB() & 0xFFFFFF)) + "'>" + r.getOwner() + "</font><font color ='black'>!</font>", Font.PLAIN, 25f);
 							msg2.setHorizontalAlignment(SwingConstants.LEFT);
 							g.addEvent("LOG_MESSAGE", msg2);
@@ -390,12 +394,13 @@ public class GameLobby implements Runnable {
 		}
 		
 		if (gameWon) {
+			String winner = "your mom";
 			GameEvent g = new GameEvent();
 			g.addEvent("GAME_END", "gg");
-			updateClients(g);
 			
 			for (Entry<String, Player> e : players.entrySet()) {
 				if (e.getValue().isAlive()) {
+					winner = e.getKey();
 					playerStats.get(e.getKey()).addScore(100);
 					playerStats.get(e.getKey()).incrementStat("wins");
 				} else {
@@ -407,7 +412,16 @@ public class GameLobby implements Runnable {
 				server.submitPlayerStatsToDB(e.getKey(), e.getValue());
 			}
 			
+			g.addEvent("ANNOUNCE", "<html><font color ='" + String.format("#%06X", (players.get(winner).getColor().getRGB() & 0xFFFFFF)) + "'>" + winner + " wins!");
+			updateClients(g);
 			updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
+			
+			Thread.currentThread();
+			try {
+				Thread.sleep(3000); 
+			} catch (InterruptedException j) {
+				
+			}
 			
 			EndGameData gameStats = new EndGameData();
 			gameStats.setPlayers(players);

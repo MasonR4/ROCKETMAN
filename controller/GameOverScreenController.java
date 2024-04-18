@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import data.EndGameData;
 import data.PlayerJoinLeaveData;
@@ -33,7 +34,9 @@ public class GameOverScreenController implements ActionListener {
 
 	public void setEndGameStats(EndGameData e) {
 		screen.setEndGameStats(e);
-		cl.show(clientPanel, "GAME_OVER");
+		SwingUtilities.invokeLater(() -> {
+			cl.show(clientPanel, "GAME_OVER");
+		});
 	}
 	
 	public void returnToLobby() {

@@ -37,7 +37,6 @@ public class Client extends AbstractClient {
 		
 	private int gameID = -1;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
-	//private Database database;
 	
 	// controllers for each menu
 	// possible that we won't need all of them in the client class
@@ -153,9 +152,6 @@ public class Client extends AbstractClient {
 				username = "";
 				splashController.showThis();
 				break;
-			case "BACK_TO_LOBBY":
-				gameOverController.returnToLobby();
-				break;
 			case "PLAYER_STATS":
 				int[] s = (int[]) ((GenericRequest) arg0).getData();
 				profileController.setScreenInfoLabels(s);
@@ -185,6 +181,8 @@ public class Client extends AbstractClient {
 			gameOverController.reset();
 			lobbyController.setReadyLabel("");
 			gameOverController.setEndGameStats(data);
+			gameController.stopGame();
+			gameController.resetGame();
 		}
 	}
 	
