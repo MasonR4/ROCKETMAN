@@ -107,7 +107,6 @@ public class LobbyScreenController implements ActionListener {
 	}
 	
 	public void setMapNames(ArrayList<String> m) {
-		System.out.println("set maps to " + m);
 		mapNames = m;
 	}
 	
@@ -215,7 +214,6 @@ public class LobbyScreenController implements ActionListener {
 			
 		case "LIVES+":
 			livesCount++;
-			System.out.println("added lives");
 			if (livesCount > MAX_LIVES) {
 				livesCount = MAX_LIVES;
 			}
@@ -226,7 +224,6 @@ public class LobbyScreenController implements ActionListener {
 			
 		case "LIVES-":
 			livesCount--;
-			System.out.println("removed lives");
 			if (livesCount <= MIN_LIVES) {
 				livesCount = MIN_LIVES;
 				lives.setText("Sudden Death");

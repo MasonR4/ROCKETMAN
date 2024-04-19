@@ -12,6 +12,7 @@ public class PlayerStatistics implements Serializable {
 	
 	private boolean ready = false;
 	private boolean isHost = false;
+	private boolean leftMatch = false;
 	
 	private LinkedHashMap<String, Integer> statistics = new LinkedHashMap<String, Integer>();
 	
@@ -74,5 +75,13 @@ public class PlayerStatistics implements Serializable {
 
 	public void addScore(int score) {
 		this.score += score;
+	}
+
+	public boolean leftMatch() {
+		return leftMatch;
+	}
+
+	public void setLeftMatch(boolean leftMatch) {
+		this.leftMatch = leftMatch;
 	}
 }
