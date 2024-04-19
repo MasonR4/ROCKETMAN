@@ -1,2 +1,2 @@
 cd ../
-java game/MapEditorUI
+java client/MapEditorUI

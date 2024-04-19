@@ -1,2 +1,3 @@
 cd ../
-java -cp .;ocsf.jar game/ClientUI
+java -cp .;ocsf.jar client/ClientUI
+pause
