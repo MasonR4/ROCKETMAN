@@ -176,7 +176,7 @@ public class ClientUI extends JFrame {
 
 		// lol?
 		serverConnectionScreenController.actionPerformed(new ActionEvent(this, 0, "BYPASS_CONNECTION_AND_ATTEMPT_LOGIN"));
-
+		System.out.println("frame size: " + getSize());
 		//CL.show(containerPanel, "LOBBY"); // FOR VIEWING UI WITHOUT GOING THROUGH LOGIN PROCESS (DEBUGGIN)
 	}
 
