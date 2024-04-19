@@ -23,7 +23,6 @@ public class ProfileScreenController implements ActionListener {
 		clientUI = ui;
 		
 		cl = (CardLayout) clientPanel.getLayout();
-		//screen = new ProfileScreen(); // Pass the database object to ProfileScreen
 		screen = (ProfileScreen) clientPanel.getComponent(8);
 	}
 	

@@ -20,13 +20,15 @@ public class PlayerEndGameStatsBox extends JPanel {
 	private Color color;
 	
 	private EightBitLabel elimLabel;
-	private EightBitLabel deathsLabel;
+	private EightBitLabel damageLabel;
+	private EightBitLabel deadLabel;
 	private EightBitLabel rocketsLabel;
 	private EightBitLabel blocksLabel;
 	private EightBitLabel scoreLabel;
 	
 	private EightBitLabel eliminations;
-	private EightBitLabel deaths;
+	private EightBitLabel damage;
+	//private EightBitLabel deaths;
 	private EightBitLabel rocketsFired;
 	private EightBitLabel blocksDestroyed;
 	private EightBitLabel score;
@@ -72,32 +74,44 @@ public class PlayerEndGameStatsBox extends JPanel {
 		eliminations.setHorizontalAlignment(SwingConstants.RIGHT);
 		eliminations.setBounds(200, 90, 80, 20);
 		
+		damageLabel = new EightBitLabel("Damage Dealt: ", Font.PLAIN, 24f);
+		damageLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		damageLabel.setBounds(20, 130, 170, 20);
+		
+		damage = new EightBitLabel("99999", Font.BOLD, 28f);
+		damage.setHorizontalAlignment(SwingConstants.RIGHT);
+		damage.setText(Integer.toString(p.getStat("damageDealt")));
+		damage.setBounds(200, 130, 80, 20);
+		
 		blocksLabel = new EightBitLabel("Blocks Destroyed: ", Font.PLAIN, 24f);
 		blocksLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		blocksLabel.setBounds(20, 130, 170, 20);
+		blocksLabel.setBounds(20, 170, 170, 20);
 		
 		blocksDestroyed = new EightBitLabel("999999", Font.BOLD, 28f);
 		blocksDestroyed.setText(Integer.toString(p.getStat("blocksDestroyed")));
 		blocksDestroyed.setHorizontalAlignment(SwingConstants.RIGHT);
-		blocksDestroyed.setBounds(200, 130, 80, 20);
+		blocksDestroyed.setBounds(200, 170, 80, 20);
 		
 		rocketsLabel = new EightBitLabel("Rockets Fired: ", Font.PLAIN, 24f);
 		rocketsLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		rocketsLabel.setBounds(20, 170, 170, 20);
+		rocketsLabel.setBounds(20, 210, 170, 20);
 		
 		rocketsFired = new EightBitLabel("999999", Font.BOLD, 28f);
 		rocketsFired.setText(Integer.toString(p.getStat("rocketsFired")));
 		rocketsFired.setHorizontalAlignment(SwingConstants.RIGHT);
-		rocketsFired.setBounds(200, 170, 80, 20);
+		rocketsFired.setBounds(200, 210, 80, 20);
 		
-		deathsLabel = new EightBitLabel("Deaths: ", Font.PLAIN, 24f);
-		deathsLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		deathsLabel.setBounds(20, 210, 170, 20);
+		deadLabel = new EightBitLabel("", Font.PLAIN, 24f);
+		deadLabel.setBounds(20, 250, 250, 20);
 		
-		deaths = new EightBitLabel("999999", Font.BOLD, 28f);
-		deaths.setText(Integer.toString(p.getStat("deaths")));
-		deaths.setHorizontalAlignment(SwingConstants.RIGHT);
-		deaths.setBounds(200, 210, 80, 20);
+//		deathsLabel = new EightBitLabel("Deaths: ", Font.PLAIN, 24f);
+//		deathsLabel.setHorizontalAlignment(SwingConstants.LEFT);
+//		deathsLabel.setBounds(20, 210, 170, 20);
+//		
+//		deaths = new EightBitLabel("999999", Font.BOLD, 28f);
+//		deaths.setText(Integer.toString(p.getStat("deaths")));
+//		deaths.setHorizontalAlignment(SwingConstants.RIGHT);
+//		deaths.setBounds(200, 210, 80, 20);
 		
 		you = new EightBitLabel("", Font.PLAIN, 40f);
 		you.setHorizontalAlignment(SwingConstants.CENTER);
@@ -109,13 +123,20 @@ public class PlayerEndGameStatsBox extends JPanel {
 		add(score);
 		add(elimLabel);
 		add(eliminations);
+		add(damageLabel);
+		add(damage);
 		add(blocksLabel);
 		add(blocksDestroyed);
 		add(rocketsLabel);
 		add(rocketsFired);
-		add(deathsLabel);
-		add(deaths);
+		add(deadLabel);
+		//add(deathsLabel);
+		//add(deaths);
 		add(you);
+	}
+	
+	public void isDead() {
+		deadLabel.setText("<html><font color = '#750d0d'>eliminated</font>");
 	}
 	
 	public void isYou() {

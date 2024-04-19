@@ -338,14 +338,16 @@ public class GameLobby implements Runnable {
 						Explosion e = new Explosion(players.get(hit).x, players.get(hit).y);
 						g.addEvent("ADD_EFFECT", e);
 						players.get(hit).takeHit();
-						playerStats.get(r.getOwner()).incrementStat("eliminations");
-						playerStats.get(r.getOwner()).addScore(50);
-						playerStats.get(hit).incrementStat("deaths");
+						playerStats.get(r.getOwner()).incrementStat("damageDealt");
+						playerStats.get(r.getOwner()).addScore(10);
 						EightBitLabel msg = new EightBitLabel("<html><font color='" + String.format("#%06X", (players.get(r.getOwner()).getColor().getRGB() & 0xFFFFFF)) + "'>" + r.getOwner() +"</font><font color='black'> exploded </font><font color ='" + String.format("#%06X", (players.get(hit).getColor().getRGB() & 0xFFFFFF)) + "'>" + hit + "</font>", Font.PLAIN, 25f);
 						msg.setHorizontalAlignment(SwingConstants.LEFT);
 						g.addEvent("LOG_MESSAGE", msg);
 						if (!players.get(hit).isAlive()) {
 							g.addEvent("PLAYER_ELIMINATED", hit);
+							playerStats.get(hit).incrementStat("deaths");
+							playerStats.get(r.getOwner()).incrementStat("eliminations");
+							playerStats.get(r.getOwner()).addScore(50);
 							DeathMarker d = new DeathMarker(players.get(hit).x, players.get(hit).y, hit);
 							d.setEffectNumber(effectCounter);
 							d.setColor(players.get(hit).getColorFromWhenTheyWereNotDeadAsInAlive());
@@ -358,8 +360,6 @@ public class GameLobby implements Runnable {
 						} else {
 							g.addEvent("PLAYER_HIT", hit);
 						}
-						
-						
 						updateClients(g);
 					}
 					if (r.isExploded()) {

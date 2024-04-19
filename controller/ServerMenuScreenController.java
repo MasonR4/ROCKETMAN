@@ -90,10 +90,7 @@ public class ServerMenuScreenController implements ActionListener {
 			break;
 			
 		case "Quit":
-			
 			serverUI.closingProcedure();
-			System.exit(0);
-			
 			break;
 			
 		case "Submit": // commands just like a real server console			

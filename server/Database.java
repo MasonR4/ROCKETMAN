@@ -71,10 +71,9 @@ public class Database {
 	}
 
 	private boolean putStatsForNewPlayers(String username) {
-	    String insertStats = "INSERT INTO statistics VALUES('" + username + "', 0, 0, 0, 0, 0, 0)";
+	    String insertStats = "INSERT INTO statistics VALUES('" + username + "', 0, 0, 0, 0, 0, 0, 0, 0)";
 	    try (PreparedStatement ps = conn.prepareStatement(insertStats)) {
 	    	int affectedRows = ps.executeUpdate();
-	    	System.out.println("added new stats to player");
 	    	return affectedRows > 0;
 	    } catch (SQLException gg) {
 	    	gg.printStackTrace();
@@ -94,7 +93,7 @@ public class Database {
 	}
 	
 	public int[] getStatistics(String username) {
-        int[] statistics = new int[6]; // Array to store statistics
+        int[] statistics = new int[8]; // Array to store statistics
         String query = "SELECT * FROM statistics WHERE username = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, username);
@@ -107,13 +106,17 @@ public class Database {
                     statistics[3] = rs.getInt("deaths");
                     statistics[4] = rs.getInt("rocketsFired");
                     statistics[5] = rs.getInt("blocksDestroyed");
+                    statistics[6] = rs.getInt("damageDealt");
+                    statistics[7] = rs.getInt("totalScore");
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        System.out.println("db succes");
         return statistics;
     }
+	
 	public double[] getAverages (int[] stats) {
 		double[] averages = new double[2];
 		
@@ -128,7 +131,7 @@ public class Database {
 	
 	public boolean insertPlayerStatistics(PlayerStatistics playerStats) {
 	    // SQL query to insert player statistics
-	    String updateQuery = "UPDATE statistics SET wins = wins + ?, losses = losses + ?, eliminations = eliminations + ?, deaths = deaths + ?, rocketsFired = rocketsFired + ?, blocksDestroyed = blocksDestroyed + ? WHERE username = ?";
+	    String updateQuery = "UPDATE statistics SET wins = wins + ?, losses = losses + ?, eliminations = eliminations + ?, deaths = deaths + ?, rocketsFired = rocketsFired + ?, blocksDestroyed = blocksDestroyed + ?, damageDealt = damageDealt + ?, totalScore = totalScore + ? WHERE username = ?";
 		try (PreparedStatement ps = conn.prepareStatement(updateQuery)) {
 		    ps.setInt(1, playerStats.getStat("wins"));
 		    ps.setInt(2, playerStats.getStat("losses"));
@@ -136,7 +139,9 @@ public class Database {
 		    ps.setInt(4, playerStats.getStat("deaths"));
 		    ps.setInt(5, playerStats.getStat("rocketsFired"));
 		    ps.setInt(6, playerStats.getStat("blocksDestroyed"));
-		    ps.setString(7, playerStats.getUsername());
+		    ps.setInt(7, playerStats.getStat("damageDealt"));
+		    ps.setInt(8, playerStats.getScore());
+		    ps.setString(9, playerStats.getUsername());
 		    
 		    // Execute the update query
 		    int rowsAffected = ps.executeUpdate();

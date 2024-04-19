@@ -22,6 +22,7 @@ public class PlayerStatistics implements Serializable {
 		statistics.put("deaths", 0);
 		statistics.put("rocketsFired", 0);
 		statistics.put("blocksDestroyed", 0);
+		statistics.put("damageDealt", 0);
 	}
 	
 	public void incrementStat(String s) {
@@ -36,6 +37,7 @@ public class PlayerStatistics implements Serializable {
 		statistics.put("deaths", 0);
 		statistics.put("rocketsFired", 0);
 		statistics.put("blocksDestroyed", 0);
+		statistics.put("damageDealt", 0);
 	}
 	
 	public int getStat(String s) {

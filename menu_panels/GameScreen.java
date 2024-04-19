@@ -23,6 +23,10 @@ public class GameScreen extends JLayeredPane {
 	private EightBitLabel username;
 	private EightBitLabel randomLabel;
 	
+	private EightBitLabel keybinds;
+	private EightBitLabel mouse;
+	private EightBitLabel chatKey;
+	
 	private JTextField chat;
 	
 	private JPanel logPanel;
@@ -43,10 +47,10 @@ public class GameScreen extends JLayeredPane {
 		setLayout(null);
 		
 		username = new EightBitLabel("i put the username here", Font.PLAIN, 25f);
-		username.setBounds(10, 200, 200, 50);
+		username.setBounds(10, 200, 300, 50);
 		
 		randomLabel = new EightBitLabel("this is a label", Font.PLAIN, 25f);
-		randomLabel.setBounds(10, 220, 200, 50);
+		randomLabel.setBounds(10, 250, 300, 50);
 		
 		gamePanel = new GameDisplay();
 		gamePanel.setLayout(null);
@@ -75,12 +79,29 @@ public class GameScreen extends JLayeredPane {
 		healthPanel.setLayout(new BoxLayout(healthPanel, BoxLayout.Y_AXIS));
 		healthPanel.setBounds(1240, 5, 330, 440);
 		
+		keybinds = new EightBitLabel("WASD - Move", Font.PLAIN, 25f);
+		keybinds.setHorizontalAlignment(SwingConstants.LEFT);
+		keybinds.setBounds(10, 800, 200, 20);
+		
+		mouse = new EightBitLabel("Mouse1 - Fire Rocket", Font.PLAIN, 25f);
+		mouse.setHorizontalAlignment(SwingConstants.LEFT);
+		mouse.setBounds(10, 820, 200, 20);
+		
+		chatKey = new EightBitLabel("Enter - Open Chat", Font.PLAIN, 25f);
+		chatKey.setHorizontalAlignment(SwingConstants.LEFT);
+		chatKey.setBounds(10, 840, 200, 20);
+		
+
+		
 		add(gamePanel, 1);
 		add(username);
 		add(randomLabel);
 		add(logScrollPane, 2);
 		add(chat);
 		add(healthPanel);
+		add(keybinds);
+		add(mouse);
+		add(chatKey);
 	}
 	
 	public GameDisplay getGamePanel() {
