@@ -69,7 +69,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	
 	// === PLAYER STATS ===
 	
-	private long reload_time = 500; // reload time (ms)
+	private long reload_time = 150; // reload time (ms)
 	private Integer trailCount = -1;
 	
 	@SuppressWarnings("serial")
@@ -380,7 +380,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			long sleepTime = TARGET_DELTA - delta;
 			reload_time -= 50;
 			if (reload_time <= 0) {
-				reload_time = -100;
+				reload_time = -10;
 				screen.setRandomLabel("ready");}
 			try {
 				if (sleepTime <= 0) {
