@@ -1,33 +1,22 @@
 package controller;
 
-import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Arrays;
 import javax.swing.JPanel;
-
 import client.Client;
 import client.ClientUI;
 import data.CreateAccountData;
 import menu_panels.CreateAccountScreen;
 
-public class CreateAccountScreenController implements ActionListener {
-
-	private Client client;
-	private ClientUI clientUI;
-	
+public class CreateAccountScreenController extends MenuController {
 	private CreateAccountScreen screen;
-	private JPanel clientPanel;
 	
-	private CardLayout cl;
+	public CreateAccountScreenController(Client c, JPanel p, ClientUI ui) {	
+		super(c, p, ui);
+	}
 	
-	public CreateAccountScreenController(Client c, JPanel p, ClientUI ui) {
-		client = c;
-		clientPanel = p;
-		clientUI = ui;
-		
-		cl = (CardLayout) clientPanel.getLayout();		
+	public void setScreens() {
 		screen = (CreateAccountScreen) clientPanel.getComponent(3);
 	}
 	

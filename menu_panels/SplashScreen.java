@@ -25,7 +25,8 @@ public class SplashScreen extends JPanel {
 	private double widthRatio;
 	private double sizeRatio;
 	
-	public SplashScreen() {
+	public SplashScreen(ActionListener ac) {
+		controller = ac;
 		actualSize = ((SplashScreenController) controller).getActualSize();
 		heightRatio = ((SplashScreenController) controller).getHeightRatio();
 		widthRatio = ((SplashScreenController) controller).getWidthRatio();
@@ -38,13 +39,13 @@ public class SplashScreen extends JPanel {
 		title.setBounds((int) (375 * widthRatio), (int) (45 * heightRatio), (int) (850 * widthRatio), (int) (150 * widthRatio));
 		
 		loginButton = new EightBitButton("Login");
-		loginButton.setBounds(675, 500, 250, 50);
+		loginButton.setBounds((int) (675 * widthRatio), (int) (500 * heightRatio), (int) (250 * widthRatio), (int) (50 * heightRatio));
 		
 		createAccountButton = new EightBitButton("Create Account");
-		createAccountButton.setBounds(675, 575, 250, 50);
+		createAccountButton.setBounds((int) (675 * widthRatio), (int) (575 * heightRatio), (int) (250 * widthRatio), (int) (50 * heightRatio));
 		
 		quitButton = new EightBitButton("Disconnect");
-		quitButton.setBounds(675, 650, 250, 50);
+		quitButton.setBounds((int) (675 * widthRatio), (int) (650 * heightRatio), (int) (250 * widthRatio), (int) (50 * heightRatio));
 		
 		add(title);
 		add(loginButton);
@@ -53,7 +54,7 @@ public class SplashScreen extends JPanel {
 	}
 	
 	public void setController(ActionListener ac) {
-		controller = ac;
+		//controller = ac;
 		for (Component c : this.getComponents()) {
 			if (c instanceof EightBitButton) {
 				((EightBitButton) c).addActionListener(controller);

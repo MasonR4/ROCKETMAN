@@ -1,12 +1,9 @@
 package controller;
 
-import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JPanel;
-
 import client.Client;
 import client.ClientUI;
 import data.GenericRequest;
@@ -17,11 +14,7 @@ import menu_utilities.EightBitButton;
 import menu_utilities.GameCreationPanel;
 import menu_utilities.GameListingPanel;
 
-public class FindGameScreenController implements ActionListener {
-	
-	private Client client;
-	
-	private JPanel clientPanel;
+public class FindGameScreenController extends MenuController {
 	private JPanel gamesPanel;
 	private FindGameScreen screen;
 	private GameCreationPanel newGameScreen;
@@ -29,12 +22,11 @@ public class FindGameScreenController implements ActionListener {
 	private static final int MAX_PLAYERS = 8;
 	private static final int MIN_PLAYERS = 2;
 	
-	private CardLayout cl;
-	
 	public FindGameScreenController(Client c, JPanel p, ClientUI ui) {
-		client = c;
-		clientPanel = p;		
-		cl = (CardLayout) clientPanel.getLayout();
+		super (c, p, ui);
+	}
+	
+	public void setScreens() {
 		screen = (FindGameScreen) clientPanel.getComponent(5);
 		newGameScreen = screen.getGameCreationPanel();
 		gamesPanel = screen.getGamesPanel();

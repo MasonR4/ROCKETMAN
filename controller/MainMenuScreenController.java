@@ -1,32 +1,33 @@
 package controller;
 
-import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.swing.JPanel;
-
 import client.Client;
 import client.ClientUI;
 import data.GenericRequest;
 
-public class MainMenuScreenController implements ActionListener {
-	
-	private Client client;
-	private ClientUI clientUI;
-	
-	private JPanel clientPanel;
-	//private MainMenuScreen mainScreen;
-	
-	private CardLayout cl;
+public class MainMenuScreenController extends MenuController {
 	
 	public MainMenuScreenController(Client c, JPanel p, ClientUI ui) {
-		client = c;
-		clientPanel = p;
-		clientUI = ui;
-		
-		cl = (CardLayout) clientPanel.getLayout();
-		//mainScreen = (MainMenuScreen) clientPanel.getComponent(4); 
+		super(c, p, ui); 
+	}
+	
+	public double getHeightRatio() {
+		return clientUI.getHeightRatio();
+	}
+	
+	public double getWidthRatio() {
+		return clientUI.getWidthRatio();
+	}
+	
+	public double getSizeRatio() {
+		return clientUI.getSizeRatio();
+	}
+	
+	public Dimension getActualSize() {
+		return clientUI.getActualSize();
 	}
 	
 	@Override

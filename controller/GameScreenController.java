@@ -2,7 +2,6 @@ package controller;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -18,7 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-
 import client.Client;
 import client.ClientUI;
 import data.GameEvent;
@@ -35,7 +33,7 @@ import menu_utilities.EightBitLabel;
 import menu_utilities.GameDisplay;
 import menu_utilities.PlayerHealthDisplay;
 
-public class GameScreenController implements MouseListener, MouseMotionListener, ActionListener, Runnable {
+public class GameScreenController extends MenuController implements MouseListener, MouseMotionListener, Runnable {
 	private volatile boolean running = false;
 	private volatile boolean gameWon = false;
 	
@@ -44,7 +42,6 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	
 	private GameScreen screen;
 	private GameDisplay gamePanel;
-	private JPanel clientPanel;
 	private JPanel healthPanel;
 	
 	private JTextField chat;
@@ -73,13 +70,13 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 	
 	private long reload_time = 150; // reload time (ms)
 	private Integer trailCount = -1;
+
+	public GameScreenController(Client c, JPanel p, ClientUI ui) {
+		super(c, p, ui);
+	}
 	
 	@SuppressWarnings("serial")
-	public GameScreenController(Client c, JPanel p, ClientUI ui) {
-		client = c;
-		clientPanel = p;
-		
-		//cl = (CardLayout) clientPanel.getLayout();
+	public void setScreens() {
 		screen = (GameScreen) clientPanel.getComponent(7);
 		gamePanel = screen.getGamePanel();
 		

@@ -72,7 +72,12 @@ public class ClientUI extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setLayout(null);
-
+		
+		actualSize = getSize();
+		heightRatio = actualSize.getHeight() / DEFAULT_SIZE.getHeight();
+		widthRatio = actualSize.getWidth() / DEFAULT_SIZE.getWidth();
+		sizeRatio = (actualSize.getWidth() * actualSize.getHeight()) / (DEFAULT_SIZE.getWidth() * DEFAULT_SIZE.getHeight());
+		
 		client = new Client();
 
 		containerPanel = new JPanel(CL);
@@ -106,10 +111,22 @@ public class ClientUI extends JFrame {
 				closingProcedure();
 			}
 		});
-
+		
+		// WE ARE DECLARING A NUMBER OF CONTROLLERS
+		serverConnectionScreenController = new ServerConnectionScreenController(client, containerPanel, this);
+		splashScreenController = new SplashScreenController(client, containerPanel, this);
+		loginScreenController = new LoginScreenController(client, containerPanel, this);
+		createAccountScreenController = new CreateAccountScreenController(client, containerPanel, this);
+		mainMenuScreenController = new MainMenuScreenController(client, containerPanel, this);
+		findGameScreenController = new FindGameScreenController(client, containerPanel, this);
+		lobbyScreenController = new LobbyScreenController(client, containerPanel, this);
+		gameScreenController = new GameScreenController(client, containerPanel, this);
+		profileScreenController = new ProfileScreenController(client, containerPanel, this);
+		gameOverScreenController = new GameOverScreenController(client, containerPanel, this);
+		
 		// MENU PANELS
-		serverConnectionScreen = new ServerConnectionScreen();
-		splashScreen = new SplashScreen();
+		serverConnectionScreen = new ServerConnectionScreen(serverConnectionScreenController);
+		splashScreen = new SplashScreen(splashScreenController);
 		loginScreen = new LoginScreen();
 		createAccountScreen = new CreateAccountScreen();
 		mainMenuScreen = new MainMenuScreen();
@@ -130,21 +147,18 @@ public class ClientUI extends JFrame {
 		containerPanel.add(gameScreen, "GAME");
 		containerPanel.add(profileScreen, "PROFILE");
 		containerPanel.add(gameOverScreen, "GAME_OVER");
-
-		// WE ARE DECLARING A NUMBER OF CONTROLLERS
-		serverConnectionScreenController = new ServerConnectionScreenController(client, containerPanel, this);
-		splashScreenController = new SplashScreenController(client, containerPanel, this);
-		loginScreenController = new LoginScreenController(client, containerPanel, this);
-		createAccountScreenController = new CreateAccountScreenController(client, containerPanel, this);
-		mainMenuScreenController = new MainMenuScreenController(client, containerPanel, this);
-		findGameScreenController = new FindGameScreenController(client, containerPanel, this);
-		lobbyScreenController = new LobbyScreenController(client, containerPanel, this);
-		gameScreenController = new GameScreenController(client, containerPanel, this);
-		profileScreenController = new ProfileScreenController(client, containerPanel, this);
-		gameOverScreenController = new GameOverScreenController(client, containerPanel, this);
-		
 		
 		// ANNOYING EXTRA STEP
+		serverConnectionScreenController.setScreens();
+		createAccountScreenController.setScreens();
+		findGameScreenController.setScreens();
+		gameOverScreenController.setScreens();
+		gameScreenController.setScreens();
+		lobbyScreenController.setScreens();
+		loginScreenController.setScreens();
+		profileScreenController.setScreens();
+		
+		// ANNOYING EXTRA EXTRA STEP
 		serverConnectionScreen.setController(serverConnectionScreenController);
 		splashScreen.setController(splashScreenController);
 		loginScreen.setController(loginScreenController);
@@ -158,7 +172,7 @@ public class ClientUI extends JFrame {
 		profileScreen.setController(profileScreenController);
 		gameOverScreen.setController(gameOverScreenController);
 
-		// ANNOYING EXTRA EXTRA STEP
+		// ANNOYING EXTRA EXTRA EXTRA STEP
 		client.setSplashController(splashScreenController);
 		client.setCreateAccountController(createAccountScreenController);
 		client.setFindGameController(findGameScreenController);
@@ -181,11 +195,6 @@ public class ClientUI extends JFrame {
 
 		// lol?
 		serverConnectionScreenController.actionPerformed(new ActionEvent(this, 0, "BYPASS_CONNECTION_AND_ATTEMPT_LOGIN"));
-		
-		actualSize = getSize();
-		heightRatio = actualSize.getHeight() / DEFAULT_SIZE.getHeight();
-		widthRatio = actualSize.getWidth() / DEFAULT_SIZE.getWidth();
-		sizeRatio = (actualSize.getWidth() * actualSize.getHeight()) / (DEFAULT_SIZE.getWidth() * DEFAULT_SIZE.getHeight());
 		
 		//CL.show(containerPanel, "LOBBY"); // FOR VIEWING UI WITHOUT GOING THROUGH LOGIN PROCESS (DEBUGGIN)
 	}

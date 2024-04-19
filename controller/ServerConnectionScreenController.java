@@ -1,49 +1,36 @@
 package controller;
 
-import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.swing.JPanel;
-
 import client.Client;
 import client.ClientUI;
 import menu_panels.LoginScreen;
 import menu_panels.ServerConnectionScreen;
 import menu_utilities.EightBitButton;
 
-public class ServerConnectionScreenController implements ActionListener {
+public class ServerConnectionScreenController extends MenuController {
 
-	private Client client;
-	private ClientUI clientUI;
-	
-	private JPanel clientPanel;
 	private ServerConnectionScreen screenPanel;
-	
 	private LoginScreen loginScreen;
 	private LoginScreenController loginController;
 	
-	private CardLayout cl;
 	
 	public ServerConnectionScreenController(Client c, JPanel p, ClientUI ui) {
-		client = c;
-		clientPanel = p;
-		clientUI = ui;
-		
-		cl = (CardLayout) clientPanel.getLayout();
+		super(c, p, ui);		
+	}
+	
+	public void setScreens() {
 		screenPanel = (ServerConnectionScreen) clientPanel.getComponent(0); 
-		loginScreen = (LoginScreen) clientPanel.getComponent(2);		
+		loginScreen = (LoginScreen) clientPanel.getComponent(2);
 	}
 	
 	public void connect (String addr, int port) throws IOException {
 		client.setHost(addr);
 		client.setPort(port);
 		client.openConnection();
-	}
-	
-	public void setClientUI(ClientUI c) {
-		clientUI = c;
 	}
 	
 	public void connectionTerminated(String msg) {

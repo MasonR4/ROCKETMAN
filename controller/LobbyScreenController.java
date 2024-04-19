@@ -1,20 +1,16 @@
 package controller;
 
-import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-
 import client.Client;
 import client.ClientUI;
 import data.GameLobbyData;
@@ -27,17 +23,10 @@ import menu_panels.LobbyScreen;
 import menu_utilities.EightBitLabel;
 import menu_utilities.PlayerListingPanel;
 
-public class LobbyScreenController implements ActionListener {
-	
-	private Client client;
-	//private ClientUI clientUI;
+public class LobbyScreenController extends MenuController {
 	
 	private LobbyScreen screen;
-	
-	private JPanel clientPanel;
 	private JPanel playerPanel;
-	
-	private CardLayout cl;
 	
 	// STUFF FOR GAME STATS GOES HERE OH NO
 	private ArrayList<String> mapNames = new ArrayList<String>();
@@ -53,11 +42,10 @@ public class LobbyScreenController implements ActionListener {
 	private JTextField chat;
 	
 	public LobbyScreenController(Client c, JPanel p, ClientUI ui) {
-		client = c;
-		clientPanel = p;
-		//clientUI = ui;
-		
-		cl = (CardLayout) clientPanel.getLayout();
+		super(c, p, ui);
+	}
+	
+	public void setScreens() {
 		screen = (LobbyScreen) clientPanel.getComponent(6);
 		playerPanel = screen.getPlayerPanel();
 		map = screen.getMapLabel();
