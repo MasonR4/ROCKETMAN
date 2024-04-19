@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import javax.swing.JPanel;
 
+import client.Client;
+import client.ClientUI;
 import data.CreateAccountData;
-import game.ClientUI;
 import menu_panels.CreateAccountScreen;
-import server.Client;
 
 public class CreateAccountScreenController implements ActionListener {
 

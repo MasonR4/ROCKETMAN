@@ -1,4 +1,4 @@
-package server;
+package client;
 
 import java.awt.event.ActionEvent;
 import java.io.IOException;

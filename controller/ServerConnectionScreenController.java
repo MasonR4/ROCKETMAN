@@ -6,11 +6,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.swing.JPanel;
-import game.ClientUI;
+
+import client.Client;
+import client.ClientUI;
 import menu_panels.LoginScreen;
 import menu_panels.ServerConnectionScreen;
 import menu_utilities.EightBitButton;
-import server.Client;
 
 public class ServerConnectionScreenController implements ActionListener {
 

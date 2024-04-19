@@ -5,10 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.swing.JPanel;
+
+import client.Client;
+import client.ClientUI;
 import data.LoginData;
-import game.ClientUI;
 import menu_panels.LoginScreen;
-import server.Client;
 
 public class LoginScreenController implements ActionListener {
 

@@ -1,4 +1,4 @@
-package controller;
+package server_utilities;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,10 +8,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import data.GameLobbyData;
 import data.GenericRequest;
-import game.ServerUI;
 import menu_panels.ServerMenuScreen;
 import server.Server;
-import server_utilities.ServerGameListingPanel;
+import server.ServerUI;
 
 public class ServerMenuScreenController implements ActionListener {
 

@@ -4,9 +4,10 @@ import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JPanel;
-import game.ClientUI;
+
+import client.Client;
+import client.ClientUI;
 import menu_panels.ProfileScreen;
-import server.Client;
 
 public class ProfileScreenController implements ActionListener {
 

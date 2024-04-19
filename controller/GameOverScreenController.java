@@ -8,11 +8,11 @@ import java.io.IOException;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import client.Client;
+import client.ClientUI;
 import data.EndGameData;
 import data.PlayerJoinLeaveData;
-import game.ClientUI;
 import menu_panels.GameOverScreen;
-import server.Client;
 
 public class GameOverScreenController implements ActionListener {
 	private Client client;

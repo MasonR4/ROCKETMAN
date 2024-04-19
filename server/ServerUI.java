@@ -1,4 +1,4 @@
-package game;
+package server;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -11,10 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.Scanner;
 import java.util.Map.Entry;
 import javax.swing.*;
-import controller.ServerMenuScreenController;
+
 import menu_panels.ServerMenuScreen;
-import server.Server;
-import server.Database;
+import server_utilities.ServerMenuScreenController;
 
 public class ServerUI extends JFrame {
 

@@ -5,10 +5,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.swing.JPanel;
+
+import client.Client;
+import client.ClientUI;
 import data.GenericRequest;
-import game.ClientUI;
-//import menu_panels.MainMenuScreen;
-import server.Client;
 
 public class MainMenuScreenController implements ActionListener {
 	

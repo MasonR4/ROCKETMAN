@@ -19,9 +19,10 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import client.Client;
+import client.ClientUI;
 import data.GameEvent;
 import data.PlayerAction;
-import game.ClientUI;
 import game_utilities.Block;
 import game_utilities.Effect;
 import game_utilities.Missile;
@@ -33,7 +34,6 @@ import menu_panels.GameScreen;
 import menu_utilities.EightBitLabel;
 import menu_utilities.GameDisplay;
 import menu_utilities.PlayerHealthDisplay;
-import server.Client;
 
 public class GameScreenController implements MouseListener, MouseMotionListener, ActionListener, Runnable {
 	private volatile boolean running = false;

@@ -1,4 +1,4 @@
-package game;
+package client;
 
 import javax.swing.SwingUtilities;
 import controller.*;
@@ -6,7 +6,7 @@ import data.GenericRequest;
 import data.PlayerJoinLeaveData;
 import menu_panels.*;
 import menu_panels.SplashScreen;
-import server.Client;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;

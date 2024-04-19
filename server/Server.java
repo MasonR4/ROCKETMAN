@@ -11,13 +11,14 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-import controller.ServerMenuScreenController;
+
 import data.*;
 import game_utilities.Block;
 import ocsf.server.AbstractServer;
 import ocsf.server.ConnectionToClient;
 import server_utilities.GameLobby;
 import server_utilities.MapCreator;
+import server_utilities.ServerMenuScreenController;
 
 public class Server extends AbstractServer {
 	

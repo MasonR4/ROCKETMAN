@@ -7,16 +7,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
+import client.Client;
+import client.ClientUI;
 import data.GameLobbyData;
 import data.MatchSettings;
 import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
 import data.StartGameData;
-import game.ClientUI;
 import menu_panels.LobbyScreen;
 import menu_utilities.EightBitLabel;
 import menu_utilities.PlayerListingPanel;
-import server.Client;
 
 public class LobbyScreenController implements ActionListener {
 	

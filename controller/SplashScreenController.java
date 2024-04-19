@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.swing.JPanel;
 
-import server.Client;
+import client.Client;
 
 public class SplashScreenController implements ActionListener {
 

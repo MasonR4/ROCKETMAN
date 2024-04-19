@@ -6,15 +6,16 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JPanel;
+
+import client.Client;
+import client.ClientUI;
 import data.GenericRequest;
 import data.PlayerJoinLeaveData;
 import data.GameLobbyData;
-import game.ClientUI;
 import menu_panels.FindGameScreen;
 import menu_utilities.EightBitButton;
 import menu_utilities.GameCreationPanel;
 import menu_utilities.GameListingPanel;
-import server.Client;
 
 public class FindGameScreenController implements ActionListener {
 	
