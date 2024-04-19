@@ -126,8 +126,9 @@ public class GameScreen extends JLayeredPane {
 	
 	public void reset() {
 		logPanel.removeAll();
-		repaint();
+		healthPanel.removeAll();
 		revalidate();
+		repaint();
 	}
 	
 	public void addLogMessage(String msg) {

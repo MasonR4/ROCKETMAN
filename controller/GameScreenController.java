@@ -376,6 +376,8 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			SwingUtilities.invokeLater(() -> {
 				screen.repaint();
 				gamePanel.repaint();
+				healthPanel.revalidate();
+				healthPanel.repaint();
 			});
 			
 			long endTime = System.currentTimeMillis();
