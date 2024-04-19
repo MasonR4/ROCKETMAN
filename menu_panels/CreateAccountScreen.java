@@ -11,6 +11,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.text.AbstractDocument;
 
+import controller.MenuController;
 import menu_utilities.*;
 
 public class CreateAccountScreen extends JPanel {
@@ -32,47 +33,57 @@ public class CreateAccountScreen extends JPanel {
 	
 	private static final TextFieldFilters TEXT_FILTERS = new TextFieldFilters();
 	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
-	private ActionListener controller;
+
+	private MenuController controller;
 	
-	public CreateAccountScreen() {
-		setSize(DEFAULT_SIZE);
+	private Dimension actualSize;
+	private double heightRatio;
+	private double widthRatio;
+	private double sizeRatio;
+	
+	public CreateAccountScreen(ActionListener ac) {
+		controller = (MenuController) ac;
+		actualSize =  controller.getActualSize();
+		heightRatio = controller.getHeightRatio();
+		widthRatio = controller.getWidthRatio();
+		sizeRatio = controller.getSizeRatio();
+		setSize(actualSize);
 		setLayout(null);
 		
-		title = new EightBitLabel("ROCKETMAN", Font.BOLD, 222f);
-		title.setBounds(375, 45, 850, 150);
-		
+		title = new EightBitLabel("ROCKETMAN", Font.BOLD, (float) (222f * sizeRatio));
+		title.setBounds((int) (375 * widthRatio), (int) (45 * heightRatio), (int) (850 * widthRatio), (int) (150 * heightRatio));
+
 		backButton = new EightBitButton("Back");
-		backButton.setBounds(675, 650, 250, 50);	
-	
+		backButton.setBounds((int) (675 * widthRatio), (int) (650 * heightRatio), (int) (250 * widthRatio), (int) (50 * heightRatio));
+
 		createAccountButton = new EightBitButton("Create Account");
-		createAccountButton.setBounds(675, 575, 250, 50);
-		
-		usernameLabel = new EightBitLabel("Username: ", Font.PLAIN, 18f);
-		usernameLabel.setBounds(665, 450, 70, 20);
-		
-		passwordLabel = new EightBitLabel("Password: ", Font.PLAIN, 18f);
-		passwordLabel.setBounds(665, 475, 70, 20);
-		
-		confirmPasswordLabel = new EightBitLabel("Confirm: ", Font.PLAIN, 18f);
-		confirmPasswordLabel.setBounds(665, 500, 70, 20);
-		
-		errorLabel = new EightBitLabel("", Font.PLAIN, 18f);
+		createAccountButton.setBounds((int) (675 * widthRatio), (int) (575 * heightRatio), (int) (250 * widthRatio), (int) (50 * heightRatio));
+
+		usernameLabel = new EightBitLabel("Username: ", Font.PLAIN, (float) (18f * sizeRatio));
+		usernameLabel.setBounds((int) (665 * widthRatio), (int) (450 * heightRatio), (int) (70 * widthRatio), (int) (20 * heightRatio));
+
+		passwordLabel = new EightBitLabel("Password: ", Font.PLAIN, (float) (18f * sizeRatio));
+		passwordLabel.setBounds((int) (665 * widthRatio), (int) (475 * heightRatio), (int) (70 * widthRatio), (int) (20 * heightRatio));
+
+		confirmPasswordLabel = new EightBitLabel("Confirm: ", Font.PLAIN, (float) (18f * sizeRatio));
+		confirmPasswordLabel.setBounds((int) (665 * widthRatio), (int) (500 * heightRatio), (int) (70 * widthRatio), (int) (20 * heightRatio));
+
+		errorLabel = new EightBitLabel("", Font.PLAIN, (float) (18f * sizeRatio));
 		errorLabel.setForeground(Color.RED);
 		errorLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		errorLabel.setBounds(550, 525, 500, 20);
-		
+		errorLabel.setBounds((int) (550 * widthRatio), (int) (525 * heightRatio), (int) (500 * widthRatio), (int) (20 * heightRatio));
+
 		usernameField = new JTextField(50);
-		usernameField.setBounds(735, 450, 200, 20);
+		usernameField.setBounds((int) (735 * widthRatio), (int) (450 * heightRatio), (int) (200 * widthRatio), (int) (20 * heightRatio));
 		((AbstractDocument) usernameField.getDocument()).setDocumentFilter(TEXT_FILTERS.getUsernameFilter());
-		
+
 		passwordField = new JPasswordField(50);
-		passwordField.setBounds(735, 475, 200, 20);
+		passwordField.setBounds((int) (735 * widthRatio), (int) (475 * heightRatio), (int) (200 * widthRatio), (int) (20 * heightRatio));
 		((AbstractDocument) passwordField.getDocument()).setDocumentFilter(TEXT_FILTERS.getPasswordFilter());
-		
+
 		confirmPasswordField = new JPasswordField(50);
-		confirmPasswordField.setBounds(735, 500, 200, 20);
+		confirmPasswordField.setBounds((int) (735 * widthRatio), (int) (500 * heightRatio), (int) (200 * widthRatio), (int) (20 * heightRatio));
 		((AbstractDocument) confirmPasswordField.getDocument()).setDocumentFilter(TEXT_FILTERS.getPasswordFilter());
-		
 		add(title);
 		add(createAccountButton);
 		add(backButton);
@@ -107,7 +118,7 @@ public class CreateAccountScreen extends JPanel {
 		confirmPasswordField.setText("");
 	}
 	public void setController(ActionListener ac) {
-		controller = ac;
+		//controller = ac;
 		for (Component c : this.getComponents()) {
 			if (c instanceof EightBitButton) {
 				((EightBitButton) c).addActionListener(controller);

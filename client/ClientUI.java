@@ -73,7 +73,10 @@ public class ClientUI extends JFrame {
 		setLocationRelativeTo(null);
 		setLayout(null);
 		
-		actualSize = getSize();
+		actualSize = Toolkit.getDefaultToolkit().getScreenSize();
+		if (actualSize.getWidth() > DEFAULT_SIZE.getWidth() && actualSize.getHeight() > DEFAULT_SIZE.getHeight()) {
+			actualSize = DEFAULT_SIZE;
+		}
 		heightRatio = actualSize.getHeight() / DEFAULT_SIZE.getHeight();
 		widthRatio = actualSize.getWidth() / DEFAULT_SIZE.getWidth();
 		sizeRatio = (actualSize.getWidth() * actualSize.getHeight()) / (DEFAULT_SIZE.getWidth() * DEFAULT_SIZE.getHeight());

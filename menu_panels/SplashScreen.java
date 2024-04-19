@@ -2,6 +2,7 @@ package menu_panels;
 
 import javax.swing.*;
 
+import controller.MenuController;
 import controller.SplashScreenController;
 import menu_utilities.*;
 import java.awt.Component;
@@ -18,7 +19,7 @@ public class SplashScreen extends JPanel {
 	private EightBitButton quitButton;
 	
 	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
-	private ActionListener controller;
+	private MenuController controller;
 	
 	private Dimension actualSize;
 	private double heightRatio;
@@ -26,11 +27,11 @@ public class SplashScreen extends JPanel {
 	private double sizeRatio;
 	
 	public SplashScreen(ActionListener ac) {
-		controller = ac;
-		actualSize = ((SplashScreenController) controller).getActualSize();
-		heightRatio = ((SplashScreenController) controller).getHeightRatio();
-		widthRatio = ((SplashScreenController) controller).getWidthRatio();
-		sizeRatio = ((SplashScreenController) controller).getSizeRatio();
+		controller = (MenuController) ac;
+		actualSize =  controller.getActualSize();
+		heightRatio = controller.getHeightRatio();
+		widthRatio = controller.getWidthRatio();
+		sizeRatio = controller.getSizeRatio();
 		
 		setSize(actualSize);
 		setLayout(null);
