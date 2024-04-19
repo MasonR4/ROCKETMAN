@@ -55,7 +55,12 @@ public class ClientUI extends JFrame {
 
 	// layout
 	private JPanel containerPanel;
-
+	
+	private Dimension actualSize;
+	private double heightRatio;
+	private double widthRatio;
+	private double sizeRatio;
+	
 	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 938);
 	private static final CardLayout CL = new CardLayout();
 	private static final String DEFAULT_MENU = "SERVER_CONNECTION";
@@ -128,7 +133,7 @@ public class ClientUI extends JFrame {
 
 		// WE ARE DECLARING A NUMBER OF CONTROLLERS
 		serverConnectionScreenController = new ServerConnectionScreenController(client, containerPanel, this);
-		splashScreenController = new SplashScreenController(client, containerPanel);
+		splashScreenController = new SplashScreenController(client, containerPanel, this);
 		loginScreenController = new LoginScreenController(client, containerPanel, this);
 		createAccountScreenController = new CreateAccountScreenController(client, containerPanel, this);
 		mainMenuScreenController = new MainMenuScreenController(client, containerPanel, this);
@@ -176,7 +181,12 @@ public class ClientUI extends JFrame {
 
 		// lol?
 		serverConnectionScreenController.actionPerformed(new ActionEvent(this, 0, "BYPASS_CONNECTION_AND_ATTEMPT_LOGIN"));
-		System.out.println("frame size: " + getSize());
+		
+		actualSize = getSize();
+		heightRatio = actualSize.getHeight() / DEFAULT_SIZE.getHeight();
+		widthRatio = actualSize.getWidth() / DEFAULT_SIZE.getWidth();
+		sizeRatio = (actualSize.getWidth() * actualSize.getHeight()) / (DEFAULT_SIZE.getWidth() * DEFAULT_SIZE.getHeight());
+		
 		//CL.show(containerPanel, "LOBBY"); // FOR VIEWING UI WITHOUT GOING THROUGH LOGIN PROCESS (DEBUGGIN)
 	}
 
@@ -240,5 +250,21 @@ public class ClientUI extends JFrame {
 				new ClientUI();
 			}
 		});
+	}
+
+	public double getHeightRatio() {
+		return heightRatio;
+	}
+
+	public double getWidthRatio() {
+		return widthRatio;
+	}
+	
+	public Dimension getActualSize() {
+		return actualSize;
+	}
+
+	public double getSizeRatio() {
+		return sizeRatio;
 	}
 }

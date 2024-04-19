@@ -2,8 +2,8 @@ package menu_panels;
 
 import javax.swing.*;
 
+import controller.SplashScreenController;
 import menu_utilities.*;
-
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -20,14 +20,22 @@ public class SplashScreen extends JPanel {
 	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
 	private ActionListener controller;
 	
+	private Dimension actualSize;
+	private double heightRatio;
+	private double widthRatio;
+	private double sizeRatio;
+	
 	public SplashScreen() {
+		actualSize = ((SplashScreenController) controller).getActualSize();
+		heightRatio = ((SplashScreenController) controller).getHeightRatio();
+		widthRatio = ((SplashScreenController) controller).getWidthRatio();
+		sizeRatio = ((SplashScreenController) controller).getSizeRatio();
 		
-		setSize(DEFAULT_SIZE);
+		setSize(actualSize);
 		setLayout(null);
-		//setOpaque(false);
 		
-		title = new EightBitLabel("ROCKETMAN", Font.BOLD, 222f);
-		title.setBounds(375, 45, 850, 150);
+		title = new EightBitLabel("ROCKETMAN", Font.BOLD, (float) (222f * sizeRatio));
+		title.setBounds((int) (375 * widthRatio), (int) (45 * heightRatio), (int) (850 * widthRatio), (int) (150 * widthRatio));
 		
 		loginButton = new EightBitButton("Login");
 		loginButton.setBounds(675, 500, 250, 50);
