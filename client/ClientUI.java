@@ -77,11 +77,12 @@ public class ClientUI extends JFrame {
 		heightRatio = actualSize.getHeight() / DEFAULT_SIZE.getHeight();
 		widthRatio = actualSize.getWidth() / DEFAULT_SIZE.getWidth();
 		sizeRatio = (actualSize.getWidth() * actualSize.getHeight()) / (DEFAULT_SIZE.getWidth() * DEFAULT_SIZE.getHeight());
-		
+		setSize(actualSize);
+		System.out.println("window size: " + actualSize);
 		client = new Client();
 
 		containerPanel = new JPanel(CL);
-		containerPanel.setSize(DEFAULT_SIZE);
+		containerPanel.setSize(actualSize);
 
 		// READ CONFIG
 		config = new File("config.txt");
