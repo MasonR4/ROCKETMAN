@@ -163,8 +163,7 @@ public class GameLobby implements Runnable {
 				if (spawns.get(chosenSpawn).isOccupied()) {
 					spawned = false;
 				} else {
-					newPlayer.updatePosition((int) spawns.get(chosenSpawn).getCenterX(),
-							(int) spawns.get(chosenSpawn).getCenterY());
+					newPlayer.updatePosition(spawns.get(chosenSpawn).x, spawns.get(chosenSpawn).y);
 					spawns.get(chosenSpawn).setOccupied(true);
 					spawned = true;
 				}
@@ -222,7 +221,7 @@ public class GameLobby implements Runnable {
 		playerStats.put(usr.getUsername(), temp);
 		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 		try {
-			StartGameData settings = new StartGameData(gameID, map, playerLives, false);
+			MatchSettings settings = new MatchSettings(gameID, map, playerLives);
 			playerConnections.get(usr.getUsername()).sendToClient(settings);
 		} catch (IOException No) {
 			
