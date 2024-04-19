@@ -282,10 +282,10 @@ public class Server extends AbstractServer {
 	                try {
 	                    GenericRequest rq = new GenericRequest("LOGIN_CONFIRMED");
 	                    rq.setData(username);
-	                    arg1.sendToClient(rq);
 	                    serverLog.append("[Client " + arg1.getId() + "] Successfully logged in as " + username + "\n");
 	                    connectedPlayers.add(username);
 	                    connectedPlayerCount += 1;
+	                    arg1.sendToClient(rq);
 	                } catch (IOException e) {
 	                    e.printStackTrace();
 	                    serverLog.append("[Client " + arg1.getId() + "] Login Failed\n");

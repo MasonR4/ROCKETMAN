@@ -19,9 +19,7 @@ public class ServerMenuScreenController implements ActionListener {
 	private ServerUI serverUI;
 	
 	private ServerMenuScreen screen;
-	
 	private JTextArea log;
-	//private JLabel status;
 	
 	private JPanel gamesPanel;
 	
@@ -31,7 +29,6 @@ public class ServerMenuScreenController implements ActionListener {
 		serverUI = ui;
 		
 		log = screen.getServerLog();
-		//status = screen.getServerStatusLabel();
 		gamesPanel = screen.getGamesPanel();
 	}	
 	
