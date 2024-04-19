@@ -8,7 +8,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import data.GameLobbyData;
 import data.GenericRequest;
-import menu_panels.ServerMenuScreen;
 import server.Server;
 import server.ServerUI;
 

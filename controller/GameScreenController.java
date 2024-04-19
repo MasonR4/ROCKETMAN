@@ -198,10 +198,10 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 					if (!msg.isBlank()) {
 						PlayerAction chatting = new PlayerAction(client.getGameID(), username, "CHAT_MESSAGE", "<html><font color ='" + String.format("#%06X", players.get(username).getColor().getRGB() & 0xFFFFFF) + "'>" + username + "</font><font color = 'black'>: " + msg + "</font>");
 						outboundEventQueue.add(chatting);
-						chat.setText("Press Enter to chat...");
-						chat.setForeground(Color.GRAY);
-						chat.setFocusable(false);
-					}
+					} 
+					chat.setText("Press Enter to chat...");
+					chat.setForeground(Color.GRAY);
+					chat.setFocusable(false);
 				} else if (!chat.isFocusOwner()) {
 					chat.setForeground(Color.BLACK);
 					chat.setText("");
@@ -255,6 +255,7 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 		healthBars.clear();
 		trailCount = -1;
 		gamePanel.setAnnouncement("");
+		chat.setFocusable(false);
 		screen.reset();
 	}
 	
