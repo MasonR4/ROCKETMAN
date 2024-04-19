@@ -9,7 +9,10 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import menu_utilities.EightBitButton;
 import menu_utilities.EightBitLabel;
@@ -29,12 +32,8 @@ public class LobbyScreen extends JPanel {
 	private EightBitLabel gameInfoTitleLabel;
 	private EightBitLabel mapLabel;
 	private EightBitLabel map;
-//	private EightBitLabel timeLabel;
-//	private EightBitLabel time;
 	private EightBitLabel livesLabel;
 	private EightBitLabel lives;
-//	private EightBitLabel reloadSpeedLabel;
-//	private EightBitLabel reloadSpeed;
 	private EightBitLabel gameModeLabel;
 	private EightBitLabel gameMode;
 	
@@ -44,16 +43,17 @@ public class LobbyScreen extends JPanel {
 	
 	private EightBitButton mapRight;
 	private EightBitButton mapLeft;
-//	private EightBitButton timeRight;
-//	private EightBitButton timeLeft;
 	private EightBitButton livesRight;
 	private EightBitButton livesLeft;
-//	private EightBitButton reloadRight;
-//	private EightBitButton reloadLeft;
-	
+
 	private JPanel gameInfoPanel;
 	private JPanel playersPanel;
 	private JScrollPane playerScrollPane;
+	
+	private EightBitLabel chatLabel;
+	private JScrollPane chatScrollPane;
+	private JTextField chat;
+	private JTextArea chatArea;
 	
 	private static final long serialVersionUID = 1L;
 	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
@@ -112,19 +112,12 @@ public class LobbyScreen extends JPanel {
 		gameMode.setHorizontalAlignment(SwingConstants.CENTER);
 		gameMode.setBounds(75, 195, 250, 20);
 		
-//		timeRight = new EightBitButton(">");
-//		timeRight.setActionCommand("TIME+");
-//		timeRight.setBounds(335, 190, 40, 30);
-//		
-//		timeLeft = new EightBitButton("<");
-//		timeLeft.setActionCommand("TIME-");
-//		timeLeft.setBounds(25, 190, 40, 30);
-		
 		livesLabel = new EightBitLabel("Player Health", Font.PLAIN, 38f);
 		livesLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		livesLabel.setBounds(75, 235, 250, 20);
 		
 		lives = new EightBitLabel("3", Font.PLAIN, 32f);
+		lives.setHorizontalAlignment(SwingConstants.CENTER);
 		lives.setBounds(75, 280, 250, 20);
 		
 		livesRight = new EightBitButton(">");
@@ -135,22 +128,38 @@ public class LobbyScreen extends JPanel {
 		livesLeft.setActionCommand("LIVES-");
 		livesLeft.setBounds(25, 275, 40, 30);
 		
-//		reloadSpeedLabel = new EightBitLabel("Reload Speed", Font.PLAIN, 38f);
-//		reloadSpeedLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//		reloadSpeedLabel.setBounds(75, 325, 250, 20);
-//		
-//		reloadSpeed = new EightBitLabel("Default", Font.PLAIN, 32f);
-//		reloadSpeed.setHorizontalAlignment(SwingConstants.CENTER);
-//		reloadSpeed.setBounds(75, 370, 250, 20);
-//		
-//		reloadRight = new EightBitButton(">");
-//		reloadRight.setActionCommand("RELOAD+");
-//		reloadRight.setBounds(335, 365, 40, 30);
-//		
-//		reloadLeft = new EightBitButton("<");
-//		reloadLeft.setActionCommand("RELOAD-");
-//		reloadLeft.setBounds(25, 365, 40, 30);
+		chatLabel = new EightBitLabel("- Chat -", Font.PLAIN, 32f);
+		chatLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		chatLabel.setBounds(5, 320, 390, 20);
 		
+		chatArea = new JTextArea(5, 30);
+		chatArea.setEditable(false);
+		chatArea.setBounds(5, 350, 390, 325);
+		chatArea.setFont(readyStatusLabel.getFont());
+		chatArea.setOpaque(false);
+		
+		chatScrollPane = new JScrollPane(chatArea);
+		chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		chatScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		chatScrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0,0));
+		chatScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		chatScrollPane.setBounds(5, 350, 390, 325);
+		chatScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		chatScrollPane.getVerticalScrollBar().addAdjustmentListener(e -> {
+			if (!e.getValueIsAdjusting()) {
+				e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+			}
+		});
+		
+		chat = new JTextField(32);
+		chat.setFont(lives.getFont());
+		chat.setBounds(5, 675, 390, 20);
+		chat.setForeground(Color.GRAY);
+		chat.setText("Press Enter to chat...");
+		
+		gameInfoPanel.add(chat);
+		gameInfoPanel.add(chatLabel);
+		gameInfoPanel.add(chatScrollPane);
 		gameInfoPanel.add(gameInfoTitleLabel);
 		gameInfoPanel.add(mapLabel);
 		gameInfoPanel.add(map);
@@ -158,8 +167,6 @@ public class LobbyScreen extends JPanel {
 		gameInfoPanel.add(gameMode);
 		gameInfoPanel.add(livesLabel);
 		gameInfoPanel.add(lives);
-		//gameInfoPanel.add(reloadSpeedLabel);
-		//gameInfoPanel.add(reloadSpeed);
 		
 		playersPanel = new JPanel();
 		playersPanel.setLayout(new BoxLayout(playersPanel, BoxLayout.PAGE_AXIS));
@@ -192,20 +199,12 @@ public class LobbyScreen extends JPanel {
 		startGameButton.addActionListener(controller);
 		mapRight.addActionListener(controller);
 		mapLeft.addActionListener(controller);
-		//timeRight.addActionListener(controller);
-		//timeLeft.addActionListener(controller);
 		livesRight.addActionListener(controller);
 		livesLeft.addActionListener(controller);
-		//reloadRight.addActionListener(controller);
-		//reloadLeft.addActionListener(controller);
 		gameInfoPanel.add(mapRight);
 		gameInfoPanel.add(mapLeft);
-		//gameInfoPanel.add(timeRight);
-		//gameInfoPanel.add(timeLeft);
 		gameInfoPanel.add(livesRight);
 		gameInfoPanel.add(livesLeft);
-		//gameInfoPanel.add(reloadRight);
-		//gameInfoPanel.add(reloadLeft);
 		add(startGameButton);
 		revalidate();
 		repaint();
@@ -213,16 +212,18 @@ public class LobbyScreen extends JPanel {
 	
 	public void disableHostControls() {
 		remove(startGameButton);
-		gameInfoPanel.remove(mapRight);
-		gameInfoPanel.remove(mapLeft);
-		//gameInfoPanel.remove(timeRight);
-		//gameInfoPanel.remove(timeLeft);
-		gameInfoPanel.remove(livesRight);
-		gameInfoPanel.remove(livesLeft);
-		//gameInfoPanel.remove(reloadRight);
-		//gameInfoPanel.remove(reloadLeft);
-		revalidate();
-		repaint();		
+		startGameButton.removeActionListener(controller);
+		mapRight.removeActionListener(controller);
+		mapLeft.removeActionListener(controller);
+		livesRight.removeActionListener(controller);
+		livesLeft.removeActionListener(controller);
+		for (Component c : gameInfoPanel.getComponents()) {
+			if (c instanceof EightBitButton) {
+				gameInfoPanel.remove(c);
+			}
+		}
+		gameInfoPanel.revalidate();
+		gameInfoPanel.repaint();	
 	}
 	
 	public void unreadyReadyButton() {
@@ -253,13 +254,15 @@ public class LobbyScreen extends JPanel {
 		return lives;
 	}
 	
-//	public EightBitLabel getTimeLabel() {
-//		return time;
-//	}
-//	
-//	public EightBitLabel getReloadLabel() {
-//		return reloadSpeed;
-//	}
+	public JTextField getChat() {
+		return chat;
+	}
+	
+	public void chatIsThisReal(String msg) {
+		chatArea.append(msg + "\n");
+		chatArea.setCaretPosition(chatArea.getDocument().getLength());
+		chatScrollPane.revalidate();
+	}
 	
 	public void setLobbyInfo(String h, int p, int mp) {
 		hostUsername = h;

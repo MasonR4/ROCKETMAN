@@ -91,8 +91,6 @@ public class GameScreen extends JLayeredPane {
 		chatKey.setHorizontalAlignment(SwingConstants.LEFT);
 		chatKey.setBounds(10, 840, 200, 20);
 		
-
-		
 		add(gamePanel, 1);
 		add(username);
 		add(randomLabel);

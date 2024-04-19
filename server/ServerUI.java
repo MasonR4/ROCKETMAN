@@ -12,7 +12,7 @@ import java.util.Scanner;
 import java.util.Map.Entry;
 import javax.swing.*;
 
-import menu_panels.ServerMenuScreen;
+import server_utilities.ServerMenuScreen;
 import server_utilities.ServerMenuScreenController;
 
 public class ServerUI extends JFrame {

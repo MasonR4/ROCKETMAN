@@ -1,4 +1,4 @@
-package menu_panels;
+package server_utilities;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -20,7 +20,6 @@ import javax.swing.text.AbstractDocument;
 
 import data.GameLobbyData;
 import menu_utilities.TextFieldFilters;
-import server_utilities.ServerGameListingPanel;
 
 public class ServerMenuScreen extends JPanel {
 	
@@ -146,7 +145,6 @@ public class ServerMenuScreen extends JPanel {
         
         controlPanel.add(logPanel);
         controlPanel.add(detailsPanel);
-
 
         add(controlPanel, BorderLayout.EAST);
 	}

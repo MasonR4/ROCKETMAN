@@ -1,17 +1,25 @@
 package controller;
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import client.Client;
 import client.ClientUI;
 import data.GameLobbyData;
 import data.MatchSettings;
+import data.PlayerAction;
 import data.PlayerJoinLeaveData;
 import data.PlayerReadyData;
 import data.StartGameData;
@@ -41,11 +49,8 @@ public class LobbyScreenController implements ActionListener {
 	
 	private EightBitLabel map;
 	private EightBitLabel lives;
-	//private EightBitLabel reload;
-	//private EightBitLabel time;
 	
-	//private HashMap<String, Integer> reloadSpeeds = new HashMap<>();
-	// also set max time?
+	private JTextField chat;
 	
 	public LobbyScreenController(Client c, JPanel p, ClientUI ui) {
 		client = c;
@@ -57,8 +62,35 @@ public class LobbyScreenController implements ActionListener {
 		playerPanel = screen.getPlayerPanel();
 		map = screen.getMapLabel();
 		lives = screen.getLivesLabel();
-		//reload = screen.getReloadLabel();
-		//time = screen.getTimeLabel();
+		
+		chat = screen.getChat();
+		chat.setFocusable(false);
+		
+		screen.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), "CHATTING");
+		screen.getActionMap().put("CHATTING", new AbstractAction() {
+			private static final long serialVersionUID = -1058188108492781306L;
+			public void actionPerformed(ActionEvent e) {
+				if (chat.isFocusOwner()) {
+					String msg = chat.getText();
+					if (!msg.isBlank()) {
+						PlayerAction chatting = new PlayerAction(client.getGameID(), client.getUsername(), "CHAT_MESSAGE", client.getUsername() + ": " + msg);
+						try {
+							client.sendToServer(chatting);
+						} catch (IOException ChatIsThisReal) {
+							ChatIsThisReal.printStackTrace();
+						}
+					}
+					chat.setText("Press Enter to chat...");
+					chat.setForeground(Color.GRAY);
+					chat.setFocusable(false);
+				} else if (!chat.isFocusOwner()) {
+					chat.setForeground(Color.BLACK);
+					chat.setText("");
+					chat.setFocusable(true);
+					chat.requestFocusInWindow();
+				}
+			}
+		});
 	}
 	
 	public void addPlayerListing(ArrayList<PlayerJoinLeaveData> data) {
@@ -123,6 +155,10 @@ public class LobbyScreenController implements ActionListener {
 		cl.show(clientPanel, "GAME");
 	}
 	
+	public void chatMessage(String msg) {
+		screen.chatIsThisReal(msg);
+	}
+	
 	public void sendGameLobbySettings(MatchSettings s) {
 		try {
 			client.sendToServer(s);
@@ -183,6 +219,10 @@ public class LobbyScreenController implements ActionListener {
 			break;
 			
 		case "Leave":
+			if (screen.hasHostControls()) {
+				screen.disableHostControls();
+				screen.setHostControls(false);
+			}
 			PlayerJoinLeaveData leaveData = new PlayerJoinLeaveData(client.getUsername());
 			leaveData.setJoining(false);
 			leaveData.setGameID(client.getGameID());

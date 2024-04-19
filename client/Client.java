@@ -169,7 +169,12 @@ public class Client extends AbstractClient {
 			// for when client request player statistics from the server
 		} else if (arg0 instanceof PlayerAction) {
 			PlayerAction action = (PlayerAction) arg0;
-			gameController.handlePlayerAction(action);
+			if (gameController.isStarted()) {
+				gameController.handlePlayerAction(action);
+			} else if (!gameController.isStarted() && action.getType().equals("CHAT_MESSAGE")) {
+				lobbyController.chatMessage(action.getAction());
+			}
+
 		} else if (arg0 instanceof GameEvent) {
 			GameEvent event = (GameEvent) arg0;
 			gameController.handleGameEvent(event);
