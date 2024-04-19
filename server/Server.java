@@ -256,12 +256,15 @@ public class Server extends AbstractServer {
 				break;
 				
 			case "GET_STATISTICS":
+				System.out.println("stat request");
 				String u = (String) ((GenericRequest) arg0).getData();
 				int[] stats = serverDatabase.getStatistics(u);
+
 				rq = new GenericRequest("PLAYER_STATS");
 				rq.setData(stats);
 				try {
 					arg1.sendToClient(rq);
+					System.out.println("stats sent");
 				} catch (IOException no) {
 					
 				}

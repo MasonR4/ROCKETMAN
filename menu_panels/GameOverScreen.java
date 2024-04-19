@@ -81,6 +81,9 @@ public class GameOverScreen extends JPanel {
 			if (stats.getKey().equals(username)) {
 				statBox.isYou();
 			}
+			if (stats.getValue().getStat("deaths") >= 1) {
+				statBox.isDead();
+			}
 			SwingUtilities.invokeLater(() -> {
 				statsBox.add(statBox);
 			});
