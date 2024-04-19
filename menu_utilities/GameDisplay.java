@@ -94,6 +94,7 @@ public class GameDisplay extends JPanel {
 			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, b.getOpacity()));
 			g2d.fillRect(b.x, b.y, b.getBlockSize(), b.getBlockSize());
 		}
+		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 		for (Missile m : rockets.values()) {
 			m.draw(g);
 		}

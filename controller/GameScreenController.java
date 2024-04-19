@@ -17,6 +17,8 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+
 import data.GameEvent;
 import data.PlayerAction;
 import game.ClientUI;
@@ -371,9 +373,10 @@ public class GameScreenController implements MouseListener, MouseMotionListener,
 			} catch (IOException DOOR_STUCK) {	
 			
 			}
-			
-			screen.repaint();
-			gamePanel.repaint();
+			SwingUtilities.invokeLater(() -> {
+				screen.repaint();
+				gamePanel.repaint();
+			});
 			
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;

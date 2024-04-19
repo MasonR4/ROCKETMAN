@@ -173,11 +173,11 @@ public class GameLobby implements Runnable {
 			launchers.put(newPlayer.getUsername(), newLauncher);
 			players.put(e.getKey(), newPlayer);
 		}
-			GenericRequest rq1 = new GenericRequest("GAME_STARTED");
+		GenericRequest rq1 = new GenericRequest("GAME_STARTED");
 		rq1.setData(players, "PLAYERS");
 		rq1.setData(blocks, "MAP");
-		updateClients(rq1);
 		gameStarted = true;
+		updateClients(rq1);
 	}
 	
 	public void stopGame() {
@@ -185,27 +185,27 @@ public class GameLobby implements Runnable {
 		Thread.currentThread().interrupt();
 	}
 
-	// TODO fix players leaving matches softlocking the lobby (i cannot think of any good reason why this happens but it does)
 	public void removePlayer(ConnectionToClient c, PlayerJoinLeaveData usr) {
-		playerCount -= 1;
 		if (gameStarted) {
 			GameEvent g = new GameEvent();
 			EightBitLabel leftMessage = new EightBitLabel(usr.getUsername() + " left the match", Font.PLAIN, 25f);
 			g.addEvent("LOG_MESSAGE", leftMessage);
+			playerStats.get(usr.getUsername()).setLeftMatch(true);
 			updateClients(g);
-		} else {
+		} else if (!gameStarted) {
 			playerStats.remove(usr.getUsername());
-			playerConnections.remove(usr.getUsername());
-			if (usr.getUsername().equals(hostUsername)) {
-				String[] usernames = playerStats.keySet().toArray(new String[0]);
-				if (usernames.length > 0) {
-					hostUsername = usernames[0];
-				}
+		}
+		playerCount -= 1;
+		playerConnections.remove(usr.getUsername());
+		if (usr.getUsername().equals(hostUsername)) {
+			String[] usernames = playerStats.keySet().toArray(new String[0]);
+			if (usernames.length > 0) {
+				hostUsername = usernames[0];
 			}
-			if (playerCount <= 0) {
-				gameStarted = false;
-				server.cancelGame(gameID, true);
-			}
+		}
+		if (playerCount <= 0) {
+			gameStarted = false;
+			server.cancelGame(gameID, true);
 		}
 		updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 	}
@@ -403,14 +403,9 @@ public class GameLobby implements Runnable {
 					playerStats.get(e.getKey()).incrementStat("losses");
 				}
 			}
-			for (Entry<String, PlayerStatistics> e : playerStats.entrySet()) {
-				e.getValue().setReady(false);
-				server.submitPlayerStatsToDB(e.getKey(), e.getValue());
-			}
 			
 			g.addEvent("ANNOUNCE", "<html><font color ='" + String.format("#%06X", (players.get(winner).getColor().getRGB() & 0xFFFFFF)) + "'>" + winner + " wins!");
 			updateClients(g);
-			updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 			
 			Thread.currentThread();
 			try {
@@ -423,6 +418,17 @@ public class GameLobby implements Runnable {
 			gameStats.setPlayers(players);
 			gameStats.setStats(playerStats);
 			updateClients(gameStats);
+			
+			for (Iterator<Map.Entry<String, PlayerStatistics>> it = playerStats.entrySet().iterator(); it.hasNext();) {
+				Map.Entry<String, PlayerStatistics> p = it.next();
+				server.submitPlayerStatsToDB(p.getKey(), p.getValue());
+				if (p.getValue().leftMatch()) {
+					it.remove();
+				} else {
+					p.getValue().setReady(false);
+				}
+			}
+			updatePlayerInfoInLobbyForClients(getJoinedPlayerInfo());
 		}
 	}
 }
