@@ -2,7 +2,6 @@ package data;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
-import ocsf.server.ConnectionToClient;
 
 public class PlayerStatistics implements Serializable {
 	private static final long serialVersionUID = 1L;

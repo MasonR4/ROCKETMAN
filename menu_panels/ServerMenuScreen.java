@@ -2,11 +2,8 @@ package menu_panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -18,12 +15,12 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.text.AbstractDocument;
 
-import data.GameLobbyData;
 import menu_utilities.TextFieldFilters;
 import server_utilities.ServerGameListingPanel;
 
 public class ServerMenuScreen extends JPanel {
 	
+	private static final long serialVersionUID = 9053703396991486149L;
 	private JPanel gameScreen;
 	private JPanel commandPanel;
 	private JPanel controlPanel;

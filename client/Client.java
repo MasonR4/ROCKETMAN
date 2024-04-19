@@ -21,7 +21,6 @@ import data.GenericRequest;
 import data.MatchSettings;
 import data.PlayerAction;
 import data.PlayerStatistics;
-import data.StartGameData;
 import data.PlayerJoinLeaveData;
 import game_utilities.Block;
 import game_utilities.Player;
