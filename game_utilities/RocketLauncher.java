@@ -19,7 +19,11 @@ public class RocketLauncher extends Rectangle {
 
 	private int mouseX;
 	private int mouseY;
-
+	
+	private double heightRatio = 1;
+	private double widthRatio = 1;
+	private double sizeRatio = 1;
+	
     public RocketLauncher(int newX, int newY, int h, int w) {
         x = newX;
         y = newY;
@@ -46,7 +50,7 @@ public class RocketLauncher extends Rectangle {
 
         rocketGraphics.dispose();
     }
-
+    
     public void rotate(int mouseX, int mouseY) {
         double deltaX = (mouseX - x) - 340;
         double deltaY = mouseY - y;

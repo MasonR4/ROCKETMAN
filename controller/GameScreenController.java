@@ -39,7 +39,6 @@ public class GameScreenController extends MenuController implements MouseListene
 	private volatile boolean running = false;
 	private volatile boolean gameWon = false;
 
-	private Client client;
 	private String username;
 
 	private GameScreen screen;
@@ -81,14 +80,11 @@ public class GameScreenController extends MenuController implements MouseListene
 	public void setScreens() {
 		screen = (GameScreen) clientPanel.getComponent(7);
 		gamePanel = screen.getGamePanel();
-
 		gamePanel.setPlayers(players);
 		gamePanel.setLaunchers(launchers);
 		gamePanel.setRockets(rockets);
 		gamePanel.setEffects(effects);
-
 		healthPanel = screen.getHealthPanel();
-
 		chat = screen.getChat();
 		chat.setFocusable(false);
 
@@ -219,14 +215,15 @@ public class GameScreenController extends MenuController implements MouseListene
 			}
 		});
 	}
-
+	// TODO scale playesr and launchers and positions of both
 	public void addPlayers(ConcurrentHashMap<String, Player> newPlayers) {
 		for (Player p : newPlayers.values()) {
-			Player tempPlayer = new Player(p.getBlockSize(), p.x, p.y);
-			RocketLauncher tempLauncher = new RocketLauncher((int) p.getCenterX(), (int) p.getCenterY(), 24, 6);
+			Player tempPlayer = new Player((int) (p.getBlockSize() * getSizeRatio()), (int) (p.x * getWidthRatio()), (int) (p.y * getHeightRatio()));
+			RocketLauncher tempLauncher = new RocketLauncher((int) (p.getCenterX() * getWidthRatio()), (int) (p.getCenterY() * getHeightRatio()), (int) (24 * getWidthRatio()), (int) (6 * getHeightRatio()));
 			PlayerHealthDisplay pHealth = new PlayerHealthDisplay(p.getUsername(), p.getLives(), p.getColor(), getHeightRatio(), getWidthRatio(), getSizeRatio());
 			healthBars.put(p.getUsername(), pHealth);
 			healthPanel.add(pHealth);
+			tempPlayer.setScale(getWidthRatio(), getHeightRatio(), getSizeRatio());
 			tempPlayer.setUsername(p.getUsername());
 			tempPlayer.setColor(p.getColor());
 			tempPlayer.setBlocks(blocks);
@@ -235,12 +232,19 @@ public class GameScreenController extends MenuController implements MouseListene
 			launchers.put(p.getUsername(), tempLauncher);
 			players.put(p.getUsername(), tempPlayer);
 		}
-		healthPanel.add(Box.createVerticalStrut(440 - (newPlayers.size() * 45)));
+		healthPanel.add(Box.createVerticalStrut((int) (440 * getHeightRatio()) - (newPlayers.size() * (int) (45 * getHeightRatio()))));
 		healthPanel.repaint();
 	}
-
+	
+	public String getUsername() {
+		return username;
+	}
+	
 	public void addMap(ConcurrentHashMap<Integer, Block> m) {
 		blocks.putAll(m);
+		for (Block b : blocks.values()) {
+			
+		}
 		gamePanel.setBlocks(blocks);
 	}
 
@@ -314,27 +318,29 @@ public class GameScreenController extends MenuController implements MouseListene
 			}
 		}
 	}
-
+	
+	// TODO scale playesr and rockets and missiles and everything else and positions
 	public void handlePlayerAction(PlayerAction a) {
 		String usr = a.getUsername();
 		String type = a.getType();
 		switch (type) {
 		case "MOVE":
-			players.get(usr).updatePosition(a.getX(), a.getY());
-			launchers.get(usr).moveLauncher((int) players.get(usr).getCenterX(), (int) players.get(usr).getCenterY(), 20);
+			players.get(usr).updatePosition((int) (a.getX() * getWidthRatio()), (int) (a.getY() * getHeightRatio()));
+			launchers.get(usr).moveLauncher((int) players.get(usr).getCenterX(), (int) players.get(usr).getCenterY(), (int) (20 * getSizeRatio()));
 			players.get(usr).setVelocity(a.getAction());
 			break;
 		case "CANCEL_MOVE":
 			players.get(usr).cancelVelocity(a.getAction());
-			players.get(usr).updatePosition(a.getX(), a.getY());
-			launchers.get(usr).moveLauncher((int) players.get(usr).getCenterX(), (int) players.get(usr).getCenterY(), 20);
+			players.get(usr).updatePosition((int) (a.getX() * getWidthRatio()), (int) (a.getY() * getHeightRatio()));
+			launchers.get(usr).moveLauncher((int) players.get(usr).getCenterX(), (int) players.get(usr).getCenterY(), (int) (20 * getSizeRatio()));
 			break;
 		case "LAUNCHER_ROTATION":
-			launchers.get(usr).rotate(a.getMouseX(), a.getMouseY());
+			launchers.get(usr).rotate((int) (a.getMouseX() * getWidthRatio()), (int) (a.getMouseY() * getHeightRatio()));
 			break;
 		case "ROCKET_FIRED":
-			Missile missile = new Missile(a.getEndX(), a.getEndY(), usr);
-			missile.setDirection(a.getMouseX(), a.getMouseY());
+			Missile missile = new Missile((int) (a.getEndX() * getWidthRatio()), (int) (a.getEndY() * getHeightRatio()), usr);
+			missile.setDirection((int) (a.getMouseX() * getWidthRatio()), (int) (a.getMouseY() * getHeightRatio()));
+			missile.setScale(getHeightRatio(), getWidthRatio(), getSizeRatio());
 			rockets.put(a.getMissileNumber(), missile);
 			break;
 		case "CHAT_MESSAGE":

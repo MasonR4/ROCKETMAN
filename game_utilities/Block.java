@@ -22,7 +22,9 @@ public abstract class Block extends Rectangle implements Serializable {
 
 	protected int row;
 	protected int col;
-
+	
+	protected double scale;
+	
 	protected int number;
 
 	protected Color color;

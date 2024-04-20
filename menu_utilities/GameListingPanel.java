@@ -37,7 +37,8 @@ public class GameListingPanel extends JPanel {
 	private double widthRatio;
 	private double sizeRatio;
 
-	public GameListingPanel(GameLobbyData info) {
+	public GameListingPanel(GameLobbyData info, MenuController ac) {
+		controller = ac;
 		size = new Dimension((int) (DEFAULT_SIZE.getWidth() * controller.getWidthRatio()), (int) (DEFAULT_SIZE.getHeight() * controller.getHeightRatio()));
 		heightRatio = controller.getHeightRatio();
 		widthRatio = controller.getWidthRatio();
@@ -69,10 +70,7 @@ public class GameListingPanel extends JPanel {
 		add(hostedBy);
 		add(playerCountLabel);
 		add(joinButton);
-	}
-
-	public void setController(ActionListener ac) {
-		controller = (MenuController) ac;
+		
 		for (Component c : this.getComponents()) {
 			if (c instanceof EightBitButton) {
 				((EightBitButton) c).addActionListener(controller);

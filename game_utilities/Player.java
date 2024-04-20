@@ -19,7 +19,11 @@ public class Player extends Rectangle implements Serializable {
 
 	private int lives = 3;
 	private boolean alive;
-
+	
+	private double heightRatio = 1;
+	private double widthRatio = 1;
+	private double sizeRatio = 1;
+	
 	private Color color;
 	private Color colorFromWhenTheyWereAlive;
 
@@ -40,7 +44,17 @@ public class Player extends Rectangle implements Serializable {
 		g.setColor(color);
 		g.fillRect(x, y, size, size);
 	}
-
+	
+	public void setScale(double hr, double wr, double sr) {
+		heightRatio = hr;
+		widthRatio = wr;
+		sizeRatio = sr;
+		//x = (int) (x * widthRatio);
+		//y = (int) (y * heightRatio);
+		size = (int) (size * sizeRatio);
+		speed = (int) (speed * sizeRatio);
+	}
+	
 	public void updatePosition(int nx, int ny) {
 		x = nx;
 		y = ny;

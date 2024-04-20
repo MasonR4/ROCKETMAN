@@ -13,7 +13,11 @@ public class Missile extends Rectangle {
 	private int speed = 12;
 
 	private boolean exploded = false;
-
+	
+	private double heightRatio = 1;
+	private double widthRatio = 1;
+	private double sizeRatio = 1;
+	
 	private String owner;
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
@@ -26,15 +30,22 @@ public class Missile extends Rectangle {
 		width = MISSILE_SIZE;
 		setBounds(nx, ny, MISSILE_SIZE, MISSILE_SIZE);
 	}
-
+	
 	public void draw(Graphics g) {
 		g.setColor(new Color(35, 35, 35));
 		g.fillOval(x, y, MISSILE_SIZE, MISSILE_SIZE);
-		//g.setColor(Color.BLACK);
-		//g.drawOval(x, y, MISSILE_SIZE, MISSILE_SIZE);
-		//g.fillRect(x, y, MISSILE_SIZE, MISSILE_SIZE);
 	}
-
+	
+	public void setScale(double hr, double wr, double sr) {
+		heightRatio = hr;
+		widthRatio = wr;
+		sizeRatio = sr;
+		//x = (int) (x * widthRatio);
+		//y = (int) (y * heightRatio);
+		MISSILE_SIZE = (int) (MISSILE_SIZE * sizeRatio);
+		speed = (int) (speed * sizeRatio);
+	}
+	
 	public void setBlocks(ConcurrentHashMap<Integer, Block> b) {
 		blocks = b;
 	}

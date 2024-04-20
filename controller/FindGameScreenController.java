@@ -37,8 +37,7 @@ public class FindGameScreenController extends MenuController {
 	public void addGameListings(ArrayList<GameLobbyData> games) {
 		gamesPanel.removeAll();
 		for (GameLobbyData g : games) {
-			GameListingPanel temp = new GameListingPanel(g);
-			temp.setController(this);
+			GameListingPanel temp = new GameListingPanel(g, this);
 			gamesPanel.add(temp);
 		}
 		gamesPanel.repaint();
