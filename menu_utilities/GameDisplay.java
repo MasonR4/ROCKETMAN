@@ -17,25 +17,26 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+
 import game_utilities.Block;
 import game_utilities.Effect;
 import game_utilities.Missile;
 import game_utilities.Player;
 import game_utilities.RocketLauncher;
 
-public class GameDisplay extends JPanel { 
+public class GameDisplay extends JPanel {
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Effect> effects = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
-	
+
 	private static final long serialVersionUID = 1L;
 	private static final Dimension SIZE = new Dimension(900, 900);
-	
+
 	private EightBitLabel announcement;
-	
-	public GameDisplay() {
+
+	public GameDisplay(double hr, double wr, double sr) {
 		setSize(SIZE);
 		setLayout(null);
 		setDoubleBuffered(true);
@@ -47,34 +48,34 @@ public class GameDisplay extends JPanel {
 		try {
 			setCursor(this);
 		} catch (IOException youshouldnthaveaddedthecursorbackafteritbrokethefirst4timesIDIOT) {
-			
+
 		}
 	}
-	
+
 	public void setBlocks(ConcurrentHashMap<Integer, Block> m) {
 		blocks = m;
 	}
-	
+
 	public  void setPlayers(ConcurrentHashMap<String, Player> players2) {
 		players = players2;
 	}
-	
+
 	public void setLaunchers(ConcurrentHashMap<String, RocketLauncher> r) {
 		launchers = r;
 	}
-	
+
 	public void setRockets(ConcurrentHashMap<Integer, Missile> r) {
 		rockets = r;
 	}
-	
+
 	public void setEffects(ConcurrentHashMap<Integer, Effect> e) {
 		effects = e;
 	}
-	
+
 	public void setAnnouncement(String s) {
 		announcement.setText(s);
 	}
-	
+
 	public void setCursor(JPanel panel) throws IOException {
 		BufferedImage cursorImg = ImageIO.read(new File("assets/crosshair.png"));
         int xCenter = cursorImg.getWidth() / 2;
@@ -84,7 +85,7 @@ public class GameDisplay extends JPanel {
                 cursorImg, new Point(xCenter, yCenter), "center hotspot cursor");
         panel.setCursor(cursor);
 	}
-	
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);

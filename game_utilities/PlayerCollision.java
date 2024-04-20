@@ -4,12 +4,12 @@ import java.io.Serializable;
 
 public class PlayerCollision implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private String username;
 	private String direction;
-	
+
 	private boolean colliding;
-	
+
 	public PlayerCollision (String d, boolean c) {
 		direction = d;
 		colliding = c;
@@ -38,5 +38,5 @@ public class PlayerCollision implements Serializable {
 	public void setColliding(boolean colliding) {
 		this.colliding = colliding;
 	}
-	
+
 }

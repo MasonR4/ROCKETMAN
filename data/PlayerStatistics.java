@@ -5,16 +5,16 @@ import java.util.LinkedHashMap;
 
 public class PlayerStatistics implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private String username;
 	private int score = 0;
-	
+
 	private boolean ready = false;
 	private boolean isHost = false;
 	private boolean leftMatch = false;
-	
-	private LinkedHashMap<String, Integer> statistics = new LinkedHashMap<String, Integer>();
-	
+
+	private LinkedHashMap<String, Integer> statistics = new LinkedHashMap<>();
+
 	public PlayerStatistics() {
 		statistics.put("wins", 0);
 		statistics.put("losses", 0);
@@ -24,12 +24,12 @@ public class PlayerStatistics implements Serializable {
 		statistics.put("blocksDestroyed", 0);
 		statistics.put("damageDealt", 0);
 	}
-	
+
 	public void incrementStat(String s) {
 		int total = statistics.get(s);
 		statistics.put(s, ++total);
 	}
-	
+
 	public void resetStats() {
 		statistics.put("wins", 0);
 		statistics.put("losses", 0);
@@ -39,23 +39,23 @@ public class PlayerStatistics implements Serializable {
 		statistics.put("blocksDestroyed", 0);
 		statistics.put("damageDealt", 0);
 	}
-	
+
 	public int getStat(String s) {
 		return statistics.get(s);
 	}
-	
+
 	public String getUsername() {
 		return username;
 	}
-	
+
 	public boolean isReady() {
 		return ready;
 	}
-	
+
 	public boolean isHost() {
 		return isHost;
 	}
-	
+
 	public void setHost() {
 		isHost = true;
 	}
@@ -63,7 +63,7 @@ public class PlayerStatistics implements Serializable {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-	
+
 	public void setReady(boolean ready) {
 		this.ready = ready;
 	}

@@ -8,62 +8,71 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+@SuppressWarnings("serial")
 public class PlayerListingPanel extends JPanel {
-	
+
 	private String username;
 	private boolean ready = false;
-	
+
 	private EightBitLabel usernameLabel;
 	private EightBitLabel hostLabel;
 
 	private EightBitLabel readyLabel;
-	
+
 	private static Dimension size = new Dimension(996, 100);
-	
-	public PlayerListingPanel(String s) {
+
+	private double heightRatio;
+	private double widthRatio;
+	private double sizeRatio;
+
+	public PlayerListingPanel(String s, double hr, double wr, double sr) {
+		size = new Dimension((int) (996 * wr), (int) (100 * hr));
+		heightRatio = hr;
+		widthRatio = wr;
+		sizeRatio = sr;
 		setLayout(null);
 		setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		username = s;
-		
-		usernameLabel = new EightBitLabel(username, Font.PLAIN, 33f);
+
+		usernameLabel = new EightBitLabel(username, Font.PLAIN, (float) (33f * sizeRatio));
 		usernameLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		usernameLabel.setBounds(40, 25, 500, 40);
-		
-		hostLabel = new EightBitLabel("", Font.PLAIN, 33f);
+		usernameLabel.setBounds((int) (40 * widthRatio), (int) (25 * heightRatio), (int) (500 * widthRatio), (int) (40 * heightRatio));
+
+		hostLabel = new EightBitLabel("", Font.PLAIN, (float) (33f * sizeRatio));
 		hostLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		hostLabel.setBounds(400, 25, 150, 40);
-		
-		readyLabel = new EightBitLabel("Not Ready", Font.PLAIN, 28f);
+		hostLabel.setBounds((int) (400 * widthRatio), (int) (25 * heightRatio), (int) (150 * widthRatio), (int) (40 * heightRatio));
+
+		readyLabel = new EightBitLabel("Not Ready", Font.PLAIN, (float) (28f * sizeRatio));
 		readyLabel.setForeground(Color.RED);
-		readyLabel.setBounds(700, 25, 100, 40);
-		
+		readyLabel.setBounds((int) (700 * widthRatio), (int) (25 * heightRatio), (int) (100 * widthRatio), (int) (40 * heightRatio));
+
 		add(usernameLabel);
 		add(hostLabel);
 		add(readyLabel);
 	}
-	
+
 	public void setHost(String who) {
 		hostLabel.setText(who);
 	}
-	
+
 	public void ready() {
 		ready = true;
 		readyLabel.setText("Ready");
 		readyLabel.setForeground(Color.GREEN);
 		readyLabel.repaint();
 	}
-	
+
 	public void unready() {
 		ready = false;
 		readyLabel.setText("Not Ready");
 		readyLabel.setForeground(Color.RED);
 		readyLabel.repaint();
 	}
-	
+
 	public boolean isReady() {
 		return ready;
 	}
-	
+
 	@Override
 	public Dimension getPreferredSize() {
 		return size;
@@ -78,5 +87,5 @@ public class PlayerListingPanel extends JPanel {
 	public Dimension getMaximumSize() {
 	    return size;
 	}
-	
+
 }

@@ -10,23 +10,23 @@ import game_utilities.Player;
 
 @SuppressWarnings("serial")
 public class EndGameData implements Serializable {
-	
+
 	private String winner;
-	
+
 	private ConcurrentHashMap<String, PlayerStatistics> playerStats = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
 	private LinkedHashMap<String, PlayerStatistics> playerRankings = new LinkedHashMap<>();
-	
+
 	public EndGameData() {}
-	
+
 	public void setPlayers(ConcurrentHashMap<String, Player> p) {
 		players.putAll(p);
 	}
-	
+
 	public ConcurrentHashMap<String, Player> getPlayers() {
 		return players;
 	}
-	
+
 	public void setStats(ConcurrentHashMap<String, PlayerStatistics> s) {
 		playerStats.putAll(s);
 		playerRankings = playerStats.entrySet()
@@ -39,7 +39,7 @@ public class EndGameData implements Serializable {
 					LinkedHashMap::new
 				));
 	}
-	
+
 	public LinkedHashMap<String, PlayerStatistics> getStats() {
 		return playerRankings;
 	}

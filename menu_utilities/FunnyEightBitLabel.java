@@ -7,21 +7,21 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 
-import javax.swing.*;
+import javax.swing.JLabel;
 
 public class FunnyEightBitLabel extends JLabel {
-	
+
 	private double textAngle;
-	
+
 	public FunnyEightBitLabel(String s, int fontType, float fontSize, int angle) {
 		super(s);
 		setFont(new EightBitFont());
 		this.setHorizontalTextPosition(CENTER);
 		setCustomFontSize(fontType, fontSize);
-		
+
 		textAngle = Math.toRadians(angle);
 	}
-	
+
 	public void setCustomFontSize(int type, float size) {
 	    Font tempFont = getFont();
 	    if (tempFont != null) {
@@ -33,7 +33,7 @@ public class FunnyEightBitLabel extends JLabel {
 	        System.out.println("The current font is null for " + this.getText()); // Check if the font was null
 	    }
 	}
-	
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g.create();
@@ -60,5 +60,5 @@ public class FunnyEightBitLabel extends JLabel {
         g2d.setTransform(original);
         g2d.dispose();
 	}
-	
+
 }
