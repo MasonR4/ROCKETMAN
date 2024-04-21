@@ -33,6 +33,12 @@ The server setup is similar to the client setup but requires you to instantiate 
 7. Run RocketmanServer.bat from the 'bat_files' directory.
 8. (Optional) The 'server_config.txt' file contains some default settings that can be customized as needed.
 ```
+
+### Map Editor
+The Map Editor is included within the game, but you will need to import the project into Papyrus/Eclipse to add your maps to the game.
+
+To use the map editor, left click to place a block. Click an already placed block to change that block to a spawn, and click it a third time to remove. The Tools tab contains a Line tool and a Hollow Square tool. To use the line tool, select the start and end points of the line. To use the hollow square tool, select the boxes you want to be opposite corners of the square. Under the File tab you can export or clear the grid. When exporting, your map must have at least 8 spawns. Name it something that won't conflict with the maps already in game. The output is stored in the 'output.txt' file. If you have the project loaded into Papyrus/Eclipse, you only need to add the map output to the constructor of the 'MapCreator.java' class within the 'server_utilities' package. Afterwards, any players joining your server will be able to play your new map.
+
 ## Thanks for Playing!
 
   
