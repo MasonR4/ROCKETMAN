@@ -24,9 +24,8 @@ The server setup is similar to the client setup but requires you to instantiate 
 4. Login to the server as student and select the 'student_space' database > mysql -h localhost -u student -p student_space
    Follow these steps if you do not have the 'student' account setup:
    1. Login as root and switch to the 'mysql' > use mysql;
-   2. Create a new user named 'student' and grant them all privilieges > grant all privileges on * to student@localhost identified by 'hello' with grant option;
-   commit;
-   **Note:** the 'student' account with password 'hello' is the account that is configured by default in the 'db.properties' and can be changed if needed.
+   2. Create a new user named 'student' and grant them all privilieges > grant all privileges on * to student@localhost identified by 'hello' with grant option; commit;
+   Note: the 'student' account with password 'hello' is the account that is configured by default in the 'db.properties' and can be changed if needed.
    3. Create the 'student_space' database > create database student_space;
    4. Grant student all privileges on 'student_space' > grant all on student_space.* to student identified by 'hello';
    5. Exit the MySQL console and restart the MySQL server through XAMPP.
