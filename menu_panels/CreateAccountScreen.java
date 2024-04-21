@@ -84,6 +84,7 @@ public class CreateAccountScreen extends JPanel {
 		confirmPasswordField = new JPasswordField(50);
 		confirmPasswordField.setBounds((int) (735 * widthRatio), (int) (500 * heightRatio), (int) (200 * widthRatio), (int) (20 * heightRatio));
 		((AbstractDocument) confirmPasswordField.getDocument()).setDocumentFilter(TEXT_FILTERS.getPasswordFilter());
+		
 		add(title);
 		add(createAccountButton);
 		add(backButton);
