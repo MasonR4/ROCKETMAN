@@ -9,15 +9,15 @@
 
 ### Client Setup
 To setup the ROCKETMAN client, follow the steps below.
-
+```
 1. Download the latest version of the ROCKETMAN source from the link above
 2. Extract the .ZIP into your desired location for the game
-3. Run the 'RocketmanClient.bat' 'bat_files' directory.
+3. Run the 'RocketmanClient.bat' from the 'bat_files' directory.
 4. (Optional) The 'config.txt' file contains some default settings that can be customized as needed.
-
+```
 ### Server + DB Setup
 The server setup is similar to the client setup but requires you to instantiate a local copy of the database prior to starting the server. The server setup portion utilizes XAMPP to manage the MySQL server.
-
+```
 1. Download the latest version of the ROCKETMAN source from the link above.
 2. Extract the .ZIP into your desired location for the game.
 3. Launch XAMPP and start your MySQL server.
@@ -34,7 +34,7 @@ The server setup is similar to the client setup but requires you to instantiate 
 6. Use the source command within the MySQL console to create the necessary tables in the database > source C:\EXAMPLE-PATH\ROCKETMAN\RocketmanDB.sql
 7. Run RocketmanServer.bat from the 'bat_files' directory.
 8. (Optional) The 'server_config.txt' file contains some default settings that can be customized as needed.
-
+```
 ## Thanks for Playing!
 
   
