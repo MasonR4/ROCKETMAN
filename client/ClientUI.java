@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
@@ -215,6 +216,9 @@ public class ClientUI extends JFrame {
 		//CL.show(containerPanel, "LOBBY"); // FOR VIEWING UI WITHOUT GOING THROUGH LOGIN PROCESS (DEBUGGING)
 		// maybe you think there's some hacky reason or that im not experienced enough to use java layout managers but think again
 		// truth is i hate every single one besides boxlayout and thats only useful in 0.005% of cases
+		
+		JOptionPane.showMessageDialog(null, "You are running the experimental version of Rocketman which implements UI-Shrinking to accomodate displays smaller than the intended 1600x900 resolution. The game is fully playable on this branch and cross-compatible the release branch but may come with some side effects such as: \n\n distorting of ui elements, malformed positional data, visual discrepancies between server and client data, clipping into or through map objects, teleportation, rounding errors, and other generally unpleasant gameplay experiences.\n\n It is recommended to play on the main release of the game if you have a display 1600x900 or greater", "experimental-branch", JOptionPane.OK_CANCEL_OPTION);
+		
 	}
 
 	public void updateConfigData(String key, String value) {
