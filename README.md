@@ -5,12 +5,11 @@
 
  ## Installation
 
- The latest release for ROCKETMAN can be obtained at this link: https://github.com/MasonR4/ROCKETMAN/releases/tag/v1.0-release
 
 ### Client Setup
 To setup the ROCKETMAN client, follow the steps below.
 ```
-1. Download the latest version of the ROCKETMAN source from the link above
+1. Download the latest version of the ROCKETMAN source.
 2. Extract the .ZIP into your desired location for the game
 3. Run the 'RocketmanClient.bat' from the 'bat_files' directory.
 4. (Optional) The 'config.txt' file contains some default settings that can be customized as needed.
@@ -18,7 +17,7 @@ To setup the ROCKETMAN client, follow the steps below.
 ### Server + DB Setup
 The server setup is similar to the client setup but requires you to instantiate a local copy of the database prior to starting the server. The server setup portion utilizes XAMPP to manage the MySQL server.
 ```
-1. Download the latest version of the ROCKETMAN source from the link above.
+1. Download the latest version of the ROCKETMAN source.
 2. Extract the .ZIP into your desired location for the game.
 3. Launch XAMPP and start your MySQL server.
 4. Login to the server as student and select the 'student_space' database > mysql -h localhost -u student -p student_space
