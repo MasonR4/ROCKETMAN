@@ -19,6 +19,10 @@ public abstract class Effect extends Rectangle {
 
 	protected int height;
 	protected int width;
+	
+	protected double heightRatio = 1;
+	protected double widthRatio = 1;
+	protected double sizeRatio = 1;
 
 	public Effect(int x, int y) {
 		this.x = x;
@@ -30,7 +34,13 @@ public abstract class Effect extends Rectangle {
 	public void setEffectNumber(int i) {
 		effectNumber = i;
 	}
-
+	
+	public void setScale(double hr, double wr, double sr) {
+		heightRatio = hr;
+		widthRatio = wr;
+		sizeRatio = sr;
+	}
+	
 	public int getEffectNumber() {
 		return effectNumber;
 	}

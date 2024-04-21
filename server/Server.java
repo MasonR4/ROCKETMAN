@@ -221,7 +221,6 @@ public class Server extends AbstractServer {
 
 	@Override
 	protected void handleMessageFromClient(Object arg0, ConnectionToClient arg1) {
-		System.out.println("got from client: " + arg0);
 		if (arg0 instanceof GenericRequest) {
 			String action = ((GenericRequest) arg0).getMsg();
 			GenericRequest rq;

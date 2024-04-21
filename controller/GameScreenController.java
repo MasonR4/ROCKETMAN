@@ -69,7 +69,7 @@ public class GameScreenController extends MenuController implements MouseListene
 
 	// === PLAYER STATS ===
 
-	private long reload_time = 150; // reload time (ms)
+	private long reload_time = 0; // reload time (ms)
 	private Integer trailCount = -1;
 
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
@@ -78,6 +78,7 @@ public class GameScreenController extends MenuController implements MouseListene
 
 	@SuppressWarnings("serial")
 	public void setScreens() {
+		System.out.println("heightRatio: " + getHeightRatio() + " widthRatio: " + getWidthRatio() + " sizeRatio: " + getSizeRatio());
 		screen = (GameScreen) clientPanel.getComponent(7);
 		gamePanel = screen.getGamePanel();
 		gamePanel.setPlayers(players);
@@ -95,7 +96,7 @@ public class GameScreenController extends MenuController implements MouseListene
 			public void actionPerformed(ActionEvent e) {
 				if (players.get(username).getVelocity("UP") == 0 && !chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "UP");
-					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPosition((int) (players.get(username).getX() * (1 / getWidthRatio())), (int) (players.get(username).getY() * (1 / getHeightRatio())));
 					playerAction.setPriority(0);
 					players.get(username).setVelocity("UP");
 					outboundEventQueue.add(playerAction);
@@ -108,7 +109,7 @@ public class GameScreenController extends MenuController implements MouseListene
 			public void actionPerformed(ActionEvent e) {
 				if (!chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "UP");
-					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPosition((int) (players.get(username).getX() * (1 / getWidthRatio())), (int) (players.get(username).getY() * (1 / getHeightRatio())));
 					playerAction.setPriority(0);
 					players.get(username).cancelVelocity("UP");
 					outboundEventQueue.add(playerAction);
@@ -121,7 +122,7 @@ public class GameScreenController extends MenuController implements MouseListene
 			public void actionPerformed(ActionEvent e) {
 				if (players.get(username).getVelocity("LEFT") == 0 && !chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "LEFT");
-					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPosition((int) (players.get(username).getX() * (1 / getWidthRatio())), (int) (players.get(username).getY() * (1 / getHeightRatio())));
 					playerAction.setPriority(0);
 					players.get(username).setVelocity("LEFT");
 					outboundEventQueue.add(playerAction);
@@ -134,7 +135,7 @@ public class GameScreenController extends MenuController implements MouseListene
 			public void actionPerformed(ActionEvent e) {
 				if (!chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "LEFT");
-					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPosition((int) (players.get(username).getX() * (1 / getWidthRatio())), (int) (players.get(username).getY() * (1 / getHeightRatio())));
 					playerAction.setPriority(0);
 					players.get(username).cancelVelocity("LEFT");
 					outboundEventQueue.add(playerAction);
@@ -147,7 +148,7 @@ public class GameScreenController extends MenuController implements MouseListene
 			public void actionPerformed(ActionEvent e) {
 				if (players.get(username).getVelocity("DOWN") == 0 && !chat.isFocusOwner()) {
 				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "DOWN");
-				playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+				playerAction.setPosition((int) (players.get(username).getX() * (1 / getWidthRatio())), (int) (players.get(username).getY() * (1 / getHeightRatio())));
 				playerAction.setPriority(0);
 				players.get(username).setVelocity("DOWN");
 				outboundEventQueue.add(playerAction);
@@ -160,7 +161,7 @@ public class GameScreenController extends MenuController implements MouseListene
 			public void actionPerformed(ActionEvent e) {
 				if (!chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "DOWN");
-					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPosition((int) (players.get(username).getX() * (1 / getWidthRatio())), (int) (players.get(username).getY() * (1 / getHeightRatio())));
 					playerAction.setPriority(0);
 					players.get(username).cancelVelocity("DOWN");
 					outboundEventQueue.add(playerAction);
@@ -173,7 +174,7 @@ public class GameScreenController extends MenuController implements MouseListene
 			public void actionPerformed(ActionEvent e) {
 				if (players.get(username).getVelocity("RIGHT") == 0 && !chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "RIGHT");
-					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPosition((int) (players.get(username).getX() * (1 / getWidthRatio())), (int) (players.get(username).getY() * (1 / getHeightRatio())));
 					playerAction.setPriority(0);
 					players.get(username).setVelocity("RIGHT");
 					outboundEventQueue.add(playerAction);
@@ -186,7 +187,7 @@ public class GameScreenController extends MenuController implements MouseListene
 			public void actionPerformed(ActionEvent e) {
 				if (!chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "RIGHT");
-					playerAction.setPosition((int) players.get(username).getX(), (int) players.get(username).getY());
+					playerAction.setPosition((int) (players.get(username).getX() * (1 / getWidthRatio())), (int) (players.get(username).getY() * (1 / getHeightRatio())));
 					playerAction.setPriority(0);
 					players.get(username).cancelVelocity("RIGHT");
 					outboundEventQueue.add(playerAction);
@@ -215,7 +216,7 @@ public class GameScreenController extends MenuController implements MouseListene
 			}
 		});
 	}
-	// TODO scale playesr and launchers and positions of both
+	
 	public void addPlayers(ConcurrentHashMap<String, Player> newPlayers) {
 		for (Player p : newPlayers.values()) {
 			Player tempPlayer = new Player((int) (p.getBlockSize() * getSizeRatio()), (int) (p.x * getWidthRatio()), (int) (p.y * getHeightRatio()));
@@ -223,12 +224,13 @@ public class GameScreenController extends MenuController implements MouseListene
 			PlayerHealthDisplay pHealth = new PlayerHealthDisplay(p.getUsername(), p.getLives(), p.getColor(), getHeightRatio(), getWidthRatio(), getSizeRatio());
 			healthBars.put(p.getUsername(), pHealth);
 			healthPanel.add(pHealth);
-			tempPlayer.setScale(getWidthRatio(), getHeightRatio(), getSizeRatio());
+			tempPlayer.setScale(getHeightRatio(), getWidthRatio(), getSizeRatio());
 			tempPlayer.setUsername(p.getUsername());
 			tempPlayer.setColor(p.getColor());
 			tempPlayer.setBlocks(blocks);
 			tempPlayer.setLives(p.getLives());
 			tempLauncher.setOwner(p.getUsername());
+			tempLauncher.setScale(getHeightRatio(), getWidthRatio(), getSizeRatio());
 			launchers.put(p.getUsername(), tempLauncher);
 			players.put(p.getUsername(), tempPlayer);
 		}
@@ -243,7 +245,7 @@ public class GameScreenController extends MenuController implements MouseListene
 	public void addMap(ConcurrentHashMap<Integer, Block> m) {
 		blocks.putAll(m);
 		for (Block b : blocks.values()) {
-			
+			b.setScale(getHeightRatio(), getWidthRatio(), getSizeRatio());
 		}
 		gamePanel.setBlocks(blocks);
 	}
@@ -325,7 +327,9 @@ public class GameScreenController extends MenuController implements MouseListene
 		String type = a.getType();
 		switch (type) {
 		case "MOVE":
+			System.out.println("position: " + a.getX() + "," + a.getY());
 			players.get(usr).updatePosition((int) (a.getX() * getWidthRatio()), (int) (a.getY() * getHeightRatio()));
+			System.out.println("player scaled position: " + players.get(usr).x + "," + players.get(usr).y);
 			launchers.get(usr).moveLauncher((int) players.get(usr).getCenterX(), (int) players.get(usr).getCenterY(), (int) (20 * getSizeRatio()));
 			players.get(usr).setVelocity(a.getAction());
 			break;
@@ -356,7 +360,7 @@ public class GameScreenController extends MenuController implements MouseListene
 
 			for (Player p : players.values()) {
 				p.move();
-				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), 20);
+				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), (int) (20 * getSizeRatio()));
 			}
 
 			for (Missile m : rockets.values()) {
@@ -373,7 +377,7 @@ public class GameScreenController extends MenuController implements MouseListene
 			}
 
 			PlayerAction r = new PlayerAction(client.getGameID(), username, "LAUNCHER_ROTATION", "speen");
-			r.setMousePos(mouseX, mouseY);
+			r.setMousePos((int) (mouseX * (1 / getWidthRatio())), (int) (mouseY * (1 / getHeightRatio())));
 			outboundEventQueue.add(r);
 
 			try {
@@ -418,11 +422,11 @@ public class GameScreenController extends MenuController implements MouseListene
 	public void mousePressed(MouseEvent e) {
 		if (reload_time <= 0 && players.get(username).isAlive()) {
 			screen.setRandomLabel("reloading");
-			reload_time = 3000;
+			reload_time = 421;
 			PlayerAction m = new PlayerAction(client.getGameID(), username, "ROCKET_FIRED", "The missile knows where it is at all times. It knows this because it knows where it isn't. By subtracting where it is from where it isn't, or where it isn't from where it is (whichever is greater), it obtains a difference, or deviation. The guidance subsystem uses deviations to generate corrective commands to drive the missile from a position where it is to a position where it isn't, and arriving at a position where it wasn't, it now is. Consequently, the position where it is, is now the position that it wasn't, and it follows that the position that it was, is now the position that it isn't.\r\n" + "In the event that the position that it is in is not the position that it wasn't, the system has acquired a variation, the variation being the difference between where the missile is, and where it wasn't. If variation is considered to be a significant factor, it too may be corrected by the GEA. However, the missile must also know where it was.\r\n" + "The missile guidance computer scenario works as follows. Because a variation has modified some of the information the missile has obtained, it is not sure just where it is. However, it is sure where it isn't, within reason, and it knows where it was. It now subtracts where it should be from where it wasn't, or vice-versa, and by differentiating this from the algebraic sum of where it shouldn't be, and where it was, it is able to obtain the deviation and its variation, which is called error.");
 			m.setPriority(1);
-			m.setMousePos(mouseX, mouseY);
-			m.setLauncherEnd(launchers.get(username).getEndX(), launchers.get(username).getEndY());
+			m.setMousePos((int) (mouseX * (1 / getWidthRatio())), (int) (mouseY * (1 / getHeightRatio())));
+			m.setLauncherEnd((int) (launchers.get(username).getEndX() * (1 / getWidthRatio())), (int) (launchers.get(username).getEndY() * (1 / getHeightRatio())));
 			outboundEventQueue.add(m);
 		}
 	}

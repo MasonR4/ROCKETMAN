@@ -35,20 +35,28 @@ public class GameDisplay extends JPanel {
 	private static final Dimension SIZE = new Dimension(900, 900);
 
 	private EightBitLabel announcement;
-
+	
+	private double heightRatio;
+	private double widthRatio;
+	private double sizeRatio;
+	
 	public GameDisplay(double hr, double wr, double sr) {
-		setSize(SIZE);
+		heightRatio = hr;
+		widthRatio = wr;
+		sizeRatio = sr;
+		setSize(new Dimension((int) (SIZE.getWidth() * widthRatio), (int) (SIZE.getHeight() * heightRatio)));
 		setLayout(null);
 		setDoubleBuffered(true);
-		setBorder(BorderFactory.createLineBorder(Color.BLACK, 5));
-		announcement = new EightBitLabel("", Font.PLAIN, 75f);
+		setBorder(BorderFactory.createLineBorder(Color.BLACK, (int) (5 * sizeRatio)));
+		announcement = new EightBitLabel("", Font.PLAIN, (float) (75f * sizeRatio));
 		announcement.setHorizontalAlignment(SwingConstants.CENTER);
-		announcement.setBounds(50, 300, 800, 200);
+		announcement.setBounds((int) (50 * widthRatio), (int) (300 * heightRatio), (int) (800 * widthRatio), (int) (200 * heightRatio));
 		add(announcement);
 		try {
 			setCursor(this);
 		} catch (IOException youshouldnthaveaddedthecursorbackafteritbrokethefirst4timesIDIOT) {
-
+			System.out.println("guess what the cursor messed up and broke everything again");
+			youshouldnthaveaddedthecursorbackafteritbrokethefirst4timesIDIOT.printStackTrace();
 		}
 	}
 
@@ -93,7 +101,7 @@ public class GameDisplay extends JPanel {
 		for (Block b : blocks.values()) {
 			g2d.setColor(b.getColor());
 			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, b.getOpacity()));
-			g2d.fillRect(b.x, b.y, b.getBlockSize(), b.getBlockSize());
+			g2d.fillRect(b.x, b.y, (int) b.getSize().getWidth(), (int) b.getSize().getHeight());
 		}
 		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 		for (Missile m : rockets.values()) {

@@ -7,7 +7,11 @@ import java.awt.Graphics2D;
 public class RocketTrail extends Effect {
 
 	private static final long serialVersionUID = -8184447855958197270L;
-
+	
+	protected double heightRatio = 1;
+	protected double widthRatio = 1;
+	protected double sizeRatio = 1;
+	
 	public RocketTrail(int x, int y) {
 		super(x, y);
 		animated = true;
@@ -16,13 +20,24 @@ public class RocketTrail extends Effect {
 		width = 8;
 		color = new Color(173, 173, 173);
 	}
-
+	
+	@Override
+	public void setScale(double hr, double wr, double sr) {
+		heightRatio = hr;
+		widthRatio = wr;
+		sizeRatio = sr;
+		height = (int) (height * sizeRatio);
+		width = (int) (width * sizeRatio);
+		x = (int) (x * widthRatio);
+		y = (int) (y * heightRatio);
+	}
+	
 	@Override
 	public void animate() {
 		frameCounter++;
 		if (frameCounter % 3 == 0) {
-			height -= 1;
-			width -= 1;
+			height -= (int) (1 * sizeRatio);
+			width -= (int) (1 * sizeRatio);
 		}
 	}
 

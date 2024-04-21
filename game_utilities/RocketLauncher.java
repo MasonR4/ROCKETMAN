@@ -30,7 +30,17 @@ public class RocketLauncher extends Rectangle {
         width = w;
         height = h;
     }
-
+    
+	public void setScale(double hr, double wr, double sr) {
+		heightRatio = hr;
+		widthRatio = wr;
+		sizeRatio = sr;
+		//x = (int) (x * widthRatio);
+		//y = (int) (y * heightRatio);
+		width = (int) (width * widthRatio);
+		height = (int) (height * heightRatio);
+	}
+    
     public void draw(Graphics g) {
         Graphics2D rocketGraphics = (Graphics2D) g.create();
         rocketGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -52,7 +62,7 @@ public class RocketLauncher extends Rectangle {
     }
     
     public void rotate(int mouseX, int mouseY) {
-        double deltaX = (mouseX - x) - 340;
+        double deltaX = (mouseX - x) - (340 * widthRatio);
         double deltaY = mouseY - y;
 
         this.angle = Math.toDegrees(Math.atan2(deltaY, deltaX));

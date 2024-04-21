@@ -24,6 +24,8 @@ public abstract class Block extends Rectangle implements Serializable {
 	protected int col;
 	
 	protected double scale;
+	protected double heightRatio;
+	protected double widthRatio;
 	
 	protected int number;
 
@@ -39,7 +41,18 @@ public abstract class Block extends Rectangle implements Serializable {
 		number = (r * 30) + c;
 		setSize(BLOCK_DIMENSION);
 	}
-
+	
+	public void setScale(double hr, double wr, double sr) {
+		heightRatio = hr;
+		widthRatio = wr;
+		scale = sr;
+		x = (int) (x * widthRatio);
+		xPos = x;
+		y = (int) (y * heightRatio);
+		yPos = y;
+		setSize(new Dimension((int) (BLOCK_SIZE * widthRatio), (int) (BLOCK_SIZE * heightRatio)));
+	}
+	
 	public String getType() {
 		return type;
 	}

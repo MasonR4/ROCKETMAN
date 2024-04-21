@@ -44,6 +44,9 @@ public class Missile extends Rectangle {
 		//y = (int) (y * heightRatio);
 		MISSILE_SIZE = (int) (MISSILE_SIZE * sizeRatio);
 		speed = (int) (speed * sizeRatio);
+		x = (int) (x * widthRatio);
+		y = (int) (y * heightRatio);
+		setBounds(x, y, (int) (width * widthRatio), (int) (height * heightRatio));
 	}
 	
 	public void setBlocks(ConcurrentHashMap<Integer, Block> b) {
@@ -104,7 +107,7 @@ public class Missile extends Rectangle {
 	}
 
 	public void setDirection(int mouseX, int mouseY) {
-		int xDistance = (mouseX - x) - 340;
+		int xDistance = (mouseX - x) - (int) (340 * widthRatio);
 		int yDistance = mouseY - y;
 
 		double length = Math.sqrt(xDistance * xDistance + yDistance * yDistance);

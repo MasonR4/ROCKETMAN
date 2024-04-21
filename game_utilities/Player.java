@@ -15,8 +15,6 @@ public class Player extends Rectangle implements Serializable {
 	private int size = 20;
 	private int speed = 5;
 
-	private int reloadTime = 1800;
-
 	private int lives = 3;
 	private boolean alive;
 	
@@ -88,7 +86,7 @@ public class Player extends Rectangle implements Serializable {
 		for (Block block : blocks.values()) {
 			if (block.isCollideable() && futureBounds.intersects(block.getBounds())) {return true;}
 		}
-		if (futureBounds.x < 0 || futureBounds.x > 900 - size || futureBounds.y < 0 || futureBounds.y > 900 - size) {return true;}
+		if (futureBounds.x < 0 || futureBounds.x > (900 * widthRatio) - size || futureBounds.y < 0 || futureBounds.y > (900 * heightRatio) - size) {return true;}
 		return false;
 	}
 
@@ -157,13 +155,5 @@ public class Player extends Rectangle implements Serializable {
 
 	public Color getColorFromWhenTheyWereAlive() {
 		return colorFromWhenTheyWereAlive;
-	}
-
-	public int getReloadTime() {
-		return reloadTime;
-	}
-
-	public void setReloadTime(int reloadTime) {
-		this.reloadTime = reloadTime;
 	}
 }
