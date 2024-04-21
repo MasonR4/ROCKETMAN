@@ -13,7 +13,7 @@ import menu_panels.LoginScreen;
 public class LoginScreenController extends MenuController {
 
 	private LoginScreen screen;
-
+	
 	public LoginScreenController(Client c, JPanel p, ClientUI ui) {
 		super(c, p, ui);
 	}
