@@ -1,12 +1,23 @@
 package client;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Stack;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 @SuppressWarnings("serial")
 public class MapEditorUI extends JFrame {
@@ -25,7 +36,7 @@ public class MapEditorUI extends JFrame {
 
     public MapEditorUI() {
         super("Array Grid Generator");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(600, 600);
         setLocationRelativeTo(null);
         setLayout(new GridLayout(SIZE, SIZE));
@@ -88,7 +99,7 @@ public class MapEditorUI extends JFrame {
             }
         }
     }
-    
+
     private void drawLine(JButton start, JButton end) {
         int startX = -1, startY = -1, endX = -1, endY = -1;
 
@@ -137,7 +148,7 @@ public class MapEditorUI extends JFrame {
             }
         }
     }
-    
+
     private void drawHollowSquare(JButton start, JButton end) {
         int startX = -1, startY = -1, endX = -1, endY = -1;
 
@@ -168,7 +179,7 @@ public class MapEditorUI extends JFrame {
             updateButtonState(i, endY, 1);
         }
     }
-    
+
     private void handleLineTool(JButton pressedButton) {
         if (firstPoint == null) {
             firstPoint = pressedButton;
@@ -190,7 +201,7 @@ public class MapEditorUI extends JFrame {
             resetSelections();
         }
     }
-    
+
     private void resetSelections() {
         firstPoint = null;
         secondPoint = null;
@@ -225,7 +236,7 @@ public class MapEditorUI extends JFrame {
         JMenuItem exportItem = new JMenuItem("Export");
         exportItem.addActionListener(e -> exportArrayToFile());
         fileMenu.add(exportItem);
-        
+
         // Clear item
         JMenuItem clearItem = new JMenuItem("Clear");
         clearItem.addActionListener(e -> clearGrid());
@@ -235,7 +246,7 @@ public class MapEditorUI extends JFrame {
         JMenu toolsMenu = new JMenu("Tools");
         JCheckBoxMenuItem lineItem = new JCheckBoxMenuItem("Line");
         JCheckBoxMenuItem hollowSquareItem = new JCheckBoxMenuItem("Hollow Square");
-        
+
         JMenu editMenu = new JMenu("Edit");
         JMenuItem undoItem = new JMenuItem("Undo");
         undoItem.addActionListener(e -> undo());
@@ -243,7 +254,7 @@ public class MapEditorUI extends JFrame {
         redoItem.addActionListener(e -> redo());
         editMenu.add(undoItem);
         editMenu.add(redoItem);
-        
+
         lineItem.addActionListener(e -> {
             hollowSquareMode = false; // Disable hollow square mode if line is enabled
             hollowSquareItem.setSelected(false);
@@ -265,13 +276,13 @@ public class MapEditorUI extends JFrame {
         menuBar.add(editMenu);
         setJMenuBar(menuBar);
     }
-    
+
     @SuppressWarnings("unused")
 	private void debugStacks() {
         System.out.println("Undo Stack Size: " + undoStack.size());
         System.out.println("Redo Stack Size: " + redoStack.size());
     }
-    
+
     private void saveState() {
         undoStack.push(copyGrid(grid));
         redoStack.clear();  // Clear the redo stack whenever a new action is performed
@@ -322,7 +333,7 @@ public class MapEditorUI extends JFrame {
             }
         }
     }
-    
+
     private boolean checkValidSpawnPoints() {
         int count = 0;
         for (int i = 0; i < SIZE; i++) {
@@ -344,7 +355,7 @@ public class MapEditorUI extends JFrame {
         }
 
         if (checkValidSpawnPoints()) {
-        	
+
             try (PrintWriter out = new PrintWriter(new FileWriter("output.txt"))) {
                 // Start with the map insertion syntax
                 out.println("maps.put(\"" + arrayName + "\", new int[][] {");

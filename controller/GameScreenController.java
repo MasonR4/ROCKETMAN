@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
+
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.JComponent;
@@ -17,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+
 import client.Client;
 import client.ClientUI;
 import data.GameEvent;
@@ -36,63 +38,60 @@ import menu_utilities.PlayerHealthDisplay;
 public class GameScreenController extends MenuController implements MouseListener, MouseMotionListener, Runnable {
 	private volatile boolean running = false;
 	private volatile boolean gameWon = false;
-	
-	private Client client;
+
 	private String username;
-	
+
 	private GameScreen screen;
 	private GameDisplay gamePanel;
 	private JPanel healthPanel;
-	
+
 	private JTextField chat;
-	
+
 	private final long TARGET_DELTA = 16;
-	
+
 	//private CardLayout cl;
-	
+
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
-	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();	
+	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Effect> effects = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, PlayerHealthDisplay> healthBars = new ConcurrentHashMap<>();
-	
+
 	// === ACTION PRIORITIES ===
 	// 0 - Player Movement
 	// 1 - Rocket Fired
 	// 2 - Chat Message
 	// 10 - Launcher Rotation
-	
+
 	private PriorityBlockingQueue<PlayerAction> outboundEventQueue = new PriorityBlockingQueue<>(11, new PlayerActionPriorityComparator());
 	private int mouseX, mouseY;
-	
+
 	// === PLAYER STATS ===
-	
+
 	private long reload_time = 150; // reload time (ms)
 	private Integer trailCount = -1;
 
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
 		super(c, p, ui);
 	}
-	
+
 	@SuppressWarnings("serial")
 	public void setScreens() {
 		screen = (GameScreen) clientPanel.getComponent(7);
 		gamePanel = screen.getGamePanel();
-		
 		gamePanel.setPlayers(players);
 		gamePanel.setLaunchers(launchers);
 		gamePanel.setRockets(rockets);
 		gamePanel.setEffects(effects);
-		
 		healthPanel = screen.getHealthPanel();
-		
 		chat = screen.getChat();
 		chat.setFocusable(false);
-		
+
 		// KEY BINDING STUFF HAPPENS HERE
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "MOVE_UP");
 		gamePanel.getActionMap().put("MOVE_UP", new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (players.get(username).getVelocity("UP") == 0 && !chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "UP");
@@ -105,6 +104,7 @@ public class GameScreenController extends MenuController implements MouseListene
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "CANCEL_MOVE_UP");
 		gamePanel.getActionMap().put("CANCEL_MOVE_UP", new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (!chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "UP");
@@ -117,6 +117,7 @@ public class GameScreenController extends MenuController implements MouseListene
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "MOVE_LEFT");
 		gamePanel.getActionMap().put("MOVE_LEFT", new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (players.get(username).getVelocity("LEFT") == 0 && !chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "LEFT");
@@ -129,6 +130,7 @@ public class GameScreenController extends MenuController implements MouseListene
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "CANCEL_MOVE_LEFT");
 		gamePanel.getActionMap().put("CANCEL_MOVE_LEFT", new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (!chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "LEFT");
@@ -141,6 +143,7 @@ public class GameScreenController extends MenuController implements MouseListene
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "MOVE_DOWN");
 		gamePanel.getActionMap().put("MOVE_DOWN", new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (players.get(username).getVelocity("DOWN") == 0 && !chat.isFocusOwner()) {
 				PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "DOWN");
@@ -153,6 +156,7 @@ public class GameScreenController extends MenuController implements MouseListene
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, true), "CANCEL_MOVE_DOWN");
 		gamePanel.getActionMap().put("CANCEL_MOVE_DOWN", new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (!chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "DOWN");
@@ -165,6 +169,7 @@ public class GameScreenController extends MenuController implements MouseListene
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "MOVE_RIGHT");
 		gamePanel.getActionMap().put("MOVE_RIGHT", new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (players.get(username).getVelocity("RIGHT") == 0 && !chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "MOVE", "RIGHT");
@@ -177,6 +182,7 @@ public class GameScreenController extends MenuController implements MouseListene
 		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "CANCEL_MOVE_RIGHT");
 		gamePanel.getActionMap().put("CANCEL_MOVE_RIGHT", new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (!chat.isFocusOwner()) {
 					PlayerAction playerAction = new PlayerAction(client.getGameID(), username, "CANCEL_MOVE", "RIGHT");
@@ -186,16 +192,17 @@ public class GameScreenController extends MenuController implements MouseListene
 					outboundEventQueue.add(playerAction);
 				}
 			}
-		});		
+		});
 		gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), "CHATTING");
 		gamePanel.getActionMap().put("CHATTING", new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (chat.isFocusOwner()) {
 					String msg = chat.getText();
 					if (!msg.isBlank()) {
 						PlayerAction chatting = new PlayerAction(client.getGameID(), username, "CHAT_MESSAGE", "<html><font color ='" + String.format("#%06X", players.get(username).getColor().getRGB() & 0xFFFFFF) + "'>" + username + "</font><font color = 'black'>: " + msg + "</font>");
 						outboundEventQueue.add(chatting);
-					} 
+					}
 					chat.setText("Press Enter to chat...");
 					chat.setForeground(Color.GRAY);
 					chat.setFocusable(false);
@@ -208,41 +215,49 @@ public class GameScreenController extends MenuController implements MouseListene
 			}
 		});
 	}
-	
+	// TODO scale playesr and launchers and positions of both
 	public void addPlayers(ConcurrentHashMap<String, Player> newPlayers) {
 		for (Player p : newPlayers.values()) {
-			Player tempPlayer = new Player(p.getBlockSize(), p.x, p.y);
-			RocketLauncher tempLauncher = new RocketLauncher((int) p.getCenterX(), (int) p.getCenterY(), 24, 6);
-			PlayerHealthDisplay pHealth = new PlayerHealthDisplay(p.getUsername(), p.getLives(), p.getColor());
+			Player tempPlayer = new Player((int) (p.getBlockSize() * getSizeRatio()), (int) (p.x * getWidthRatio()), (int) (p.y * getHeightRatio()));
+			RocketLauncher tempLauncher = new RocketLauncher((int) (p.getCenterX() * getWidthRatio()), (int) (p.getCenterY() * getHeightRatio()), (int) (24 * getWidthRatio()), (int) (6 * getHeightRatio()));
+			PlayerHealthDisplay pHealth = new PlayerHealthDisplay(p.getUsername(), p.getLives(), p.getColor(), getHeightRatio(), getWidthRatio(), getSizeRatio());
 			healthBars.put(p.getUsername(), pHealth);
 			healthPanel.add(pHealth);
+			tempPlayer.setScale(getWidthRatio(), getHeightRatio(), getSizeRatio());
 			tempPlayer.setUsername(p.getUsername());
 			tempPlayer.setColor(p.getColor());
 			tempPlayer.setBlocks(blocks);
 			tempPlayer.setLives(p.getLives());
 			tempLauncher.setOwner(p.getUsername());
 			launchers.put(p.getUsername(), tempLauncher);
-			players.put(p.getUsername(), tempPlayer);		
+			players.put(p.getUsername(), tempPlayer);
 		}
-		healthPanel.add(Box.createVerticalStrut(440 - (newPlayers.size() * 45)));
+		healthPanel.add(Box.createVerticalStrut((int) (440 * getHeightRatio()) - (newPlayers.size() * (int) (45 * getHeightRatio()))));
 		healthPanel.repaint();
+	}
+	
+	public String getUsername() {
+		return username;
 	}
 	
 	public void addMap(ConcurrentHashMap<Integer, Block> m) {
 		blocks.putAll(m);
+		for (Block b : blocks.values()) {
+			
+		}
 		gamePanel.setBlocks(blocks);
 	}
-	
+
 	public void startGame() {
 		username = client.getUsername();
 		screen.setUsername(username);
 		running = true;
 	}
-	
+
 	public void stopGame() {
 		running = false;
 	}
-	
+
 	public void resetGame() {
 		gameWon = false;
 		players.clear();
@@ -255,11 +270,11 @@ public class GameScreenController extends MenuController implements MouseListene
 		chat.setFocusable(false);
 		screen.reset();
 	}
-	
+
 	public boolean isStarted() {
 		return running;
 	}
-	
+
 	public void handleGameEvent(GameEvent e) {
 		for (Entry<String, Object> t : e.getEvents().entrySet()) {
 			switch (t.getKey()) {
@@ -304,26 +319,28 @@ public class GameScreenController extends MenuController implements MouseListene
 		}
 	}
 	
+	// TODO scale playesr and rockets and missiles and everything else and positions
 	public void handlePlayerAction(PlayerAction a) {
 		String usr = a.getUsername();
 		String type = a.getType();
 		switch (type) {
 		case "MOVE":
-			players.get(usr).updatePosition(a.getX(), a.getY());
-			launchers.get(usr).moveLauncher((int) players.get(usr).getCenterX(), (int) players.get(usr).getCenterY(), 20);
+			players.get(usr).updatePosition((int) (a.getX() * getWidthRatio()), (int) (a.getY() * getHeightRatio()));
+			launchers.get(usr).moveLauncher((int) players.get(usr).getCenterX(), (int) players.get(usr).getCenterY(), (int) (20 * getSizeRatio()));
 			players.get(usr).setVelocity(a.getAction());
 			break;
 		case "CANCEL_MOVE":
 			players.get(usr).cancelVelocity(a.getAction());
-			players.get(usr).updatePosition(a.getX(), a.getY());
-			launchers.get(usr).moveLauncher((int) players.get(usr).getCenterX(), (int) players.get(usr).getCenterY(), 20);
+			players.get(usr).updatePosition((int) (a.getX() * getWidthRatio()), (int) (a.getY() * getHeightRatio()));
+			launchers.get(usr).moveLauncher((int) players.get(usr).getCenterX(), (int) players.get(usr).getCenterY(), (int) (20 * getSizeRatio()));
 			break;
 		case "LAUNCHER_ROTATION":
-			launchers.get(usr).rotate(a.getMouseX(), a.getMouseY());
+			launchers.get(usr).rotate((int) (a.getMouseX() * getWidthRatio()), (int) (a.getMouseY() * getHeightRatio()));
 			break;
 		case "ROCKET_FIRED":
-			Missile missile = new Missile(a.getEndX(), a.getEndY(), usr);
-			missile.setDirection(a.getMouseX(), a.getMouseY());
+			Missile missile = new Missile((int) (a.getEndX() * getWidthRatio()), (int) (a.getEndY() * getHeightRatio()), usr);
+			missile.setDirection((int) (a.getMouseX() * getWidthRatio()), (int) (a.getMouseY() * getHeightRatio()));
+			missile.setScale(getHeightRatio(), getWidthRatio(), getSizeRatio());
 			rockets.put(a.getMissileNumber(), missile);
 			break;
 		case "CHAT_MESSAGE":
@@ -331,34 +348,34 @@ public class GameScreenController extends MenuController implements MouseListene
 			break;
 		}
 	}
-	
+
 	@Override
 	public void run() {
 		while (running) {
 			long startTime = System.currentTimeMillis();
-			
+
 			for (Player p : players.values()) {
 				p.move();
 				launchers.get(p.getUsername()).moveLauncher((int) p.getCenterX(), (int) p.getCenterY(), 20);
 			}
-			
+
 			for (Missile m : rockets.values()) {
 				RocketTrail trail = new RocketTrail(m.x + 1, m.y + 1);
 				effects.put(trailCount, trail);
 				trailCount--;
-				m.move();				
+				m.move();
 			}
-			
+
 			for (Entry<Integer, Effect> e : effects.entrySet()) {
 				if (e.getValue().isAnimated() && e.getValue().getFrameCount() >= e.getValue().getFrames()) {
 					effects.remove(e.getKey());
 				}
 			}
-			
+
 			PlayerAction r = new PlayerAction(client.getGameID(), username, "LAUNCHER_ROTATION", "speen");
 			r.setMousePos(mouseX, mouseY);
 			outboundEventQueue.add(r);
-			
+
 			try {
 				if (!outboundEventQueue.isEmpty() && !gameWon) {
 					for (PlayerAction a : outboundEventQueue) {
@@ -368,8 +385,8 @@ public class GameScreenController extends MenuController implements MouseListene
 					}
 				}
 				outboundEventQueue.clear();
-			} catch (IOException DOOR_STUCK) {	
-			
+			} catch (IOException DOOR_STUCK) {
+
 			}
 			SwingUtilities.invokeLater(() -> {
 				screen.repaint();
@@ -377,7 +394,7 @@ public class GameScreenController extends MenuController implements MouseListene
 				healthPanel.revalidate();
 				healthPanel.repaint();
 			});
-			
+
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
 			long sleepTime = TARGET_DELTA - delta;
@@ -396,7 +413,7 @@ public class GameScreenController extends MenuController implements MouseListene
 			}
 		}
 	}
-	
+
 	@Override
 	public void mousePressed(MouseEvent e) {
 		if (reload_time <= 0 && players.get(username).isAlive()) {
@@ -409,7 +426,7 @@ public class GameScreenController extends MenuController implements MouseListene
 			outboundEventQueue.add(m);
 		}
 	}
-	
+
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		mouseX = e.getX();
@@ -418,7 +435,7 @@ public class GameScreenController extends MenuController implements MouseListene
 			launchers.get(username).rotate(mouseX, mouseY);
 		}
 	}
-	
+
 	// required function graveyard...
 	@Override
 	public void actionPerformed(ActionEvent e) {}

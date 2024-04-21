@@ -4,31 +4,33 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
+
+import controller.MenuController;
 import menu_utilities.EightBitButton;
 import menu_utilities.EightBitLabel;
 
 public class LobbyScreen extends JPanel {
-	
+
 	private String hostUsername;
 	private boolean hostControls = false;
 	private int playerCount;
 	private int maxPlayers;
-	
+
 	private EightBitLabel lobbyName;
 	private EightBitLabel hostLabel;
 	private EightBitLabel playerCountLabel;
 	private EightBitLabel readyStatusLabel;
-	
+
 	private EightBitLabel gameInfoTitleLabel;
 	private EightBitLabel mapLabel;
 	private EightBitLabel map;
@@ -36,11 +38,11 @@ public class LobbyScreen extends JPanel {
 	private EightBitLabel lives;
 	private EightBitLabel gameModeLabel;
 	private EightBitLabel gameMode;
-	
+
 	private EightBitButton readyButton;
 	private EightBitButton startGameButton;
 	private EightBitButton leaveButton;
-	
+
 	private EightBitButton mapRight;
 	private EightBitButton mapLeft;
 	private EightBitButton livesRight;
@@ -49,114 +51,124 @@ public class LobbyScreen extends JPanel {
 	private JPanel gameInfoPanel;
 	private JPanel playersPanel;
 	private JScrollPane playerScrollPane;
-	
+
 	private EightBitLabel chatLabel;
 	private JScrollPane chatScrollPane;
 	private JTextField chat;
 	private JTextArea chatArea;
-	
+
 	private static final long serialVersionUID = 1L;
-	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
-	
-	private ActionListener controller;
-	
-	public LobbyScreen() {
-		setSize(DEFAULT_SIZE);
+	//private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
+
+	private MenuController controller;
+
+	private Dimension actualSize;
+	private double heightRatio;
+	private double widthRatio;
+	private double sizeRatio;
+
+	public LobbyScreen(MenuController ac) {
+		controller = ac;
+		actualSize =  controller.getActualSize();
+		heightRatio = controller.getHeightRatio();
+		widthRatio = controller.getWidthRatio();
+		sizeRatio = controller.getSizeRatio();
+		setSize(actualSize);
 		setLayout(null);
-		
-		lobbyName = new EightBitLabel("Lobby Name", Font.PLAIN, 48f);
-		lobbyName.setBounds(90, 25, 350, 50);
-		
-		hostLabel = new EightBitLabel("Hosted By: ", Font.PLAIN, 32f);
-		hostLabel.setBounds(510, 40, 600, 20);
-		
-		playerCountLabel = new EightBitLabel("Players: 0/0", Font.PLAIN, 32f);
+
+		lobbyName = new EightBitLabel("Lobby Name", Font.PLAIN, (float) (48f * sizeRatio));
+		lobbyName.setBounds((int) (90 * widthRatio), (int) (25 * heightRatio), (int) (350 * widthRatio), (int) (50 * heightRatio));
+
+		hostLabel = new EightBitLabel("Hosted By: ", Font.PLAIN, (float) (32f * sizeRatio));
+		hostLabel.setBounds((int) (510 * widthRatio), (int) (40 * heightRatio), (int) (600 * widthRatio), (int) (20 * heightRatio));
+
+		playerCountLabel = new EightBitLabel("Players: 0/0", Font.PLAIN, (float) (32f * sizeRatio));
 		playerCountLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		playerCountLabel.setBounds(1000, 40, 400, 20);
-		
-		readyStatusLabel = new EightBitLabel("", Font.PLAIN, 22f);
+		playerCountLabel.setBounds((int) (1000 * widthRatio), (int) (40 * heightRatio), (int) (400 * widthRatio), (int) (20 * heightRatio));
+
+		readyStatusLabel = new EightBitLabel("", Font.PLAIN, (float) (22f * sizeRatio));
 		readyStatusLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		readyStatusLabel.setBounds(1200, 815, 250, 20);
+		readyStatusLabel.setBounds((int) (1200 * widthRatio), (int) (815 * heightRatio), (int) (250 * widthRatio), (int) (20 * heightRatio));
 		readyStatusLabel.setForeground(Color.RED);
-		
+
 		gameInfoPanel = new JPanel();
 		gameInfoPanel.setLayout(null);
 		gameInfoPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		gameInfoPanel.setBounds(1150, 75, 400, 700);
-		
-		gameInfoTitleLabel = new EightBitLabel("Game Settings", Font.PLAIN, 48f);
+		gameInfoPanel.setBounds((int) (1150 * widthRatio), (int) (75 * heightRatio), (int) (400 * widthRatio), (int) (700 * heightRatio));
+
+		gameInfoTitleLabel = new EightBitLabel("Game Settings", Font.PLAIN, (float) (48f * sizeRatio));
 		gameInfoTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		gameInfoTitleLabel.setBounds(50, 10, 275, 30);
-		
-		mapLabel = new EightBitLabel("Map", Font.PLAIN, 38f);
+		gameInfoTitleLabel.setBounds((int) (50 * widthRatio), (int) (10 * heightRatio), (int) (275 * widthRatio), (int) (30 * heightRatio));
+
+		mapLabel = new EightBitLabel("Map", Font.PLAIN, (float) (38f * sizeRatio));
 		mapLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		mapLabel.setBounds(75, 65, 250, 20);
-		
-		map = new EightBitLabel("default", Font.PLAIN, 32f);
+		mapLabel.setBounds((int) (75 * widthRatio), (int) (65 * heightRatio), (int) (250 * widthRatio), (int) (20 * heightRatio));
+
+		map = new EightBitLabel("default", Font.PLAIN, (float) (32f * sizeRatio));
 		map.setHorizontalAlignment(SwingConstants.CENTER);
-		map.setBounds(75, 105, 250, 20);
-		
+		map.setBounds((int) (75 * widthRatio), (int) (105 * heightRatio), (int) (250 * widthRatio), (int) (20 * heightRatio));
+
 		mapRight = new EightBitButton(">");
 		mapRight.setActionCommand("MAP+");
-		mapRight.setBounds(335, 100, 40, 30);
-		
+		mapRight.setBounds((int) (335 * widthRatio), (int) (100 * heightRatio), (int) (40 * widthRatio), (int) (30 * heightRatio));
+
 		mapLeft = new EightBitButton("<");
 		mapLeft.setActionCommand("MAP-");
-		mapLeft.setBounds(25, 100, 40, 30);
-		
-		gameModeLabel = new EightBitLabel("Gamemode", Font.PLAIN, 38f);
+		mapLeft.setBounds((int) (25 * widthRatio), (int) (100 * heightRatio), (int) (40 * widthRatio), (int) (30 * heightRatio));
+
+		gameModeLabel = new EightBitLabel("Gamemode", Font.PLAIN, (float) (38f * sizeRatio));
 		gameModeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		gameModeLabel.setBounds(75, 150, 250, 20);
-		
-		gameMode = new EightBitLabel("Free For All", Font.PLAIN, 32f);
+		gameModeLabel.setBounds((int) (75 * widthRatio), (int) (150 * heightRatio), (int) (250 * widthRatio), (int) (20 * heightRatio));
+
+		gameMode = new EightBitLabel("Free For All", Font.PLAIN, (float) (32f * sizeRatio));
 		gameMode.setHorizontalAlignment(SwingConstants.CENTER);
-		gameMode.setBounds(75, 195, 250, 20);
-		
-		livesLabel = new EightBitLabel("Player Health", Font.PLAIN, 38f);
+		gameMode.setBounds((int) (75 * widthRatio), (int) (195 * heightRatio), (int) (250 * widthRatio), (int) (20 * heightRatio));
+
+		livesLabel = new EightBitLabel("Player Health", Font.PLAIN, (float) (38f * sizeRatio));
 		livesLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		livesLabel.setBounds(75, 235, 250, 20);
-		
-		lives = new EightBitLabel("3", Font.PLAIN, 32f);
+		livesLabel.setBounds((int) (75 * widthRatio), (int) (235 * heightRatio), (int) (250 * widthRatio), (int) (20 * heightRatio));
+
+		lives = new EightBitLabel("3", Font.PLAIN, (float) (32f * sizeRatio));
 		lives.setHorizontalAlignment(SwingConstants.CENTER);
-		lives.setBounds(75, 280, 250, 20);
-		
+		lives.setBounds((int) (75 * widthRatio), (int) (280 * heightRatio), (int) (250 * widthRatio), (int) (20 * heightRatio));
+
 		livesRight = new EightBitButton(">");
 		livesRight.setActionCommand("LIVES+");
-		livesRight.setBounds(335, 275, 40, 30);
-		
+		livesRight.setBounds((int) (335 * widthRatio), (int) (275 * heightRatio), (int) (40 * widthRatio), (int) (30 * heightRatio));
+
 		livesLeft = new EightBitButton("<");
 		livesLeft.setActionCommand("LIVES-");
-		livesLeft.setBounds(25, 275, 40, 30);
-		
-		chatLabel = new EightBitLabel("- Chat -", Font.PLAIN, 32f);
+		livesLeft.setBounds((int) (25 * widthRatio), (int) (275 * heightRatio), (int) (40 * widthRatio), (int) (30 * heightRatio));
+
+		chatLabel = new EightBitLabel("- Chat -", Font.PLAIN, (float) (32f * sizeRatio));
 		chatLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		chatLabel.setBounds(5, 320, 390, 20);
-		
+		chatLabel.setBounds((int) (5 * widthRatio), (int) (320 * heightRatio), (int) (390 * widthRatio), (int) (20 * heightRatio));
+
 		chatArea = new JTextArea(5, 30);
 		chatArea.setEditable(false);
-		chatArea.setBounds(5, 350, 390, 325);
+		chatArea.setBounds((int) (5 * widthRatio), (int) (350 * heightRatio), (int) (390 * widthRatio), (int) (325 * heightRatio));
 		chatArea.setFont(readyStatusLabel.getFont());
 		chatArea.setOpaque(false);
-		
+
 		chatScrollPane = new JScrollPane(chatArea);
-		chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		chatScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		chatScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		chatScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		chatScrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0,0));
 		chatScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		chatScrollPane.setBounds(5, 350, 390, 325);
+		chatScrollPane.setBounds((int) (5 * widthRatio), (int) (350 * heightRatio), (int) (390 * widthRatio), (int) (325 * heightRatio));
 		chatScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		chatScrollPane.getVerticalScrollBar().addAdjustmentListener(e -> {
-			if (!e.getValueIsAdjusting()) {
-				e.getAdjustable().setValue(e.getAdjustable().getMaximum());
-			}
+		    if (!e.getValueIsAdjusting()) {
+		        e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+		    }
 		});
-		
+
 		chat = new JTextField(32);
 		chat.setFont(lives.getFont());
-		chat.setBounds(5, 675, 390, 20);
+		chat.setBounds((int) (5 * widthRatio), (int) (675 * heightRatio), (int) (390 * widthRatio), (int) (20 * heightRatio));
 		chat.setForeground(Color.GRAY);
 		chat.setText("Press Enter to chat...");
-		
+
 		gameInfoPanel.add(chat);
 		gameInfoPanel.add(chatLabel);
 		gameInfoPanel.add(chatScrollPane);
@@ -167,24 +179,24 @@ public class LobbyScreen extends JPanel {
 		gameInfoPanel.add(gameMode);
 		gameInfoPanel.add(livesLabel);
 		gameInfoPanel.add(lives);
-		
+
 		playersPanel = new JPanel();
 		playersPanel.setLayout(new BoxLayout(playersPanel, BoxLayout.PAGE_AXIS));
-		playersPanel.setBounds(90, 75, 1000, 700);
-		
-		playerScrollPane = new JScrollPane(playersPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		playersPanel.setBounds((int) (90 * widthRatio), (int) (75 * heightRatio), (int) (1000 * widthRatio), (int) (700 * heightRatio));
+
+		playerScrollPane = new JScrollPane(playersPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		playerScrollPane.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		playerScrollPane.setBounds(90, 75, 1000, 700);
-		
+		playerScrollPane.setBounds((int) (90 * widthRatio), (int) (75 * heightRatio), (int) (1000 * widthRatio), (int) (700 * heightRatio));
+
 		readyButton = new EightBitButton("Ready");
-		readyButton.setBounds(90, 800, 250, 50);
-		
+		readyButton.setBounds((int) (90 * widthRatio), (int) (800 * heightRatio), (int) (250 * widthRatio), (int) (50 * heightRatio));
+
 		leaveButton = new EightBitButton("Leave");
-		leaveButton.setBounds(910, 800, 250, 50);
-		
+		leaveButton.setBounds((int) (910 * widthRatio), (int) (800 * heightRatio), (int) (250 * widthRatio), (int) (50 * heightRatio));
+
 		startGameButton = new EightBitButton("Start Game");
-		startGameButton.setBounds(365, 800, 250, 50);
-		
+		startGameButton.setBounds((int) (365 * widthRatio), (int) (800 * heightRatio), (int) (250 * widthRatio), (int) (50 * heightRatio));
+
 		add(lobbyName);
 		add(hostLabel);
 		add(gameInfoPanel);
@@ -193,8 +205,14 @@ public class LobbyScreen extends JPanel {
 		add(playerScrollPane);
 		add(readyButton);
 		add(leaveButton);
+
+		for (Component c : this.getComponents()) {
+			if (c instanceof EightBitButton) {
+				((EightBitButton) c).addActionListener(controller);
+			}
+		}
 	}
-	 
+
 	public void enableHostControls() {
 		startGameButton.addActionListener(controller);
 		mapRight.addActionListener(controller);
@@ -209,7 +227,7 @@ public class LobbyScreen extends JPanel {
 		revalidate();
 		repaint();
 	}
-	
+
 	public void disableHostControls() {
 		remove(startGameButton);
 		startGameButton.removeActionListener(controller);
@@ -223,76 +241,67 @@ public class LobbyScreen extends JPanel {
 			}
 		}
 		gameInfoPanel.revalidate();
-		gameInfoPanel.repaint();	
+		gameInfoPanel.repaint();
 	}
-	
+
 	public void unreadyReadyButton() {
 		readyButton.setText("Not Ready");
 		readyButton.repaint();
 	}
-	
+
 	public void readyReadyButton() {
 		readyButton.setText("Ready");
 		readyButton.repaint();
 	}
-	
+
 	public void setReadyLabel(String msg) {
 		readyStatusLabel.setText(msg);
 		revalidate();
 		repaint();
 	}
-	
+
 	public JPanel getPlayerPanel() {
 		return playersPanel;
 	}
-	
+
 	public EightBitLabel getMapLabel() {
 		return map;
 	}
-	
+
 	public EightBitLabel getLivesLabel() {
 		return lives;
 	}
-	
+
 	public JTextField getChat() {
 		return chat;
 	}
-	
+
 	public void chatIsThisReal(String msg) {
 		chatArea.append(msg + "\n");
 		chatArea.setCaretPosition(chatArea.getDocument().getLength());
 		chatScrollPane.revalidate();
 	}
-	
+
 	public void setLobbyInfo(String h, int p, int mp) {
 		hostUsername = h;
 		playerCount = p;
 		maxPlayers = mp;
 	}
-	
+
 	public void setDynamicLobbyInfo(String h, int p) {
 		hostUsername = h;
 		playerCount = p;
 	}
-	
+
 	public void updateLobbyInfo() {
 		hostLabel.setText("Host: " + hostUsername);
 		playerCountLabel.setText(Integer.toString(playerCount) + "/" + Integer.toString(maxPlayers));
 		hostLabel.repaint();
 		playerCountLabel.repaint();
 	}
-	
+
 	public String getHostUsername() {
 		return hostUsername;
-	}
-	
-	public void setController(ActionListener ac) {
-		controller = ac;
-		for (Component c : this.getComponents()) {
-			if (c instanceof EightBitButton) {
-				((EightBitButton) c).addActionListener(controller);
-			}
-		}
 	}
 
 	public boolean hasHostControls() {
@@ -302,5 +311,5 @@ public class LobbyScreen extends JPanel {
 	public void setHostControls(boolean hostControls) {
 		this.hostControls = hostControls;
 	}
-	
+
 }

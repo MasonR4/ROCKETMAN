@@ -2,43 +2,44 @@ package game_utilities;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.io.Serializable;
 
 public abstract class Block extends Rectangle implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	protected String type;
 	private static final int BLOCK_SIZE = 30;
 	private static final Dimension BLOCK_DIMENSION = new Dimension(BLOCK_SIZE, BLOCK_SIZE);
-	
+
 	protected boolean collideable;
 	protected boolean breakable;
-	
+
 	protected Block next;
-	
+
 	protected int xPos;
 	protected int yPos;
-	
+
 	protected int row;
 	protected int col;
 	
-	protected int number;
+	protected double scale;
 	
+	protected int number;
+
 	protected Color color;
 	protected float opacity;
-	
+
 	public Block(int x, int y, int r, int c) {
 		xPos = x;
 		yPos = y;
 		row = r;
 		col = c;
 		// SET TO THE POSITION THE BLOCK IN THE GRID IN NUMERICAL ORDER FROM LEFT TO RIGHT
-		number = (r * 30) + c; 
+		number = (r * 30) + c;
 		setSize(BLOCK_DIMENSION);
 	}
-	
+
 	public String getType() {
 		return type;
 	}
@@ -90,15 +91,15 @@ public abstract class Block extends Rectangle implements Serializable {
 	public Color getColor() {
 		return color;
 	}
-	
+
 	public float getOpacity() {
 		return opacity;
 	}
-	
+
 	public int getBlockSize() {
 		return BLOCK_SIZE;
 	}
-	
+
 	public void setColor(Color color) {
 		this.color = color;
 	}
@@ -121,5 +122,5 @@ public abstract class Block extends Rectangle implements Serializable {
 
 	public int getBlockNumber() {
 		return number;
-	}	
+	}
 }

@@ -9,52 +9,52 @@ public abstract class Effect extends Rectangle {
 	protected boolean animated;
 
 	protected Color color;
-	
+
 	protected int frames;
 	protected int frameCounter = 0;
-	
+
 	protected float opacity = 1f;
-	
+
 	protected int effectNumber;
-	
+
 	protected int height;
 	protected int width;
-	
+
 	public Effect(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
 	public void animate() {}
 	public void draw(Graphics g) {}
-	
+
 	public void setEffectNumber(int i) {
 		effectNumber = i;
 	}
-	
+
 	public int getEffectNumber() {
 		return effectNumber;
 	}
-	
+
 	public void setColor(Color c) {
 		color = c;
 	}
-	
+
 	public Color getColor() {
 		return color;
 	}
-	
+
 	public boolean isAnimated() {
 		return animated;
 	}
-	
+
 	public int getFrames() {
 		return frames;
 	}
-	
+
 	public int getFrameCount() {
 		return frameCounter;
 	}
-	
+
 	public float getOpacity() {
 		return opacity;
 	}

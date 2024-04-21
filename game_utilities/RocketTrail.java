@@ -16,7 +16,8 @@ public class RocketTrail extends Effect {
 		width = 8;
 		color = new Color(173, 173, 173);
 	}
-	
+
+	@Override
 	public void animate() {
 		frameCounter++;
 		if (frameCounter % 3 == 0) {
@@ -24,7 +25,8 @@ public class RocketTrail extends Effect {
 			width -= 1;
 		}
 	}
-	
+
+	@Override
 	public void draw(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g.create();
 		g2d.setColor(color);

@@ -32,7 +32,7 @@ public class Database {
 	public Connection getConnection() {
         return conn;
     }
-	
+
 	// Method for verifying a username and password.
 	public boolean verifyAccount(String username, String password) {
 		String query = "SELECT username FROM userData WHERE username = ? AND password = AES_ENCRYPT(?, 'key')";
@@ -67,7 +67,7 @@ public class Database {
 	        e.printStackTrace();
 	        return false;
 	    }
-	    
+
 	}
 
 	private boolean putStatsForNewPlayers(String username) {
@@ -80,7 +80,7 @@ public class Database {
 	    	return false;
 	    }
 	}
-	
+
 	// Close the database connection when it's no longer needed
 	public void closeConnection() {
 		try {
@@ -91,7 +91,7 @@ public class Database {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public int[] getStatistics(String username) {
         int[] statistics = new int[8]; // Array to store statistics
         String query = "SELECT * FROM statistics WHERE username = ?";
@@ -116,19 +116,19 @@ public class Database {
         System.out.println("db succes");
         return statistics;
     }
-	
+
 	public double[] getAverages (int[] stats) {
 		double[] averages = new double[2];
-		
+
 		// W/L Avg
 		averages[0] = stats[0]/stats[1];
-		
+
 		// KDA
 		averages[1] = stats[2]/stats[3];
-		
+
 		return averages;
 	}
-	
+
 	public boolean insertPlayerStatistics(PlayerStatistics playerStats) {
 	    // SQL query to insert player statistics
 	    String updateQuery = "UPDATE statistics SET wins = wins + ?, losses = losses + ?, eliminations = eliminations + ?, deaths = deaths + ?, rocketsFired = rocketsFired + ?, blocksDestroyed = blocksDestroyed + ?, damageDealt = damageDealt + ?, totalScore = totalScore + ? WHERE username = ?";
@@ -142,10 +142,10 @@ public class Database {
 		    ps.setInt(7, playerStats.getStat("damageDealt"));
 		    ps.setInt(8, playerStats.getScore());
 		    ps.setString(9, playerStats.getUsername());
-		    
+
 		    // Execute the update query
 		    int rowsAffected = ps.executeUpdate();
-		    
+
 		    // Return true if the update was successful
 		    return rowsAffected > 0;
 		} catch (SQLException e) {

@@ -8,9 +8,9 @@ import java.io.IOException;
 
 @SuppressWarnings("serial")
 public class EightBitFont extends Font {
-	
+
 	private static Font eightBitFont = null;
-	
+
 	static {
 		try {
 			eightBitFont = Font.createFont(Font.TRUETYPE_FONT, new File("8bit.ttf")).deriveFont(24f);
@@ -20,7 +20,7 @@ public class EightBitFont extends Font {
 			e.printStackTrace();
 		}
 	}
-	
+
 	protected EightBitFont() {
 		super(eightBitFont);
 	}
