@@ -197,6 +197,7 @@ public class GameLobby implements Runnable {
 		playerCount -= 1;
 		playerConnections.remove(usr.getUsername());
 		if (usr.getUsername().equals(hostUsername)) {
+			hostUsername = "";
 			String[] usernames = playerStats.keySet().toArray(new String[0]);
 			if (usernames.length > 0) {
 				hostUsername = usernames[0];
