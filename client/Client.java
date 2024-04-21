@@ -13,7 +13,6 @@ import controller.GameOverScreenController;
 import controller.GameScreenController;
 import controller.LobbyScreenController;
 import controller.LoginScreenController;
-import controller.MainMenuScreenController;
 import controller.ProfileScreenController;
 import controller.ServerConnectionScreenController;
 import controller.SplashScreenController;
@@ -45,7 +44,6 @@ public class Client extends AbstractClient {
 	private LobbyScreenController lobbyController;
 	private GameScreenController gameController;
 	private GameOverScreenController gameOverController;
-	private MainMenuScreenController mainMenuController;
 	private ServerConnectionScreenController serverConnectionController;
 	private SplashScreenController splashController;
 	private ProfileScreenController profileController;
@@ -208,10 +206,6 @@ public class Client extends AbstractClient {
 	}
 	public void setLoginController(LoginScreenController c) {
 		loginController = c;
-	}
-	
-	public void setMainMenuController(MainMenuScreenController c) {
-		mainMenuController = c;
 	}
 	
 	public void setServerConnectionController(ServerConnectionScreenController c) {

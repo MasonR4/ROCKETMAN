@@ -11,6 +11,7 @@ import javax.swing.*;
 
 public class FunnyEightBitLabel extends JLabel {
 	
+	private static final long serialVersionUID = 5450115028141796982L;
 	private double textAngle;
 	
 	public FunnyEightBitLabel(String s, int fontType, float fontSize, int angle) {

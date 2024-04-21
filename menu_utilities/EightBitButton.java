@@ -2,14 +2,9 @@ package menu_utilities;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.io.File;
-import java.io.IOException;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import javax.swing.AbstractButton;
@@ -21,6 +16,7 @@ import javax.swing.plaf.basic.BasicButtonUI;
 
 public class EightBitButton extends JButton {
 	
+	private static final long serialVersionUID = -5627843840653151735L;
 	private EightBitFont font = new EightBitFont();
 	
 	public EightBitButton(String s) {

@@ -2,11 +2,8 @@ package game_utilities;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.concurrent.ConcurrentHashMap;
-
-import server_utilities.GameLobby;
 
 @SuppressWarnings("serial")
 public class Missile extends Rectangle {

@@ -10,6 +10,7 @@ import javax.swing.SwingConstants;
 
 public class PlayerListingPanel extends JPanel {
 	
+	private static final long serialVersionUID = -695506757652655320L;
 	private String username;
 	private boolean ready = false;
 	

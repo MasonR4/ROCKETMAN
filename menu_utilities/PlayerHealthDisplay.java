@@ -3,12 +3,8 @@ package menu_utilities;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 
 public class PlayerHealthDisplay extends JPanel{
 

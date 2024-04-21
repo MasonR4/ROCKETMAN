@@ -13,6 +13,7 @@ import data.GameLobbyData;
 
 public class GameListingPanel extends JPanel {
 	
+	private static final long serialVersionUID = -1722352530117847950L;
 	private String name;
 	private String host;
 	

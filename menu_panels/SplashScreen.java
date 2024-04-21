@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 
 public class SplashScreen extends JPanel {
 	
+	private static final long serialVersionUID = 9108348648139582288L;
+
 	private EightBitLabel title;
 	
 	private EightBitButton loginButton;

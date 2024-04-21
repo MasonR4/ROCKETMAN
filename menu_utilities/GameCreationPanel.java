@@ -14,6 +14,7 @@ import javax.swing.text.AbstractDocument;
 
 public class GameCreationPanel extends JPanel {
 	
+	private static final long serialVersionUID = 8219316793969970614L;
 	private EightBitLabel title;
 	private EightBitLabel lobbyNameLabel;
 	private EightBitLabel maxPlayersLabel;
