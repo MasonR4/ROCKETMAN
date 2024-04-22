@@ -8,7 +8,7 @@ import java.awt.Graphics2D;
 public class Explosion extends Effect {
 
 	private static final long serialVersionUID = -6047857817432681736L;
-	
+
 	public Explosion(int x, int y) {
 		super(x, y);
 		frames = 20;
@@ -18,14 +18,16 @@ public class Explosion extends Effect {
 		width = 41;
 		setBounds(x, y, width, height);
 	}
-	
+
+	@Override
 	public void animate() {
 		frameCounter++;
 		height -= 2;
 		width -= 2;
 		opacity -= 0.04f;
 	}
-	
+
+	@Override
 	public void draw(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g.create();
 		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));

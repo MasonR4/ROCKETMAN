@@ -1,8 +1,6 @@
 package controller;
 
-import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.swing.JPanel;
@@ -14,21 +12,14 @@ import data.EndGameData;
 import data.PlayerJoinLeaveData;
 import menu_panels.GameOverScreen;
 
-public class GameOverScreenController implements ActionListener {
-	private Client client;
-//	private ClientUI clientUI;
-	
+public class GameOverScreenController extends MenuController {
 	private GameOverScreen screen;
-	private JPanel clientPanel;
-	
-	private CardLayout cl;
-	
+
 	public GameOverScreenController(Client c, JPanel p, ClientUI ui) {
-		client = c;
-		clientPanel = p;
-//		clientUI = ui;
-		
-		cl = (CardLayout) clientPanel.getLayout();		
+		super(c, p, ui);
+	}
+
+	public void setScreens() {
 		screen = (GameOverScreen) clientPanel.getComponent(9);
 	}
 
@@ -38,16 +29,16 @@ public class GameOverScreenController implements ActionListener {
 			cl.show(clientPanel, "GAME_OVER");
 		});
 	}
-	
+
 	public void returnToLobby() {
 		client.fixTheReadyButtonNotSayingReady();
 		cl.show(clientPanel, "LOBBY");
 	}
-	
+
 	public void reset() {
 		screen.reset();
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();

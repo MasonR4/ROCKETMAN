@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+
 import javax.swing.AbstractButton;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
@@ -17,14 +18,15 @@ import javax.swing.plaf.basic.BasicButtonUI;
 public class EightBitButton extends JButton {
 	
 	private static final long serialVersionUID = -5627843840653151735L;
+
 	private EightBitFont font = new EightBitFont();
-	
+
 	public EightBitButton(String s) {
 		super(s);
 		setUI(new EightBitButtonUI());
 		setFont(font);
 	}
-	
+
 	class EightBitButtonUI extends BasicButtonUI {
 		   @Override
 		   public void installUI (JComponent c) {
@@ -54,7 +56,7 @@ public class EightBitButton extends JButton {
 		        g.drawLine(0, yOffset, 0, size.height); // Left
 		        g.drawLine(size.width - 1, yOffset, size.width - 1, size.height); // Right
 		    }
-		   
+
 		   @Override
 		   public void paintText(Graphics g, JComponent c, Rectangle textRect, String text) {
 		       AbstractButton b = (AbstractButton) c;
@@ -71,5 +73,5 @@ public class EightBitButton extends JButton {
 		       }
 		   }
 		}
-	
+
 }

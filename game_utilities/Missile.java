@@ -11,13 +11,17 @@ public class Missile extends Rectangle {
 	private double yVelocity = 0;
 	private int MISSILE_SIZE = 9;
 	private int speed = 12;
-	
+
 	private boolean exploded = false;
+	
+	private double heightRatio = 1;
+	private double widthRatio = 1;
+	private double sizeRatio = 1;
 	
 	private String owner;
 	private ConcurrentHashMap<Integer, Block> blocks = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
-	
+
 	public Missile(int nx, int ny, String s) {
 		x = nx;
 		y = ny;
@@ -30,24 +34,34 @@ public class Missile extends Rectangle {
 	public void draw(Graphics g) {
 		g.setColor(new Color(35, 35, 35));
 		g.fillOval(x, y, MISSILE_SIZE, MISSILE_SIZE);
-		//g.setColor(Color.BLACK);
-		//g.drawOval(x, y, MISSILE_SIZE, MISSILE_SIZE);
-		//g.fillRect(x, y, MISSILE_SIZE, MISSILE_SIZE);
+	}
+	
+	public void setScale(double hr, double wr, double sr) {
+		heightRatio = hr;
+		widthRatio = wr;
+		sizeRatio = sr;
+		//x = (int) (x * widthRatio);
+		//y = (int) (y * heightRatio);
+		MISSILE_SIZE = (int) (MISSILE_SIZE * sizeRatio);
+		speed = (int) (speed * sizeRatio);
+		x = (int) (x * widthRatio);
+		y = (int) (y * heightRatio);
+		setBounds(x, y, (int) (width * widthRatio), (int) (height * heightRatio));
 	}
 	
 	public void setBlocks(ConcurrentHashMap<Integer, Block> b) {
 		blocks = b;
 	}
-	
+
 	public void setPlayers(ConcurrentHashMap<String, Player> p) {
 		players = p;
 	}
-	
+
 	public void move() {
 		x += xVelocity;
-		y += yVelocity;		
+		y += yVelocity;
 	}
-	
+
 	public synchronized int checkBlockCollision() {
 		for (Block block : blocks.values()) {
 			if (block.isCollideable() && block.contains(getCenterX(), getCenterY())) {
@@ -57,7 +71,7 @@ public class Missile extends Rectangle {
 		}
         return 0;
 	}
-	
+
 	public boolean checkBoundaryCollision() {
 	    if (getBounds().x < -1200 || getBounds().x > 1200 || getBounds().y < -1200 || getBounds().y > 1200) {
 	        exploded = true;
@@ -65,7 +79,7 @@ public class Missile extends Rectangle {
 	    }
 	    return false;
 	}
-	
+
 	public String checkPlayerCollision() {
 		for (Player p : players.values()) {
 			if (p.isAlive() && p.contains(getCenterX(), getCenterY()) && !p.getUsername().equals(owner)) {
@@ -75,32 +89,32 @@ public class Missile extends Rectangle {
 		}
 		return "";
 	}
-	
+
 	public void setXVelocity(double xVel) {
 		xVelocity = xVel;
 	}
-	
+
 	public void setYVelocity(double yVel) {
 		yVelocity = yVel;
 	}
-	
+
 	public int getFutureX() {
 		return x += xVelocity * .1;
 	}
-	
+
 	public int getFutureY() {
 		return y += yVelocity * .1;
 	}
-	
+
 	public void setDirection(int mouseX, int mouseY) {
-		int xDistance = (mouseX - x) - 340;
+		int xDistance = (mouseX - x) - (int) (340 * widthRatio);
 		int yDistance = mouseY - y;
-		
+
 		double length = Math.sqrt(xDistance * xDistance + yDistance * yDistance);
-		
+
 		double normalizedDx = xDistance / length;
-        double normalizedDy = yDistance / length;   
-        
+        double normalizedDy = yDistance / length;
+
         setXVelocity((normalizedDx * speed));
         setYVelocity((normalizedDy * speed));
 	}

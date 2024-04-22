@@ -12,7 +12,9 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+
 import javax.swing.SwingConstants;
+
 import data.EndGameData;
 import data.GameEvent;
 import data.GameLobbyData;
@@ -49,10 +51,10 @@ public class GameLobby implements Runnable {
 	private int gameID;
 
 	private Random random = new Random();
-	
+
 	private String map = "default";
 	private int playerLives = 3;
-	
+
 	private int missileCounter = 0;
 	private int effectCounter = 0;
 
@@ -112,7 +114,7 @@ public class GameLobby implements Runnable {
 	public boolean isStarted() {
 		return gameStarted;
 	}
-	
+
 	public void broadcastLobbySettings(MatchSettings info) {
 		map = info.getMap();
 		playerLives = info.getPlayerLives();
@@ -121,12 +123,12 @@ public class GameLobby implements Runnable {
 				try {
 					e.getValue().sendToClient(info);
 				} catch (IOException blyad) {
-					
+
 				}
 			}
 		}
 	}
-	
+
 	public void startGame(StartGameData info) {
 		blocks.clear();
 		rockets.clear();
@@ -143,7 +145,7 @@ public class GameLobby implements Runnable {
 		}
 		missileCounter = 0;
 		effectCounter = 0;
-		blocks.putAll(server.loadMap(info.getMap())); 
+		blocks.putAll(server.loadMap(info.getMap()));
 		CopyOnWriteArrayList<SpawnBlock> spawns = new CopyOnWriteArrayList<>();
 		for (Block s : blocks.values()) {
 			if (s instanceof SpawnBlock) {
@@ -178,7 +180,7 @@ public class GameLobby implements Runnable {
 		gameStarted = true;
 		updateClients(rq1);
 	}
-	
+
 	public void stopGame() {
 		gameStarted = false;
 		Thread.currentThread().interrupt();
@@ -225,7 +227,7 @@ public class GameLobby implements Runnable {
 			MatchSettings settings = new MatchSettings(gameID, map, playerLives);
 			playerConnections.get(usr.getUsername()).sendToClient(settings);
 		} catch (IOException No) {
-			
+
 		}
 	}
 
@@ -260,7 +262,7 @@ public class GameLobby implements Runnable {
 			}
 		}
 	}
-	
+
 	public GameLobbyData generateGameListing() {
 		GameLobbyData tempInfo = new GameLobbyData(lobbyName, hostUsername, playerCount, playerCap, gameID);
 		tempInfo.setMaps(server.getMapNames());
@@ -273,12 +275,12 @@ public class GameLobby implements Runnable {
 		switch (type) {
 		case "MOVE":
 			players.get(usr).updatePosition(a.getX(), a.getY());
-			launchers.get(usr).moveLauncher((int) players.get(usr).x, (int) players.get(usr).y, 20);
+			launchers.get(usr).moveLauncher(players.get(usr).x, players.get(usr).y, 20);
 			players.get(usr).setVelocity(a.getAction());
 			break;
 		case "CANCEL_MOVE":
 			players.get(usr).updatePosition(a.getX(), a.getY());
-			launchers.get(usr).moveLauncher((int) players.get(usr).x, (int) players.get(usr).y, 20);
+			launchers.get(usr).moveLauncher(players.get(usr).x, players.get(usr).y, 20);
 			players.get(usr).cancelVelocity(a.getAction());
 			break;
 		case "LAUNCHER_ROTATION":
@@ -303,7 +305,7 @@ public class GameLobby implements Runnable {
 		while (gameStarted) {
 			long startTime = System.currentTimeMillis();
 			int remainingPlayers = 0;
-			
+
 			for (Entry<String, Player> p : players.entrySet()) {
 				p.getValue().move();
 				launchers.get(p.getKey()).moveLauncher((int) p.getValue().getCenterX(), (int) p.getValue().getCenterY(), p.getValue().getBlockSize());
@@ -314,8 +316,8 @@ public class GameLobby implements Runnable {
 
 			for (Iterator<Map.Entry<Integer, Missile>> it = rockets.entrySet().iterator(); it.hasNext();) {
 				Map.Entry<Integer, Missile> entry = it.next();
-				Missile r = entry.getValue();				
-				r.move();				
+				Missile r = entry.getValue();
+				r.move();
 				if (!r.isExploded()) {
 					int col = r.checkBlockCollision();
 					String hit = r.checkPlayerCollision();
@@ -356,7 +358,7 @@ public class GameLobby implements Runnable {
 							EightBitLabel msg2 = new EightBitLabel("<html><font color='" + String.format("#%06X", (players.get(hit).getColor().getRGB() & 0xFFFFFF)) + "'>" + hit +"</font><font color='black'> WAS ELIMINATED BY </font><font color ='" + String.format("#%06X", (players.get(r.getOwner()).getColor().getRGB() & 0xFFFFFF)) + "'>" + r.getOwner() + "</font><font color ='black'>!</font>", Font.PLAIN, 25f);
 							msg2.setHorizontalAlignment(SwingConstants.LEFT);
 							g.addEvent("LOG_MESSAGE", msg2);
-							
+
 						} else {
 							g.addEvent("PLAYER_HIT", hit);
 						}
@@ -367,12 +369,12 @@ public class GameLobby implements Runnable {
 					}
 				}
 			}
-			
+
 			if (remainingPlayers == 1) {
 				gameWon = true;
 				gameStarted = false;
 			}
-			
+
 			long endTime = System.currentTimeMillis();
 			long delta = endTime - startTime;
 			long sleepTime = TARGET_DELTA - delta;
@@ -388,12 +390,12 @@ public class GameLobby implements Runnable {
 				gameStarted = false;
 			}
 		}
-		
+
 		if (gameWon) {
 			String winner = "your mom";
 			GameEvent g = new GameEvent();
 			g.addEvent("GAME_END", "gg");
-			
+
 			for (Entry<String, Player> e : players.entrySet()) {
 				if (e.getValue().isAlive()) {
 					winner = e.getKey();
@@ -403,22 +405,22 @@ public class GameLobby implements Runnable {
 					playerStats.get(e.getKey()).incrementStat("losses");
 				}
 			}
-			
+
 			g.addEvent("ANNOUNCE", "<html><font color ='" + String.format("#%06X", (players.get(winner).getColor().getRGB() & 0xFFFFFF)) + "'>" + winner + " wins!");
 			updateClients(g);
-			
+
 			Thread.currentThread();
 			try {
-				Thread.sleep(3000); 
+				Thread.sleep(3000);
 			} catch (InterruptedException j) {
-				
+
 			}
-			
+
 			EndGameData gameStats = new EndGameData();
 			gameStats.setPlayers(players);
 			gameStats.setStats(playerStats);
 			updateClients(gameStats);
-			
+
 			for (Iterator<Map.Entry<String, PlayerStatistics>> it = playerStats.entrySet().iterator(); it.hasNext();) {
 				Map.Entry<String, PlayerStatistics> p = it.next();
 				server.submitPlayerStatsToDB(p.getKey(), p.getValue());

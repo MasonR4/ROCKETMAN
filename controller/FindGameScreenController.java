@@ -1,68 +1,61 @@
 package controller;
 
-import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import javax.swing.JPanel;
 
 import client.Client;
 import client.ClientUI;
+import data.GameLobbyData;
 import data.GenericRequest;
 import data.PlayerJoinLeaveData;
-import data.GameLobbyData;
 import menu_panels.FindGameScreen;
 import menu_utilities.EightBitButton;
 import menu_utilities.GameCreationPanel;
 import menu_utilities.GameListingPanel;
 
-public class FindGameScreenController implements ActionListener {
-	
-	private Client client;
-	
-	private JPanel clientPanel;
+public class FindGameScreenController extends MenuController {
 	private JPanel gamesPanel;
 	private FindGameScreen screen;
 	private GameCreationPanel newGameScreen;
-	
+
 	private static final int MAX_PLAYERS = 8;
 	private static final int MIN_PLAYERS = 2;
-	
-	private CardLayout cl;
-	
+
 	public FindGameScreenController(Client c, JPanel p, ClientUI ui) {
-		client = c;
-		clientPanel = p;		
-		cl = (CardLayout) clientPanel.getLayout();
+		super (c, p, ui);
+	}
+
+	public void setScreens() {
 		screen = (FindGameScreen) clientPanel.getComponent(5);
 		newGameScreen = screen.getGameCreationPanel();
 		gamesPanel = screen.getGamesPanel();
 	}
-	
+
 	public void addGameListings(ArrayList<GameLobbyData> games) {
 		gamesPanel.removeAll();
 		for (GameLobbyData g : games) {
-			GameListingPanel temp = new GameListingPanel(g);
-			temp.setController(this);
+			GameListingPanel temp = new GameListingPanel(g, this);
 			gamesPanel.add(temp);
 		}
 		gamesPanel.repaint();
 		gamesPanel.revalidate();
 	}
-	
+
 	public void setScreenInfoLabels() {
-		screen.setInfoLabels(client.getServerName(), client.getUsername()); 
+		screen.setInfoLabels(client.getServerName(), client.getUsername());
 	}
-	
+
 	public void changeToGameLobbyMenu() {
 		cl.show(clientPanel, "LOBBY");
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
-		
+
 		switch(action) {
 		case "New Game":
 			newGameScreen.setFieldDefaults(client.getUsername());
@@ -77,7 +70,7 @@ public class FindGameScreenController implements ActionListener {
 			if (newGameScreen.getMaxPlayers().isBlank()) {
 				newGameScreen.setError("Max players cannot be blank");
 			} else {
-				maxPlayers = Integer.parseInt(newGameScreen.getMaxPlayers()); 
+				maxPlayers = Integer.parseInt(newGameScreen.getMaxPlayers());
 				if (maxPlayers >= MIN_PLAYERS && maxPlayers <= MAX_PLAYERS) {
 					if (lobbyName.length() < 3) {
 						newGameScreen.setError("Lobby name must be at least 3 characters in length");
@@ -96,7 +89,7 @@ public class FindGameScreenController implements ActionListener {
 				}
 			}
 			break;
-			
+
 		case "Refresh":
 			try {
 				GenericRequest rq = new GenericRequest("REQUEST_GAMES_INFO");
@@ -105,7 +98,7 @@ public class FindGameScreenController implements ActionListener {
 				SERVER_DID_NOT_REFRESH.printStackTrace();
 			}
 			break;
-			
+
 		case "Join +":
 			EightBitButton buttonClicked = (EightBitButton) e.getSource();
 			GameListingPanel sourceScreen = (GameListingPanel) buttonClicked.getParent();
@@ -118,25 +111,25 @@ public class FindGameScreenController implements ActionListener {
 			} catch (IOException SERVER_DENIED_JOINING) {
 				SERVER_DENIED_JOINING.printStackTrace();
 			}
-			
+
 			break;
-			
+
 		case "Cancel":
 			newGameScreen.setVisible(false);
 			break;
-			
+
 		case "GAME_CREATED":
 			cl.show(clientPanel, "LOBBY");
 			break;
-			
+
 		case "GAME_JOINED":
 			cl.show(clientPanel, "LOBBY");
 			break;
-			
+
 		case "GAME_FULL":
 			screen.setError("Game is full");
 			break;
-			
+
 		case "GAME_NOT_FOUND":
 			screen.setError("Game not found - try refreshing");
 			break;

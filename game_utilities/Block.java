@@ -7,35 +7,50 @@ import java.io.Serializable;
 
 public abstract class Block extends Rectangle implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	protected String type;
 	private static final int BLOCK_SIZE = 30;
 	private static final Dimension BLOCK_DIMENSION = new Dimension(BLOCK_SIZE, BLOCK_SIZE);
-	
+
 	protected boolean collideable;
 	protected boolean breakable;
-	
+
 	protected Block next;
-	
+
 	protected int xPos;
 	protected int yPos;
-	
+
 	protected int row;
 	protected int col;
 	
-	protected int number;
+	protected double scale;
+	protected double heightRatio;
+	protected double widthRatio;
 	
+	protected int number;
+
 	protected Color color;
 	protected float opacity;
-	
+
 	public Block(int x, int y, int r, int c) {
 		xPos = x;
 		yPos = y;
 		row = r;
 		col = c;
 		// SET TO THE POSITION THE BLOCK IN THE GRID IN NUMERICAL ORDER FROM LEFT TO RIGHT
-		number = (r * 30) + c; 
+		number = (r * 30) + c;
 		setSize(BLOCK_DIMENSION);
+	}
+	
+	public void setScale(double hr, double wr, double sr) {
+		heightRatio = hr;
+		widthRatio = wr;
+		scale = sr;
+		x = (int) (x * widthRatio);
+		xPos = x;
+		y = (int) (y * heightRatio);
+		yPos = y;
+		setSize(new Dimension((int) (BLOCK_SIZE * widthRatio), (int) (BLOCK_SIZE * heightRatio)));
 	}
 	
 	public String getType() {
@@ -89,15 +104,15 @@ public abstract class Block extends Rectangle implements Serializable {
 	public Color getColor() {
 		return color;
 	}
-	
+
 	public float getOpacity() {
 		return opacity;
 	}
-	
+
 	public int getBlockSize() {
 		return BLOCK_SIZE;
 	}
-	
+
 	public void setColor(Color color) {
 		this.color = color;
 	}
@@ -120,5 +135,5 @@ public abstract class Block extends Rectangle implements Serializable {
 
 	public int getBlockNumber() {
 		return number;
-	}	
+	}
 }

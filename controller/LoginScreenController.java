@@ -1,9 +1,8 @@
 package controller;
 
-import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
+
 import javax.swing.JPanel;
 
 import client.Client;
@@ -11,32 +10,25 @@ import client.ClientUI;
 import data.LoginData;
 import menu_panels.LoginScreen;
 
-public class LoginScreenController implements ActionListener {
+public class LoginScreenController extends MenuController {
 
-	private Client client;
-	private ClientUI clientUI;
-	
 	private LoginScreen screen;
-	private JPanel clientPanel;
-	
-	private CardLayout cl;
 	
 	public LoginScreenController(Client c, JPanel p, ClientUI ui) {
-		client = c;
-		clientPanel = p;
-		clientUI = ui;
-		
-		cl = (CardLayout) clientPanel.getLayout();		
-		screen = (LoginScreen) p.getComponent(2);
+		super(c, p, ui);
 	}
-	
+
+	public void setScreens() {
+		screen = (LoginScreen) clientPanel.getComponent(2);
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
-		
+
 		String username = screen.getUsername();
 		char[] password = screen.getPassword();
-		
+
 		switch(action) {
 		case "Login":
 			LoginData loginInfo = new LoginData(username, password);
@@ -48,20 +40,20 @@ public class LoginScreenController implements ActionListener {
 			}
 
 			break;
-			
+
 		case "Back":
 			screen.clearFields();
 			cl.show(clientPanel, "SPLASH");
 			break;
-			
+
 		case "LOGIN_CONFIRMED":
-			clientUI.updateConfigData("last_user", username);	
+			clientUI.updateConfigData("last_user", username);
 			cl.show(clientPanel, "MAIN");
 			break;
-			
+
 		case "INVALID_LOGIN":
 			screen.setError("Invalid username or password");
 			break;
-		}	
+		}
 	}
 }
