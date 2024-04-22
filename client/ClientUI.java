@@ -200,7 +200,6 @@ public class ClientUI extends JFrame {
 		client.setCreateAccountController(createAccountScreenController);
 		client.setFindGameController(findGameScreenController);
 		client.setLoginController(loginScreenController);
-		client.setMainMenuController(mainMenuScreenController);
 		client.setServerConnectionController(serverConnectionScreenController);
 		client.setLobbyController(lobbyScreenController);
 		client.setGameController(gameScreenController);

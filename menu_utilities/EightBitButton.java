@@ -16,6 +16,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
 
 public class EightBitButton extends JButton {
+	
+	private static final long serialVersionUID = -5627843840653151735L;
 
 	private EightBitFont font = new EightBitFont();
 

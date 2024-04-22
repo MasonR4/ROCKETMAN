@@ -4,11 +4,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.text.DecimalFormat;
-
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-
 import controller.MenuController;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import menu_utilities.EightBitButton;
 import menu_utilities.EightBitLabel;
 

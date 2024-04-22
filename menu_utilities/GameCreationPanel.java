@@ -16,6 +16,7 @@ import controller.MenuController;
 public class GameCreationPanel extends JPanel {
 
 	private static final long serialVersionUID = -5905677617387143464L;
+  
 	private EightBitLabel title;
 	private EightBitLabel lobbyNameLabel;
 	private EightBitLabel maxPlayersLabel;

@@ -32,12 +32,7 @@ public class ServerConnectionScreen extends JPanel {
 	private JTextField serverAddressField;
 	private JTextField serverPortField;
 
-	// ACTUALLY CONNECT TO THE THING
-	//private String serverAddress;
-	//private String serverPort;
-
 	private static final TextFieldFilters TEXT_FILTERS = new TextFieldFilters();
-	//private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
 
 	private ActionListener controller;
 
@@ -106,8 +101,12 @@ public class ServerConnectionScreen extends JPanel {
 
 	// allows a default address to be set from some external class probably client ui reading in the config man idk
 	public void setDefaultConnectionInfo(String addr, String port) {
-		//serverAddress = addr;
-		//serverPort = port;
+
+		serverAddressField.setText(addr);
+		serverPortField.setText(port);
+	}
+
+	public void setDefaultConnectionInfo(String addr, String port) {		
 		serverAddressField.setText(addr);
 		serverPortField.setText(port);
 	}

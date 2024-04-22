@@ -10,6 +10,8 @@ import java.awt.geom.AffineTransform;
 import javax.swing.JLabel;
 
 public class FunnyEightBitLabel extends JLabel {
+	
+	private static final long serialVersionUID = 5450115028141796982L;
 
 	private double textAngle;
 
