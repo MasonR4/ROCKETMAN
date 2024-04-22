@@ -122,5 +122,4 @@ public class LoginScreen extends JPanel {
 	public void setError(String msg) {
 		errorLabel.setText(msg);
 	}
-
 }
