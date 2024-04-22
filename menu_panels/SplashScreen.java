@@ -13,13 +13,14 @@ import menu_utilities.EightBitLabel;
 
 public class SplashScreen extends JPanel {
 
+	private static final long serialVersionUID = -1643425600109668039L;
+
 	private EightBitLabel title;
 
 	private EightBitButton loginButton;
 	private EightBitButton createAccountButton;
 	private EightBitButton quitButton;
 
-	private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
 	private MenuController controller;
 
 	private Dimension actualSize;
@@ -39,7 +40,7 @@ public class SplashScreen extends JPanel {
 
 		title = new EightBitLabel("ROCKETMAN", Font.BOLD, (float) (222f * sizeRatio));
 		title.setBounds((int) (375 * widthRatio), (int) (45 * heightRatio), (int) (850 * widthRatio), (int) (150 * widthRatio));
-
+		
 		loginButton = new EightBitButton("Login");
 		loginButton.setBounds((int) (675 * widthRatio), (int) (500 * heightRatio), (int) (250 * widthRatio), (int) (50 * heightRatio));
 

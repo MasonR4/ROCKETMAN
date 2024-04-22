@@ -48,9 +48,7 @@ public class GameScreenController extends MenuController implements MouseListene
 	private JTextField chat;
 
 	private final long TARGET_DELTA = 16;
-
-	//private CardLayout cl;
-
+	
 	private ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, RocketLauncher> launchers = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Integer, Missile> rockets = new ConcurrentHashMap<>();
@@ -73,12 +71,14 @@ public class GameScreenController extends MenuController implements MouseListene
 	private Integer trailCount = -1;
 
 	public GameScreenController(Client c, JPanel p, ClientUI ui) {
+
 		super(c, p, ui);
 	}
 
 	@SuppressWarnings("serial")
 	public void setScreens() {
 		System.out.println("heightRatio: " + getHeightRatio() + " widthRatio: " + getWidthRatio() + " sizeRatio: " + getSizeRatio());
+
 		screen = (GameScreen) clientPanel.getComponent(7);
 		gamePanel = screen.getGamePanel();
 		gamePanel.setPlayers(players);
@@ -321,7 +321,6 @@ public class GameScreenController extends MenuController implements MouseListene
 		}
 	}
 	
-	// TODO scale playesr and rockets and missiles and everything else and positions
 	public void handlePlayerAction(PlayerAction a) {
 		String usr = a.getUsername();
 		String type = a.getType();
