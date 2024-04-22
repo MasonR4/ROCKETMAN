@@ -7,11 +7,8 @@ import java.text.DecimalFormat;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import controller.MenuController;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import menu_utilities.EightBitButton;
 import menu_utilities.EightBitLabel;
-
 
 public class ProfileScreen extends JPanel {
 

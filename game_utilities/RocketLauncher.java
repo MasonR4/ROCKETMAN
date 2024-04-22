@@ -22,9 +22,8 @@ public class RocketLauncher extends Rectangle {
 	
 	private double heightRatio = 1;
 	private double widthRatio = 1;
-	private double sizeRatio = 1;
 	
-    public RocketLauncher(int newX, int newY, int h, int w) {
+	public RocketLauncher(int newX, int newY, int h, int w) {
         x = newX;
         y = newY;
         width = w;
@@ -34,7 +33,6 @@ public class RocketLauncher extends Rectangle {
 	public void setScale(double hr, double wr, double sr) {
 		heightRatio = hr;
 		widthRatio = wr;
-		sizeRatio = sr;
 		//x = (int) (x * widthRatio);
 		//y = (int) (y * heightRatio);
 		width = (int) (width * widthRatio);

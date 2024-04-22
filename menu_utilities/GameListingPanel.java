@@ -4,12 +4,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.ActionListener;
-
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-
 import controller.MenuController;
 import data.GameLobbyData;
 

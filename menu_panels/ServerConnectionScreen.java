@@ -101,12 +101,6 @@ public class ServerConnectionScreen extends JPanel {
 
 	// allows a default address to be set from some external class probably client ui reading in the config man idk
 	public void setDefaultConnectionInfo(String addr, String port) {
-
-		serverAddressField.setText(addr);
-		serverPortField.setText(port);
-	}
-
-	public void setDefaultConnectionInfo(String addr, String port) {		
 		serverAddressField.setText(addr);
 		serverPortField.setText(port);
 	}
