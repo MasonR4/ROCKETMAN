@@ -46,15 +46,15 @@ public class GameCreationPanel extends JPanel {
 
 		title = new EightBitLabel("Create New Game", Font.PLAIN, (float) (48f * sizeRatio));
 		title.setHorizontalAlignment(SwingConstants.LEFT);
-		title.setBounds((int) (20 * widthRatio), (int) (20 * heightRatio), (int) (600 * widthRatio), (int) (50 * heightRatio));
+		title.setBounds((int) (20 * widthRatio), (int) (20 * heightRatio), (int) (600 * widthRatio), (int) (20 * heightRatio));
 
 		lobbyNameLabel = new EightBitLabel("Lobby Name", Font.PLAIN, (float) (35f * sizeRatio));
 		lobbyNameLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		lobbyNameLabel.setBounds((int) (20 * widthRatio), (int) (120 * heightRatio), (int) (600 * widthRatio), (int) (50 * heightRatio));
+		lobbyNameLabel.setBounds((int) (20 * widthRatio), (int) (120 * heightRatio), (int) (600 * widthRatio), (int) (20 * heightRatio));
 
 		maxPlayersLabel = new EightBitLabel("Max Players", Font.PLAIN, (float) (35f * sizeRatio));
 		maxPlayersLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		maxPlayersLabel.setBounds((int) (20 * widthRatio), (int) (190 * heightRatio), (int) (600 * widthRatio), (int) (50 * heightRatio));
+		maxPlayersLabel.setBounds((int) (20 * widthRatio), (int) (190 * heightRatio), (int) (600 * widthRatio), (int) (20 * heightRatio));
 
 		maxPlayers = new JTextField(10);
 		((AbstractDocument) maxPlayers.getDocument()).setDocumentFilter(TEXT_FILTERS.getNumeralOnlyFilter());
@@ -64,7 +64,7 @@ public class GameCreationPanel extends JPanel {
 		lobbyName.setBounds((int) (20 * widthRatio), (int) (150 * heightRatio), (int) (600 * widthRatio), (int) (20 * heightRatio));
 
 		errorLabel = new EightBitLabel("", Font.PLAIN, (float) (22f * sizeRatio));
-		errorLabel.setBounds((int) (100 * widthRatio), (int) (270 * heightRatio), (int) (600 * widthRatio), (int) (50 * heightRatio));
+		errorLabel.setBounds((int) (100 * widthRatio), (int) (270 * heightRatio), (int) (600 * widthRatio), (int) (20 * heightRatio));
 
 		confirmButton = new EightBitButton("Confirm");
 		confirmButton.setBounds((int) (20 * widthRatio), (int) (530 * heightRatio), (int) (250 * widthRatio), (int) (50 * heightRatio));

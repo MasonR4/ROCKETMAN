@@ -95,19 +95,24 @@ public class ClientUI extends JFrame {
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setLayout(null);
-
+		
 		actualSize = Toolkit.getDefaultToolkit().getScreenSize();
-		if (actualSize.getWidth() > DEFAULT_SIZE.getWidth() && actualSize.getHeight() > DEFAULT_SIZE.getHeight()) {
-			actualSize = DEFAULT_SIZE;
+		if (actualSize.getWidth() < DEFAULT_SIZE.getWidth() && actualSize.getHeight() < DEFAULT_SIZE.getHeight()) {
+			
 			JOptionPane.showMessageDialog(null, "Your screen is smaller than the intended 1600x900 resolution the game was designed for. All UI elements and gameplay objects have been scaled accordingly but may come with some side effects such as: \n\n distorting of ui elements, malformed positional data, visual discrepancies between server and client data, clipping into or through map objects, teleportation, rounding errors, and other generally unpleasant gameplay experiences.\n\n It is recommended to use a display 1600x900 or greater if you are able", "Experimental UI Scaling Applied", JOptionPane.OK_CANCEL_OPTION);
-		}
-		heightRatio = actualSize.getHeight() / DEFAULT_SIZE.getHeight();
-		widthRatio = actualSize.getWidth() / DEFAULT_SIZE.getWidth();
-		sizeRatio = (actualSize.getWidth() * actualSize.getHeight()) / (DEFAULT_SIZE.getWidth() * DEFAULT_SIZE.getHeight());
-		setSize(actualSize);
-		System.out.println("window size: " + actualSize);
-		client = new Client();
+			heightRatio = actualSize.getHeight() / DEFAULT_SIZE.getHeight();
+			widthRatio = actualSize.getWidth() / DEFAULT_SIZE.getWidth();
+			sizeRatio = (actualSize.getWidth() * actualSize.getHeight()) / (DEFAULT_SIZE.getWidth() * DEFAULT_SIZE.getHeight());
 
+		} else {
+			actualSize = DEFAULT_SIZE;
+			heightRatio = 1;
+			widthRatio = 1;
+			sizeRatio = 1;
+		}
+		setSize(actualSize);
+		
+		client = new Client();
 		containerPanel = new JPanel(CL);
 		containerPanel.setSize(actualSize);
 

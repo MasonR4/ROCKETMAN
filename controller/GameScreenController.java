@@ -77,8 +77,6 @@ public class GameScreenController extends MenuController implements MouseListene
 
 	@SuppressWarnings("serial")
 	public void setScreens() {
-		System.out.println("heightRatio: " + getHeightRatio() + " widthRatio: " + getWidthRatio() + " sizeRatio: " + getSizeRatio());
-
 		screen = (GameScreen) clientPanel.getComponent(7);
 		gamePanel = screen.getGamePanel();
 		gamePanel.setPlayers(players);
@@ -326,9 +324,7 @@ public class GameScreenController extends MenuController implements MouseListene
 		String type = a.getType();
 		switch (type) {
 		case "MOVE":
-			System.out.println("position: " + a.getX() + "," + a.getY());
 			players.get(usr).updatePosition((int) (a.getX() * getWidthRatio()), (int) (a.getY() * getHeightRatio()));
-			System.out.println("player scaled position: " + players.get(usr).x + "," + players.get(usr).y);
 			launchers.get(usr).moveLauncher((int) players.get(usr).getCenterX(), (int) players.get(usr).getCenterY(), (int) (20 * getSizeRatio()));
 			players.get(usr).setVelocity(a.getAction());
 			break;

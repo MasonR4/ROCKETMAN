@@ -38,7 +38,6 @@ public class FindGameScreen extends JLayeredPane {
 	private GameCreationPanel newGamePanel;
 
 	private static final long serialVersionUID = 1L;
-	//private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
 
 	private MenuController controller;
 

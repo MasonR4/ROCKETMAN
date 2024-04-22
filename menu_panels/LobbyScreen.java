@@ -22,6 +22,7 @@ import menu_utilities.EightBitLabel;
 public class LobbyScreen extends JPanel {
 
 	private String hostUsername;
+	private String name;
 	private boolean hostControls = false;
 	private int playerCount;
 	private int maxPlayers;
@@ -58,7 +59,6 @@ public class LobbyScreen extends JPanel {
 	private JTextArea chatArea;
 
 	private static final long serialVersionUID = 1L;
-	//private static final Dimension DEFAULT_SIZE = new Dimension(1600, 900);
 
 	private MenuController controller;
 
@@ -76,7 +76,8 @@ public class LobbyScreen extends JPanel {
 		setSize(actualSize);
 		setLayout(null);
 
-		lobbyName = new EightBitLabel("Lobby Name", Font.PLAIN, (float) (48f * sizeRatio));
+		lobbyName = new EightBitLabel("Lobby", Font.PLAIN, (float) (48f * sizeRatio));
+		lobbyName.setHorizontalAlignment(SwingConstants.LEFT);
 		lobbyName.setBounds((int) (90 * widthRatio), (int) (25 * heightRatio), (int) (350 * widthRatio), (int) (50 * heightRatio));
 
 		hostLabel = new EightBitLabel("Hosted By: ", Font.PLAIN, (float) (32f * sizeRatio));
@@ -282,7 +283,8 @@ public class LobbyScreen extends JPanel {
 		chatScrollPane.revalidate();
 	}
 
-	public void setLobbyInfo(String h, int p, int mp) {
+	public void setLobbyInfo(String n, String h, int p, int mp) {
+		name = n;
 		hostUsername = h;
 		playerCount = p;
 		maxPlayers = mp;
@@ -294,6 +296,7 @@ public class LobbyScreen extends JPanel {
 	}
 
 	public void updateLobbyInfo() {
+		lobbyName.setText(name);
 		hostLabel.setText("Host: " + hostUsername);
 		playerCountLabel.setText(Integer.toString(playerCount) + "/" + Integer.toString(maxPlayers));
 		hostLabel.repaint();

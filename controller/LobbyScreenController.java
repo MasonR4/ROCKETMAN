@@ -126,7 +126,7 @@ public class LobbyScreenController extends MenuController {
 	}
 
 	public void joinGameLobby(GameLobbyData info) {
-		SwingUtilities.invokeLater(() -> screen.setLobbyInfo(info.getHostName(), info.getPlayerCount(), info.getMaxPlayers()));
+		SwingUtilities.invokeLater(() -> screen.setLobbyInfo(info.getName(), info.getHostName(), info.getPlayerCount(), info.getMaxPlayers()));
 		SwingUtilities.invokeLater(() -> screen.updateLobbyInfo());
 	}
 
