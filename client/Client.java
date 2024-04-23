@@ -129,7 +129,6 @@ public class Client extends AbstractClient {
 				gameController.addMap((ConcurrentHashMap<Integer, Block>) ((GenericRequest) arg0).getData("MAP"));
 				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData("PLAYERS"));
 				gameController.startGame();
-				//executor.execute(gameController);
 				executor.submit(gameController);
 				break;
 			case "FORCE_DISCONNECT":
