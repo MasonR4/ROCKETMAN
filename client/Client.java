@@ -37,7 +37,7 @@ public class Client extends AbstractClient {
 
 	private int gameID = -1;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
+	
 	// controllers for each menu
 	// possible that we won't need all of them in the client class
 	private CreateAccountScreenController createAccountController;
@@ -129,7 +129,8 @@ public class Client extends AbstractClient {
 				gameController.addMap((ConcurrentHashMap<Integer, Block>) ((GenericRequest) arg0).getData("MAP"));
 				gameController.addPlayers((ConcurrentHashMap<String, Player>) ((GenericRequest) arg0).getData("PLAYERS"));
 				gameController.startGame();
-				executor.execute(gameController);
+				//executor.execute(gameController);
+				executor.submit(gameController);
 				break;
 			case "FORCE_DISCONNECT":
 				try {
