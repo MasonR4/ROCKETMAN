@@ -39,6 +39,18 @@ The Map Editor is included within the game, but you will need to import the proj
 
 To use the map editor, left click to place a block. Click an already placed block to change that block to a spawn, and click it a third time to remove. The Tools tab contains a Line tool and a Hollow Square tool. To use the line tool, select the start and end points of the line. To use the hollow square tool, select the boxes you want to be opposite corners of the square. Under the File tab you can export or clear the grid. When exporting, your map must have at least 8 spawns. Name it something that won't conflict with the maps already in game. The output is stored in the 'output.txt' file. If you have the project loaded into Papyrus/Eclipse, you only need to add the map output to the constructor of the 'MapCreator.java' class within the 'server_utilities' package. Afterwards, any players joining your server will be able to play your new map.
 
+### Editing the Project in Papyrus/Eclipse
+
+In case the batch files do not work for you, you can import the project into Papyrus/Eclipse and run it through the IDE. This usually fixes a few rare errors.
+
+To edit the project follow these steps:
+```
+1. Download and unzip the file in your workspace directory
+2. Using import existing projects to import the file into your IDE
+3. Add ocsf.jar and mysql-connector to the buildpath of the project
+4. thats it
+```
+
 ## Thanks for Playing!
 
   
