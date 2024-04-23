@@ -46,9 +46,10 @@ In case the batch files do not work for you, you can import the project into Pap
 To edit the project follow these steps:
 ```
 1. Download and unzip the file in your workspace directory
-2. Using import existing projects to import the file into your IDE
+2. Using import existing projects to import the project into your IDE
 3. Add ocsf.jar and mysql-connector to the buildpath of the project
-4. thats it
+4. Setting up the Server/Client is the same except skip you run the ServerUI or ClientUI classes from within your IDE instead of through the batch files
+5. thats it
 ```
 
 ## Thanks for Playing!
