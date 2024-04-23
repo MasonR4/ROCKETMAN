@@ -51,8 +51,10 @@ public class DatabaseTest {
         assertEquals(5, statistics[0]); // Wins
         assertEquals(1, statistics[1]); // Losses
         assertEquals(98, statistics[2]); // Eliminations
-        assertEquals(10, statistics[3]); // Deaths
+        assertEquals(1, statistics[3]); // Deaths
         assertEquals(100, statistics[4]); // Rockets Fired
         assertEquals(500, statistics[5]); // Blocks Destroyed
+        assertEquals(0, statistics[6]); // Damage Dealt
+        assertEquals(0, statistics[7]); // Total Score
     }
 }
